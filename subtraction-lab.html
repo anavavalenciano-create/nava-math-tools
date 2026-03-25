@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mrs. Nava's Subtraction Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ht:#7c3aed; --tt:#db2777; --th:#dc2626; --hu:#d97706; --te:#16a34a; --on:#0284c7;
+  --ht-l:#ede9fe; --tt-l:#fce7f3; --th-l:#fee2e2; --hu-l:#fef3c7; --te-l:#dcfce7; --on-l:#e0f2fe;
+  --ht-m:#c4b5fd; --tt-m:#f9a8d4; --th-m:#fca5a5; --hu-m:#fde68a; --te-m:#86efac; --on-m:#7dd3fc;
+  --bg:#eef2ff; --card:#fff; --shadow:0 4px 24px rgba(0,0,0,.11); --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);display:flex;flex-direction:column;padding:8px 10px 12px;overflow-y:auto;}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;margin-bottom:6px;flex-wrap:wrap;gap:6px;}
+.title h1{font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,2.5vw,1.9rem);color:#1e293b;}
+.title h1 span{color:#7c3aed;}
+.title p{font-size:.85rem;color:#64748b;font-weight:600;}
+
+/* ── EQUATION INPUT BAR ── */
+.eq-input-bar{background:#1e293b;border-radius:var(--r);padding:10px 16px;flex-shrink:0;margin-bottom:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.eq-input-bar label{font-family:'Fredoka One',cursive;color:#94a3b8;font-size:1rem;white-space:nowrap;}
+.eq-field{background:#0f172a;border:2px solid #334155;border-radius:10px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.45rem;padding:5px 14px;width:170px;text-align:center;outline:none;letter-spacing:1px;transition:border-color .2s;}
+.eq-field:focus{border-color:#7c3aed;}
+.eq-field::placeholder{color:#475569;font-size:1.1rem;}
+.eq-sym{font-family:'Fredoka One',cursive;font-size:1.8rem;color:#f9a8d4;}
+.eq-sym.eq{color:#86efac;}
+.eq-result-display{font-family:'Fredoka One',cursive;font-size:1.6rem;color:#6ee7b7;min-width:130px;text-align:center;}
+.go-btn{padding:9px 24px;border-radius:30px;border:none;background:#7c3aed;color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;transition:transform .12s,box-shadow .12s;white-space:nowrap;}
+.go-btn:hover{transform:scale(1.05);box-shadow:0 3px 12px rgba(124,58,237,.4);}
+.clear-btn{padding:9px 18px;border-radius:30px;border:2px solid #475569;background:transparent;color:#94a3b8;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .12s;}
+.clear-btn:hover{border-color:#ef4444;color:#ef4444;}
+
+/* phase indicator */
+.phase-pills{display:flex;gap:6px;align-items:center;}
+.phase-pill{font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;padding:5px 14px;border-radius:30px;border:2px solid;opacity:.45;transition:opacity .3s;}
+.phase-pill.active{opacity:1;}
+.pp-entry{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;}
+.pp-sub  {background:#fee2e2;color:#b91c1c;border-color:#fca5a5;}
+.pp-done {background:#dcfce7;color:#15803d;border-color:#86efac;}
+
+/* status */
+#status{text-align:center;font-weight:800;font-size:.92rem;min-height:18px;color:#7c3aed;flex-shrink:0;margin-bottom:3px;}
+#status.pop{animation:pop .3s ease;}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MAIN LAYOUT ── */
+.lab{flex:1;min-height:0;display:grid;grid-template-columns:1fr 215px;gap:10px;max-width:1380px;width:100%;margin:0 auto;align-items:start;overflow-y:auto;}
+
+/* ── WORKSPACE CARD ── */
+.ws{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:10px 10px 8px;display:flex;flex-direction:column;min-height:0;border:2px solid #e2e8f0;position:relative;}
+
+/* ── PV GRID — align top, don't stretch ── */
+.pv-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  align-items:start;   /* columns don't stretch to fill height */
+}
+
+/* ── COLUMN — fixed compact card ── */
+.pv-col{
+  display:flex;
+  flex-direction:column;
+  border-radius:14px;
+  overflow:hidden;
+  border:2.5px solid transparent;
+  transition:border-color .25s,box-shadow .25s;
+  position:relative;
+  background:var(--card);
+  box-shadow:0 2px 12px rgba(0,0,0,.08);
+}
+.pv-col.drop-target{border-color:#a78bfa;box-shadow:0 0 0 4px rgba(124,58,237,.25);}
+.pv-col.drag-source{border-color:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.25);}
+
+/* ── TOP: label strip ── */
+.col-lbl{
+  width:100%;text-align:center;color:#fff;
+  padding:7px 4px 6px;line-height:1.25;flex-shrink:0;
+}
+.lbl-name{display:block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;}
+.lbl-val{display:block;font-family:'Fredoka One',cursive;font-size:1.05rem;opacity:.97;margin-top:2px;letter-spacing:.5px;}
+.col-lbl.ht{background:var(--ht);}.col-lbl.tt{background:var(--tt);}
+.col-lbl.th{background:var(--th);}.col-lbl.hu{background:var(--hu);}
+.col-lbl.te{background:var(--te);}.col-lbl.on{background:var(--on);}
+
+/* ── MIDDLE: number + blocks ── */
+.col-body{
+  width:100%;display:flex;flex-direction:column;align-items:center;
+  padding:10px 6px 8px;gap:6px;
+}
+.col-body.ht{background:var(--ht-l);}.col-body.tt{background:var(--tt-l);}
+.col-body.th{background:var(--th-l);}.col-body.hu{background:var(--hu-l);}
+.col-body.te{background:var(--te-l);}.col-body.on{background:var(--on-l);}
+
+/* BIG digit — dominant element */
+.col-dig{
+  font-family:'Fredoka One',cursive;
+  font-size:3.2rem;
+  color:#1e293b;
+  line-height:1;
+  flex-shrink:0;
+  text-shadow:0 2px 0 rgba(0,0,0,.06);
+}
+.col-dig.zero{color:#b8c4d4;}
+.col-dig.bump{animation:bump .3s ease;}
+@keyframes bump{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+/* progress badge */
+.sub-badge{
+  font-family:'Fredoka One',cursive;font-size:.88rem;
+  min-height:20px;color:#dc2626;flex-shrink:0;font-weight:700;
+  background:rgba(220,38,38,.1);border-radius:20px;
+  padding:1px 10px;line-height:1.4;
+}
+.sub-badge:empty{background:none;padding:0;min-height:8px;}
+
+/* unit block area — fixed height, centred, no flex-grow */
+.ua{
+  width:100%;
+  height:70px;        /* fixed — enough for up to ~25 blocks nicely */
+  overflow:hidden;
+  display:flex;flex-wrap:wrap;
+  gap:3px;align-content:flex-start;justify-content:center;
+  padding:3px 2px;
+}
+
+/* unit blocks — slightly larger, rounder for visibility */
+.ub{width:14px;height:14px;border-radius:4px;flex-shrink:0;cursor:grab;position:relative;transition:transform .15s,box-shadow .15s;user-select:none;}
+.ub:hover{transform:scale(1.3);box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;}
+.ub.ht{background:var(--ht);}.ub.tt{background:var(--tt);}.ub.th{background:var(--th);}
+.ub.hu{background:var(--hu);}.ub.te{background:var(--te);}.ub.on{background:var(--on);}
+.ub.subtracted{opacity:.15;filter:grayscale(1);cursor:default;}
+.ub.subtracted:hover{transform:none;box-shadow:none;}
+.ub.spawning{animation:spawn .35s ease;}
+@keyframes spawn{from{transform:scale(0);opacity:0}70%{transform:scale(1.3)}to{transform:scale(1);opacity:1}}
+.ub.dying{animation:die .3s ease forwards;}
+@keyframes die{to{transform:scale(0);opacity:0}}
+
+/* ── DRAG GHOST ── */
+#drag-ghost{position:fixed;pointer-events:none;z-index:9999;width:22px;height:22px;border-radius:4px;opacity:.85;transform:translate(-50%,-50%);transition:none;display:none;box-shadow:0 4px 16px rgba(0,0,0,.35);}
+
+/* ── DECOMPOSE ANIMATION OVERLAY ── */
+#decomp-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8000;}
+.decomp-particle{position:absolute;border-radius:3px;pointer-events:none;}
+
+/* drag hint */
+.drag-hint{
+  font-size:.72rem;color:#64748b;text-align:center;
+  font-weight:800;padding:4px 0 2px;flex-shrink:0;
+  min-height:22px;opacity:0;transition:opacity .2s;
+}
+
+/* ── BOTTOM: action buttons ── */
+.col-btns{
+  width:100%;display:flex;flex-direction:column;
+  gap:4px;padding:4px 6px 8px;flex-shrink:0;
+}
+.col-btns.ht{background:var(--ht-l);}.col-btns.tt{background:var(--tt-l);}
+.col-btns.th{background:var(--th-l);}.col-btns.hu{background:var(--hu-l);}
+.col-btns.te{background:var(--te-l);}.col-btns.on{background:var(--on-l);}
+
+/* divider between body and buttons */
+.col-divider{width:calc(100% - 12px);height:1.5px;margin:0 6px;flex-shrink:0;border-radius:2px;opacity:.35;}
+.col-divider.ht{background:var(--ht);}.col-divider.tt{background:var(--tt);}
+.col-divider.th{background:var(--th);}.col-divider.hu{background:var(--hu);}
+.col-divider.te{background:var(--te);}.col-divider.on{background:var(--on);}
+
+.cb{
+  width:100%;padding:10px 4px;border:none;border-radius:9px;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;
+  cursor:pointer;line-height:1.2;text-align:center;
+  transition:transform .12s,box-shadow .15s,opacity .15s,filter .12s;
+}
+.cb:hover:not(:disabled){transform:scale(1.04);box-shadow:0 4px 12px rgba(0,0,0,.22);}
+.cb:active:not(:disabled){transform:scale(.97);}
+.cb:disabled{opacity:.2;cursor:default;}
+.col-btns.ht .cb.rem{background:var(--ht);color:#fff;}
+.col-btns.tt .cb.rem{background:var(--tt);color:#fff;}
+.col-btns.th .cb.rem{background:var(--th);color:#fff;}
+.col-btns.hu .cb.rem{background:var(--hu);color:#fff;}
+.col-btns.te .cb.rem{background:var(--te);color:#fff;}
+.col-btns.on .cb.rem{background:var(--on);color:#fff;}
+.cb.rem:hover:not(:disabled){filter:brightness(1.14);}
+
+/* ── RIGHT SIDEBAR ── */
+.right{display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0;}
+.sc{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:11px 13px;border:2px solid #e2e8f0;}
+.sc h3{font-family:'Fredoka One',cursive;font-size:1.05rem;color:#334155;margin-bottom:7px;text-align:center;}
+
+/* Algorithm */
+#alg{display:flex;flex-direction:column;align-items:flex-end;gap:1px;background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0;font-family:'Fredoka One',cursive;letter-spacing:1px;}
+.ar{display:flex;align-items:flex-end;}
+.ad{width:24px;text-align:center;font-size:1.2rem;color:#1e293b;position:relative;border-radius:4px;padding:1px 0;line-height:1.3;}
+.ad.rg{color:#94a3b8;text-decoration:line-through;font-size:1rem;}
+.ad .nv{position:absolute;top:-14px;left:50%;transform:translateX(-50%);color:#dc2626;font-size:.78rem;background:#fee2e2;border-radius:4px;padding:0 4px;white-space:nowrap;line-height:1.5;animation:pop .3s ease;}
+.aop{font-size:1.2rem;color:#ef4444;margin-right:1px;visibility:hidden;}
+.aop.vis{visibility:visible;}
+.al{width:100%;height:2px;background:#334155;border-radius:2px;margin:3px 0;}
+.ares .ad{color:#15803d;font-size:1.3rem;}
+.alg-note{font-size:.72rem;color:#94a3b8;text-align:center;font-style:italic;margin-top:3px;}
+
+/* Prompts */
+.pdisplay{background:#fffbeb;border:2px solid #fde68a;border-radius:9px;padding:7px 10px;font-size:.85rem;color:#78350f;font-weight:700;min-height:34px;margin-bottom:5px;}
+.pdisplay.pop{animation:pop .35s ease;}
+.pbtn{width:100%;padding:6px 8px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:7px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;color:#0369a1;cursor:pointer;text-align:left;margin-bottom:4px;transition:background .12s;line-height:1.35;}
+.pbtn:hover{background:#e0f2fe;}
+
+/* DYK */
+.dyk{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:var(--r);padding:11px 13px;color:#fff;cursor:pointer;user-select:none;text-align:center;transition:transform .15s;flex-shrink:0;}
+.dyk:hover{transform:scale(1.01);}
+.de{font-size:1.6rem;display:block;margin-bottom:3px;}
+.dh{font-family:'Fredoka One',cursive;font-size:1rem;margin-bottom:4px;}
+.db{font-size:.82rem;line-height:1.5;opacity:.93;}
+.db.pop{animation:pop .4s ease;}
+.dt{font-size:.72rem;opacity:.75;margin-top:6px;font-weight:700;}
+
+/* RESPONSIVE */
+@media(max-width:860px){.lab{grid-template-columns:1fr;}}
+@media(max-width:560px){.pv-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <h1>Mrs. Nava's <span>Subtraction Lab</span> 🔬</h1>
+    <p>Type an equation → see it in the place value chart → drag to regroup</p>
+  </div>
+  <div class="phase-pills">
+    <div class="phase-pill pp-entry active" id="pill-entry">① Enter</div>
+    <div class="phase-pill pp-sub"   id="pill-sub">② Subtract</div>
+    <div class="phase-pill pp-done"  id="pill-done">③ Done!</div>
+  </div>
+</header>
+
+<!-- EQUATION INPUT BAR -->
+<div class="eq-input-bar">
+  <label>Starting number:</label>
+  <input class="eq-field" id="inp-min" type="text" inputmode="numeric" placeholder="e.g. 4,302" maxlength="9">
+  <span class="eq-sym">−</span>
+  <label>Subtract:</label>
+  <input class="eq-field" id="inp-sub" type="text" inputmode="numeric" placeholder="e.g. 1,578" maxlength="9">
+  <span class="eq-sym eq">=</span>
+  <div class="eq-result-display" id="eq-result">?</div>
+  <button class="go-btn" onclick="loadEquation()">▶ Load into Chart</button>
+  <button class="clear-btn" onclick="clearAll()">✕ Clear</button>
+</div>
+
+<div id="status"></div>
+
+<div class="lab">
+
+  <!-- WORKSPACE -->
+  <div class="ws">
+    <div class="pv-grid" id="pv-grid"></div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="right">
+    <div class="sc">
+      <h3>📐 Algorithm</h3>
+      <div id="alg"></div>
+      <p class="alg-note">Mirrors what you do ←</p>
+    </div>
+    <div class="sc">
+      <h3>💡 Try This!</h3>
+      <div id="pdisplay" class="pdisplay">Pick a challenge below ↓</div>
+      <button class="pbtn" onclick="loadPreset(432,158)">🎯 432 − 158</button>
+      <button class="pbtn" onclick="loadPreset(5001,3999)">⚡ 5,001 − 3,999</button>
+      <button class="pbtn" onclick="loadPreset(1000,1)">🧩 1,000 − 1</button>
+      <button class="pbtn" onclick="loadPreset(43271,18905)">🌟 43,271 − 18,905</button>
+      <button class="pbtn" onclick="loadPreset(200000,99999)">🔢 200,000 − 99,999</button>
+    </div>
+    <div class="dyk" onclick="nextFact()">
+      <span class="de" id="de">🛒</span>
+      <div class="dh" id="dh">Loading…</div>
+      <div class="db" id="db"></div>
+      <div class="dt">Tap for a new fact! 👆</div>
+    </div>
+  </div>
+</div>
+
+<!-- drag ghost -->
+<div id="drag-ghost"></div>
+<!-- decomp overlay -->
+<div id="decomp-overlay"></div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════════════════ */
+const PL  = ['ht','tt','th','hu','te','on'];
+const LBL = ['Hundred\nThousands','Ten\nThousands','Thousands','Hundreds','Tens','Ones'];
+const LVL = ['100,000','10,000','1,000','100','10','1'];
+const FA  = [100000,10000,1000,100,10,1];
+const COL_COLORS = {
+  ht:'#7c3aed', tt:'#db2777', th:'#dc2626',
+  hu:'#d97706', te:'#16a34a', on:'#0284c7'
+};
+
+/* ════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════ */
+let minuend    = 0;   // original starting number
+let subtrahend = 0;   // number to subtract
+let ws   = [0,0,0,0,0,0]; // current units per column (can exceed 9 after regroup)
+let snap = [0,0,0,0,0,0]; // snapshot at load (original minuend digits)
+let gone = [0,0,0,0,0,0]; // removed per column
+let phase = 'entry'; // 'entry' | 'subtract' | 'done'
+let animating = false; // lock during decompose animation
+
+/* ════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════ */
+function toN(a){return a.reduce((s,v,i)=>s+v*FA[i],0);}
+function parseNum(s){return parseInt(s.replace(/[^0-9]/g,''))||0;}
+function digits(n){
+  const s=Math.abs(n).toString().padStart(6,'0');
+  return s.split('').map(Number);
+}
+function setStatus(m,c='#7c3aed'){
+  const e=document.getElementById('status');
+  e.textContent=m; e.style.color=c;
+  e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop');
+}
+function bumpDig(i){
+  const d=document.getElementById('dig-'+PL[i]);
+  if(!d)return; d.classList.remove('bump'); void d.offsetWidth; d.classList.add('bump');
+}
+function setPhase(p){
+  phase=p;
+  document.getElementById('pill-entry').classList.toggle('active', p==='entry');
+  document.getElementById('pill-sub').classList.toggle('active',   p==='subtract');
+  document.getElementById('pill-done').classList.toggle('active',  p==='done');
+}
+
+/* ════════════════════════════════════════════════════
+   LOAD EQUATION
+════════════════════════════════════════════════════ */
+function loadEquation(){
+  const m = parseNum(document.getElementById('inp-min').value);
+  const s = parseNum(document.getElementById('inp-sub').value);
+  if(m<=0){setStatus('Enter a starting number first!','#ef4444');return;}
+  if(s<=0){setStatus('Enter a number to subtract!','#ef4444');return;}
+  if(m>999999){setStatus('Max 999,999 (6 digits)!','#ef4444');return;}
+  if(s>999999){setStatus('Max 999,999!','#ef4444');return;}
+  minuend=m; subtrahend=s;
+  ws=digits(m); snap=[...ws]; gone=[0,0,0,0,0,0];
+  setPhase('subtract');
+  document.getElementById('eq-result').textContent='?';
+  setStatus('✅ Loaded! Drag a block to the next column to regroup, or click ➖ Remove to subtract.','#15803d');
+  refreshAll();
+}
+
+function loadPreset(m,s){
+  document.getElementById('inp-min').value=m.toLocaleString();
+  document.getElementById('inp-sub').value=s.toLocaleString();
+  loadEquation();
+  showPromptForPreset(m,s);
+}
+
+function showPromptForPreset(m,s){
+  const msgs={
+    '432-158':'Remove 8 ones, 5 tens, 1 hundred. Drag to regroup where needed!',
+    '5001-3999':'Watch what happens when you subtract across the zeros!',
+    '1000-1':'You\'ll need to regroup 3 columns — drag each one!',
+    '43271-18905':'Take it one column at a time. Regroup wherever needed.',
+    '200000-99999':'Can you subtract without going negative in any column?',
+  };
+  const key=`${m}-${s}`;
+  const el=document.getElementById('pdisplay');
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  el.textContent=msgs[key]||'Work through it column by column!';
+}
+
+function clearAll(){
+  minuend=0; subtrahend=0;
+  ws=[0,0,0,0,0,0]; snap=[0,0,0,0,0,0]; gone=[0,0,0,0,0,0];
+  document.getElementById('inp-min').value='';
+  document.getElementById('inp-sub').value='';
+  document.getElementById('eq-result').textContent='?';
+  setPhase('entry');
+  setStatus('Cleared. Enter a new equation above.','#64748b');
+  refreshAll();
+}
+
+/* ════════════════════════════════════════════════════
+   SUBTRACT (remove one unit from column i)
+════════════════════════════════════════════════════ */
+function removeOne(i){
+  if(phase!=='subtract'){setStatus('Load an equation first!','#d97706');return;}
+  if(animating)return;
+  const sub_dig=digits(subtrahend);
+  const avail=ws[i]-gone[i];
+  if(avail<=0){
+    setStatus(`Nothing left in ${LBL[i].replace('\n',' ')} — drag a block from the left to regroup! 👈`,'#ef4444');
+    document.getElementById('col-'+PL[i]).classList.add('drop-target');
+    setTimeout(()=>document.getElementById('col-'+PL[i]).classList.remove('drop-target'),900);
+    return;
+  }
+  gone[i]++;
+  bumpDig(i);
+  // check if we matched this column's subtrahend digit
+  checkDone();
+  refreshAll();
+}
+
+function checkDone(){
+  if(subtrahend<=0) return;
+  const sub_dig=digits(subtrahend);
+  for(let i=0;i<6;i++){
+    if(gone[i]!==sub_dig[i]) return; // not finished yet
+  }
+  const rem=ws.reduce((s,v,i)=>s+(v-gone[i])*FA[i],0);
+  document.getElementById('eq-result').textContent=rem.toLocaleString();
+  setPhase('done');
+  setStatus(`🎉 ${minuend.toLocaleString()} − ${subtrahend.toLocaleString()} = ${rem.toLocaleString()}  Great work!`,'#15803d');
+}
+
+/* ════════════════════════════════════════════════════
+   DRAG-TO-REGROUP
+   Drag a block FROM column i TO column i+1
+   → removes 1 from col i, adds 10 to col i+1 with slow animation
+════════════════════════════════════════════════════ */
+let dragSrcCol = -1;
+let dragGhostEl;
+
+function initDrag(){
+  dragGhostEl = document.getElementById('drag-ghost');
+}
+
+function onBlockMouseDown(e, colIdx){
+  if(phase!=='subtract')return;
+  if(animating)return;
+  // Guard: don't drag a block that's already been subtracted
+  if(e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.subtracted==='1') return;
+  if(e.target.dataset && e.target.dataset.subtracted==='1') return;
+  const avail=ws[colIdx]-gone[colIdx];
+  if(avail<1)return;
+  if(colIdx===5)return; // ones can't decompose further
+
+  e.preventDefault();
+  dragSrcCol=colIdx;
+
+  // style ghost
+  const p=PL[colIdx];
+  dragGhostEl.style.background=COL_COLORS[p];
+  dragGhostEl.style.display='block';
+  dragGhostEl.style.left=e.clientX+'px';
+  dragGhostEl.style.top=e.clientY+'px';
+
+  // highlight source
+  document.getElementById('col-'+p).classList.add('drag-source');
+
+  setStatus(`Dragging 1 ${LBL[colIdx].replace('\n',' ')} — drop it into the column to the RIGHT to break it into 10!`,'#92400e');
+}
+
+function onMouseMove(e){
+  if(dragSrcCol<0)return;
+  dragGhostEl.style.left=e.clientX+'px';
+  dragGhostEl.style.top=e.clientY+'px';
+
+  // highlight valid drop targets (col to the right)
+  const targetIdx=dragSrcCol+1;
+  PL.forEach((p,i)=>{
+    const col=document.getElementById('col-'+p);
+    col.classList.remove('drop-target');
+  });
+  const targetEl=getColElAtPoint(e.clientX,e.clientY);
+  if(targetEl!==null && targetEl===targetIdx){
+    document.getElementById('col-'+PL[targetEl]).classList.add('drop-target');
+  }
+}
+
+function getColElAtPoint(x,y){
+  const els=document.querySelectorAll('.pv-col');
+  for(let i=0;i<els.length;i++){
+    const r=els[i].getBoundingClientRect();
+    if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom) return i;
+  }
+  return null;
+}
+
+function onMouseUp(e){
+  if(dragSrcCol<0)return;
+  const ghost=dragGhostEl;
+  ghost.style.display='none';
+
+  // clear highlights
+  PL.forEach(p=>{
+    document.getElementById('col-'+p).classList.remove('drag-source','drop-target');
+  });
+
+  const targetIdx=getColElAtPoint(e.clientX,e.clientY);
+  if(targetIdx===dragSrcCol+1){
+    doDecompose(dragSrcCol, e.clientX, e.clientY);
+  } else {
+    setStatus('Drop into the column directly to the RIGHT to regroup! →','#d97706');
+  }
+  dragSrcCol=-1;
+}
+
+/* ════════════════════════════════════════════════════
+   DECOMPOSE ANIMATION
+   1. fly ghost from src → dst col center
+   2. burst into 10 particles that land in dst col
+   3. update state
+════════════════════════════════════════════════════ */
+function doDecompose(srcIdx, dropX, dropY){
+  if(animating)return;
+  const avail=ws[srcIdx]-gone[srcIdx];
+  if(avail<1){setStatus('No available units to regroup here!','#ef4444');return;}
+  animating=true;
+
+  const dstIdx=srcIdx+1;
+  const srcP=PL[srcIdx];
+  const dstP=PL[dstIdx];
+  const srcColor=COL_COLORS[srcP];
+  const dstColor=COL_COLORS[dstP];
+
+  const overlay=document.getElementById('decomp-overlay');
+  overlay.innerHTML='';
+
+  // Get destination column center
+  const dstCol=document.getElementById('col-'+dstP);
+  const dstRect=dstCol.getBoundingClientRect();
+  const dstCx=dstRect.left+dstRect.width/2;
+  const dstCy=dstRect.top+dstRect.height*0.45;
+
+  // Phase 1: big block travels from drop point → dst center (600ms)
+  const traveller=document.createElement('div');
+  traveller.className='decomp-particle';
+  traveller.style.cssText=`width:22px;height:22px;background:${srcColor};left:${dropX-11}px;top:${dropY-11}px;border-radius:5px;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:left .6s cubic-bezier(.4,0,.2,1),top .6s cubic-bezier(.4,0,.2,1),transform .6s ease,opacity .6s ease;`;
+  overlay.appendChild(traveller);
+  void traveller.offsetWidth;
+  traveller.style.left=(dstCx-11)+'px';
+  traveller.style.top=(dstCy-11)+'px';
+  traveller.style.transform='scale(0.3)';
+  traveller.style.opacity='0.2';
+
+  setTimeout(()=>{
+    traveller.remove();
+    // Phase 2: burst 10 particles — track completion with a counter
+    let doneCount=0;
+    for(let k=0;k<10;k++){
+      spawnParticle(overlay, k, dstCx, dstCy, dstColor, ()=>{
+        doneCount++;
+        if(doneCount===10) finishDecompose(srcIdx, dstIdx, overlay);
+      });
+    }
+  }, 650);
+}
+
+function spawnParticle(overlay, k, cx, cy, color, onDone){
+  const size=12;
+  const angle=(k/10)*Math.PI*2;
+  const radius=38+Math.random()*18;
+  const ex=cx+Math.cos(angle)*radius;
+  const ey=cy+Math.sin(angle)*radius;
+  const delay=k*55;
+
+  const p=document.createElement('div');
+  p.className='decomp-particle';
+  p.style.cssText=`width:${size}px;height:${size}px;background:${color};
+    left:${cx-size/2}px;top:${cy-size/2}px;border-radius:3px;
+    transform:scale(0);opacity:0;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+    transition:left .5s ${delay}ms cubic-bezier(.2,.8,.3,1),
+               top .5s ${delay}ms cubic-bezier(.2,.8,.3,1),
+               transform .3s ${delay}ms ease,
+               opacity .3s ${delay}ms ease;`;
+  overlay.appendChild(p);
+  void p.offsetWidth;
+
+  // fly outward
+  p.style.left=(ex-size/2)+'px';
+  p.style.top=(ey-size/2)+'px';
+  p.style.transform='scale(1)';
+  p.style.opacity='1';
+
+  // contract back and fade
+  setTimeout(()=>{
+    p.style.transition=`left .4s ease, top .4s ease, transform .3s ease, opacity .2s ease`;
+    p.style.left=(cx-size/2+((Math.random()-.5)*20))+'px';
+    p.style.top=(cy-size/2+((Math.random()-.5)*20))+'px';
+    setTimeout(()=>{
+      p.style.opacity='0';
+      p.style.transform='scale(0)';
+      setTimeout(()=>{ p.remove(); onDone(); },250);
+    },350);
+  }, delay+500);
+}
+
+function finishDecompose(srcIdx, dstIdx, overlay){
+  overlay.innerHTML='';
+  animating=false;
+
+  // Update state
+  ws[srcIdx]--;
+  ws[dstIdx]+=10;
+  if(gone[srcIdx]>ws[srcIdx]) gone[srcIdx]=ws[srcIdx];
+
+  bumpDig(srcIdx); bumpDig(dstIdx);
+  setStatus(`✂️ 1 ${LBL[srcIdx].replace('\n',' ')} → 10 ${LBL[dstIdx].replace('\n',' ')}!`,'#16a34a');
+  refreshAll();
+}
+
+/* ════════════════════════════════════════════════════
+   BUILD GRID
+════════════════════════════════════════════════════ */
+function buildGrid(){
+  const g=document.getElementById('pv-grid');
+  g.innerHTML='';
+  PL.forEach((p,i)=>{
+    const col=document.createElement('div');
+    col.className='pv-col'; col.id='col-'+p;
+
+    // ── TOP: label
+    const lbl=document.createElement('div');
+    lbl.className='col-lbl '+p;
+    const nm=LBL[i].split('\n');
+    lbl.innerHTML=`<span class="lbl-name">${nm.join('<br>')}</span><span class="lbl-val">${LVL[i]}</span>`;
+    col.appendChild(lbl);
+
+    // ── MIDDLE: body (number + badge + blocks)
+    const body=document.createElement('div');
+    body.className='col-body '+p;
+
+    const dig=document.createElement('div');
+    dig.className='col-dig zero'; dig.id='dig-'+p; dig.textContent='0';
+    body.appendChild(dig);
+
+    const sb=document.createElement('div');
+    sb.className='sub-badge'; sb.id='sb-'+p;
+    body.appendChild(sb);
+
+    const ua=document.createElement('div');
+    ua.className='ua'; ua.id='ua-'+p;
+    body.appendChild(ua);
+
+    // drag hint inside body, below blocks
+    const hint=document.createElement('div');
+    hint.className='drag-hint'; hint.id='hint-'+p;
+    if(i<5) hint.textContent='✋ drag → to regroup';
+    body.appendChild(hint);
+
+    col.appendChild(body);
+
+    // thin divider
+    const div=document.createElement('div');
+    div.className='col-divider '+p;
+    col.appendChild(div);
+
+    // ── BOTTOM: buttons
+    const btns=document.createElement('div');
+    btns.className='col-btns '+p;
+
+    const rem=document.createElement('button');
+    rem.className='cb rem'; rem.id='rem-'+p;
+    rem.innerHTML='➖ Remove 1';
+    rem.onclick=()=>removeOne(i);
+    btns.appendChild(rem);
+    col.appendChild(btns);
+
+    g.appendChild(col);
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   REFRESH
+════════════════════════════════════════════════════ */
+function refreshAll(){
+  updateDigits();
+  updateBlocks();
+  updateButtons();
+  updateAlg();
+  updateRemoveBadges();
+}
+
+function updateDigits(){
+  PL.forEach((p,i)=>{
+    const d=document.getElementById('dig-'+p);
+    if(!d)return;
+    const rem=ws[i]-gone[i];
+    d.textContent=rem;
+    d.className='col-dig'+(rem===0?' zero':'');
+  });
+}
+
+function updateBlocks(){
+  PL.forEach((p,i)=>{
+    const ua=document.getElementById('ua-'+p);
+    if(!ua)return;
+    const total=ws[i];
+    const g=gone[i];
+    const showTotal=Math.min(total,50);
+    const showGone=Math.min(g,showTotal);
+
+    // sync block count
+    const live=Array.from(ua.querySelectorAll('.ub:not(.dying)'));
+    if(live.length<showTotal){
+      for(let k=live.length;k<showTotal;k++){
+        const b=document.createElement('div');
+        b.className=`ub ${p} spawning`;
+        b.addEventListener('mousedown',(e)=>onBlockMouseDown(e,i));
+        ua.appendChild(b);
+      }
+    } else if(live.length>showTotal){
+      for(let k=showTotal;k<live.length;k++){
+        live[k].classList.add('dying');
+        setTimeout(()=>live[k].remove(),320);
+      }
+    }
+
+    // mark subtracted vs available with data attribute for drag checks
+    setTimeout(()=>{
+      const all=ua.querySelectorAll('.ub:not(.dying)');
+      all.forEach((b,idx)=>{
+        const isSub = idx < showGone;
+        b.classList.toggle('subtracted', isSub);
+        b.dataset.subtracted = isSub ? '1' : '0';
+        b.style.pointerEvents = isSub ? 'none' : '';
+      });
+    },40);
+  });
+}
+
+function updateButtons(){
+  const subDigs=digits(subtrahend);
+  PL.forEach((p,i)=>{
+    const r=document.getElementById('rem-'+p);
+    if(r){
+      r.disabled = phase!=='subtract' || ws[i]-gone[i]<=0;
+      // show target
+      if(phase==='subtract' && subtrahend>0){
+        r.innerHTML=`➖ Remove 1 <span style="opacity:.6">(need ${subDigs[i]})</span>`;
+      } else {
+        r.innerHTML='➖ Remove 1';
+      }
+    }
+    // hint visibility
+    const hint=document.getElementById('hint-'+p);
+    if(hint){
+      hint.style.opacity=(phase==='subtract' && i<5 && ws[i]-gone[i]>0)?'1':'0';
+    }
+  });
+}
+
+function updateRemoveBadges(){
+  const subDigs=digits(subtrahend);
+  PL.forEach((p,i)=>{
+    const sb=document.getElementById('sb-'+p);
+    if(!sb)return;
+    if(phase==='subtract' && subtrahend>0){
+      const removed=gone[i];
+      const needed=subDigs[i];
+      if(needed===0){sb.textContent='';return;}
+      if(removed>=needed){
+        sb.textContent=`✓ −${removed}`;
+        sb.style.color='#15803d';
+      } else {
+        sb.textContent=`−${removed} / ${needed}`;
+        sb.style.color='#dc2626';
+      }
+    } else {
+      sb.textContent='';
+    }
+  });
+}
+
+function updateAlg(){
+  const wrap=document.getElementById('alg');
+  wrap.innerHTML='';
+
+  let start=5;
+  for(let i=0;i<6;i++){
+    if(snap[i]||ws[i]||gone[i]){start=i;break;}
+  }
+
+  const borrowRow=document.createElement('div'); borrowRow.className='ar'; borrowRow.style.minHeight='15px';
+  const topRow=document.createElement('div'); topRow.className='ar';
+  const subRow=document.createElement('div'); subRow.className='ar';
+  const resRow=document.createElement('div'); resRow.className='ar ares';
+
+  const op=document.createElement('span');
+  op.className='aop'+(phase!=='entry'?' vis':'');
+  op.textContent='−'; subRow.appendChild(op);
+
+  const mkSp=()=>{const s=document.createElement('span');s.className='aop';s.textContent='−';return s;};
+  borrowRow.appendChild(mkSp()); topRow.appendChild(mkSp()); resRow.appendChild(mkSp());
+
+  const subDigs=digits(subtrahend);
+
+  for(let i=start;i<6;i++){
+    const orig=snap[i];
+    const cur=ws[i];
+    const g=gone[i];
+    const regrouped=phase!=='entry' && cur!==orig;
+
+    const bc=document.createElement('div'); bc.className='ad'; bc.style.position='relative'; bc.style.height='15px';
+    if(regrouped){ const nv=document.createElement('span'); nv.className='nv'; nv.textContent=cur; bc.appendChild(nv); }
+    borrowRow.appendChild(bc);
+
+    const tc=document.createElement('div');
+    tc.className=regrouped?'ad rg':'ad';
+    tc.textContent=phase!=='entry'?orig:cur;
+    topRow.appendChild(tc);
+
+    const sc=document.createElement('div'); sc.className='ad';
+    sc.textContent=phase!=='entry'?subDigs[i]:'';
+    subRow.appendChild(sc);
+
+    const rc=document.createElement('div'); rc.className='ad';
+    rc.textContent=phase!=='entry'?(cur-g):'';
+    resRow.appendChild(rc);
+  }
+
+  wrap.appendChild(borrowRow); wrap.appendChild(topRow); wrap.appendChild(subRow);
+  const ln=document.createElement('div'); ln.className='al'; wrap.appendChild(ln);
+  wrap.appendChild(resRow);
+}
+
+/* ════════════════════════════════════════════════════
+   GLOBAL MOUSE EVENTS FOR DRAG
+════════════════════════════════════════════════════ */
+document.addEventListener('mousemove', onMouseMove);
+document.addEventListener('mouseup',   onMouseUp);
+// Cancel drag if mouse leaves the browser window
+document.addEventListener('mouseleave', ()=>{
+  if(dragSrcCol<0) return;
+  dragGhostEl.style.display='none';
+  PL.forEach(p=>document.getElementById('col-'+p).classList.remove('drag-source','drop-target'));
+  dragSrcCol=-1;
+  setStatus('Drag cancelled — try again!','#64748b');
+});
+
+/* ════════════════════════════════════════════════════
+   INPUT HELPERS
+════════════════════════════════════════════════════ */
+['inp-min','inp-sub'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown', e=>{
+    if(e.key==='Enter') loadEquation();
+  });
+  // auto-format with commas on blur
+  document.getElementById(id).addEventListener('blur', e=>{
+    const n=parseNum(e.target.value);
+    if(n>0) e.target.value=n.toLocaleString();
+  });
+});
+
+/* ════════════════════════════════════════════════════
+   PROMPTS PRESET
+════════════════════════════════════════════════════ */
+const prompts=[
+  'Build 432 — remove 8 ones, 5 tens, 1 hundred. Drag to regroup where needed!',
+  'Watch what happens subtracting across the zeros in 5,001!',
+  'You\'ll need to regroup 3 columns — drag each one right!',
+  'Take it one column at a time. Regroup wherever needed.',
+  'Can you subtract without going negative in any column?',
+];
+function showPrompt(i){
+  const el=document.getElementById('pdisplay');
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  el.textContent=prompts[i];
+}
+
+/* ════════════════════════════════════════════════════
+   DID YOU KNOW
+════════════════════════════════════════════════════ */
+const facts=[
+  {e:'🛒',h:'Checkout Math!',b:'Cashiers subtract to give change. Pay $10 for $4.75 — get $5.25 back!'},
+  {e:'🍕',h:'Pizza Slices',b:'8 slices, family eats 5 — 8−5=3 left for tomorrow!'},
+  {e:'🏀',h:'Basketball Scores',b:'Team leads 87−64 — "up by 23 points!" Subtraction tracks the gap!'},
+  {e:'🌡️',h:'Weather Gap',b:'Phoenix 97°F, Seattle 58°F — 97−58=39°F difference!'},
+  {e:'🚀',h:'Countdown!',b:'NASA counts 10, 9, 8… subtracting 1 each second until liftoff!'},
+  {e:'📚',h:'Book Pages',b:'312-page book, read 147 pages — 312−147=165 pages left!'},
+  {e:'🦕',h:'Dino Gap',b:'T-Rex: 68M years ago, Triceratops: 68.5M — who came first?'},
+  {e:'🎮',h:'Game Lives',b:'5 lives, lose 3 — 5−3=2 lives left. Gaming runs on subtraction!'},
+  {e:'🌊',h:'Ocean vs Mountain',b:'Deepest ocean 36,089 ft. Everest 29,032 ft. 7,057 ft deeper!'},
+  {e:'💰',h:'Savings Goal',b:'$149 toy, $87 saved — 149−87=$62 more to go!'},
+  {e:'🏈',h:'Football Yards',b:'Start at 20-yard line, end zone at 100 — 100−20=80 yards to go!'},
+  {e:'⏰',h:'Time Left',b:'School ends 3:15, it\'s 1:47 — 1 hr 28 min left. Subtract!'},
+  {e:'🍬',h:'Candy Sharing',b:'243 Halloween candies, give 87 away — 243−87=156 left!'},
+  {e:'🚂',h:'Train Journey',b:'1,200 miles total, traveled 489 — 1,200−489=711 miles left!'},
+  {e:'🐋',h:'Whale vs Human',b:'Blue whale: 200,000 lbs, human: 150 lbs — 199,850 lbs heavier!'},
+  {e:'🌍',h:'City Populations',b:'NYC: 8M people, Seattle: 750K — NYC has 7.25M more!'},
+  {e:'🎂',h:'Birthday Countdown',b:'47 days until your birthday — each day subtract 1!'},
+];
+let lastF=-1;
+function nextFact(){
+  let i; do{i=Math.floor(Math.random()*facts.length);}while(i===lastF);
+  lastF=i; const f=facts[i];
+  document.getElementById('de').textContent=f.e;
+  document.getElementById('dh').textContent=f.h;
+  const el=document.getElementById('db');
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  el.textContent=f.b;
+}
+
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+buildGrid();
+initDrag();
+refreshAll();
+nextFact();
+setStatus('Enter an equation above and click ▶ Load into Chart to begin!','#7c3aed');
+</script>
+</body>
+</html>
