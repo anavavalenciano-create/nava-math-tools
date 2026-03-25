@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mrs. Nava's Decimal Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f6ff;
+    --panel: #ffffff;
+    --header-bg: #1a3a6b;
+    --header-accent: #f7c948;
+    --tenths-color: #4a90e2;
+    --tenths-light: #c9e2ff;
+    --hundredths-color: #f4854a;
+    --hundredths-light: #ffe0cc;
+    --fraction-color: #2db87a;
+    --decimal-color: #a855f7;
+    --reset-color: #ef4444;
+    --prompt-color: #0ea5e9;
+    --shadow: 0 4px 20px rgba(0,0,0,0.10);
+    --radius: 18px;
+    --border: 2px solid #dde6f7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--header-bg);
+    padding: 16px 28px 14px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 3px 18px rgba(26,58,107,0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute; right: -40px; top: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(247,201,72,0.13);
+    pointer-events: none;
+  }
+  .header-icon {
+    font-size: 2.4rem;
+    filter: drop-shadow(0 2px 8px rgba(247,201,72,0.4));
+  }
+  .header-text h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--header-accent);
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+  .header-text p {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.75);
+    margin-top: 2px;
+    font-weight: 600;
+  }
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn-prompt {
+    background: var(--prompt-color);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 9px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.18s;
+    box-shadow: 0 2px 10px rgba(14,165,233,0.35);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-prompt:hover { background: #0284c7; transform: translateY(-1px); }
+  .btn-reset {
+    background: #fff;
+    color: var(--reset-color);
+    border: 2.5px solid var(--reset-color);
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-reset:hover { background: var(--reset-color); color: #fff; transform: translateY(-1px); }
+
+  /* MAIN LAYOUT */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-rows: auto auto;
+    gap: 18px;
+    padding: 20px 24px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* PANEL CARD */
+  .card {
+    background: var(--panel);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: var(--border);
+    padding: 20px 22px 18px;
+    position: relative;
+  }
+  .card-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.08rem;
+    color: var(--header-bg);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title span.pill {
+    font-size: 0.72rem;
+    background: var(--bg);
+    border-radius: 50px;
+    padding: 2px 10px;
+    color: #888;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+  }
+
+  /* =========== DECIMAL DISPLAY =========== */
+  .decimal-display-card {
+    grid-column: 1; grid-row: 1;
+  }
+  .decimal-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 18px;
+  }
+  .dh-digit {
+    font-family: 'Fredoka One', cursive;
+    font-size: 5.5rem;
+    line-height: 1;
+    color: var(--decimal-color);
+    text-shadow: 0 2px 12px rgba(168,85,247,0.18);
+    transition: all 0.2s;
+    min-width: 54px;
+    text-align: center;
+    background: none;
+  }
+  .dh-dot {
+    font-family: 'Fredoka One', cursive;
+    font-size: 5.5rem;
+    color: #333;
+    line-height: 1;
+    margin: 0 -4px;
+  }
+  .dh-tenths { color: var(--tenths-color); }
+  .dh-hundredths { color: var(--hundredths-color); }
+
+  /* Builder controls */
+  .builder-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .place-control {
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 12px 10px 10px;
+    text-align: center;
+    border: 2.5px solid transparent;
+    transition: border 0.15s;
+  }
+  .place-control.ones-ctrl { border-color: #c084fc; }
+  .place-control.tenths-ctrl { border-color: var(--tenths-color); }
+  .place-control.hundredths-ctrl { border-color: var(--hundredths-color); }
+
+  .place-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .ones-ctrl .place-label { color: #a855f7; }
+  .tenths-ctrl .place-label { color: var(--tenths-color); }
+  .hundredths-ctrl .place-label { color: var(--hundredths-color); }
+
+  .place-value-hint {
+    font-size: 0.7rem;
+    color: #aaa;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .stepper {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .stepper-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.4rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .ones-ctrl .stepper-btn { background: #ede9fe; color: #7c3aed; }
+  .ones-ctrl .stepper-btn:hover { background: #a855f7; color: #fff; }
+  .tenths-ctrl .stepper-btn { background: var(--tenths-light); color: var(--tenths-color); }
+  .tenths-ctrl .stepper-btn:hover { background: var(--tenths-color); color: #fff; }
+  .hundredths-ctrl .stepper-btn { background: var(--hundredths-light); color: var(--hundredths-color); }
+  .hundredths-ctrl .stepper-btn:hover { background: var(--hundredths-color); color: #fff; }
+  .stepper-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    min-width: 28px;
+    text-align: center;
+  }
+  .ones-ctrl .stepper-val { color: #a855f7; }
+  .tenths-ctrl .stepper-val { color: var(--tenths-color); }
+  .hundredths-ctrl .stepper-val { color: var(--hundredths-color); }
+
+  /* Type decimal directly */
+  .type-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin-bottom: 14px;
+  }
+  .type-label {
+    font-size: 0.85rem; font-weight: 700; color: #888;
+  }
+  .decimal-input {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--decimal-color);
+    border: 2.5px solid #d8b4fe;
+    border-radius: 12px;
+    padding: 6px 16px;
+    width: 140px;
+    text-align: center;
+    outline: none;
+    transition: border 0.15s;
+    background: #faf5ff;
+  }
+  .decimal-input:focus { border-color: var(--decimal-color); }
+
+  /* =========== AREA GRID =========== */
+  .grid-card {
+    grid-column: 2; grid-row: 1 / 3;
+  }
+  .grid-legend {
+    display: flex; gap: 14px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; font-weight: 700; color: #555;
+  }
+  .legend-swatch {
+    width: 18px; height: 18px; border-radius: 5px;
+  }
+  .ls-tenths { background: var(--tenths-color); }
+  .ls-hundredths { background: var(--hundredths-color); }
+  .ls-empty { background: #e9eef7; border: 1.5px solid #cdd8ee; }
+
+  .grid-wrap {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 2px;
+    background: #dde6f7;
+    border-radius: 12px;
+    padding: 5px;
+    cursor: crosshair;
+    user-select: none;
+  }
+  .grid-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: #f4f7ff;
+    transition: background 0.12s, transform 0.1s;
+    border: 1.5px solid transparent;
+  }
+  .grid-cell:hover { transform: scale(1.08); border-color: #aac4f0; }
+  .grid-cell.shaded-tenths {
+    background: var(--tenths-color);
+  }
+  .grid-cell.shaded-hundredths {
+    background: var(--hundredths-color);
+  }
+
+  /* Row/column labels */
+  .grid-container { position: relative; }
+  .grid-mode-row {
+    display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .grid-mode-label {
+    font-size: 0.8rem; font-weight: 800; color: #888;
+  }
+  .mode-btn {
+    border: none;
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    opacity: 0.55;
+  }
+  .mode-btn.active { opacity: 1; transform: scale(1.06); }
+  .mode-btn.mode-tenths { background: var(--tenths-light); color: var(--tenths-color); }
+  .mode-btn.mode-tenths.active { background: var(--tenths-color); color: #fff; }
+  .mode-btn.mode-hundredths { background: var(--hundredths-light); color: var(--hundredths-color); }
+  .mode-btn.mode-hundredths.active { background: var(--hundredths-color); color: #fff; }
+  .mode-btn.mode-erase { background: #f1f5f9; color: #64748b; }
+  .mode-btn.mode-erase.active { background: #64748b; color: #fff; }
+
+  /* =========== FRACTION + PLACE VALUE =========== */
+  .bottom-row {
+    grid-column: 1; grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  /* Fraction card */
+  .fraction-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 0 6px;
+  }
+  .frac-label {
+    font-size: 0.78rem; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .frac-main {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center;
+  }
+  .frac-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .frac-top {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    color: var(--fraction-color);
+    line-height: 1;
+  }
+  .frac-line {
+    width: 60px; height: 4px; background: var(--fraction-color); border-radius: 4px; margin: 2px 0;
+  }
+  .frac-bottom {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    color: var(--fraction-color);
+    line-height: 1;
+  }
+  .frac-or {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #ccc;
+  }
+  .frac-simplified-tag {
+    font-size: 0.72rem;
+    background: #dcfce7;
+    color: #15803d;
+    font-weight: 700;
+    border-radius: 50px;
+    padding: 2px 10px;
+    margin-top: 4px;
+  }
+
+  /* Place value chart */
+  .pv-chart {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .pv-chart th {
+    padding: 8px 10px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    text-align: center;
+    border-bottom: 2px solid #eef2fb;
+  }
+  .pv-chart th.col-ones { color: #a855f7; background: #faf5ff; }
+  .pv-chart th.col-tenths { color: var(--tenths-color); background: #f0f7ff; }
+  .pv-chart th.col-hundredths { color: var(--hundredths-color); background: #fff7f2; }
+  .pv-chart td {
+    padding: 6px 10px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .pv-chart td.col-ones { color: #c084fc; background: #faf5ff; font-size: 0.7rem; }
+  .pv-chart td.col-tenths { color: #60a5fa; background: #f0f7ff; font-size: 0.7rem; }
+  .pv-chart td.col-hundredths { color: #fb923c; background: #fff7f2; font-size: 0.7rem; }
+  .pv-chart tr.val-row td {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    padding: 10px 10px 8px;
+    border-bottom: 2px solid #eef2fb;
+  }
+  .pv-chart tr.val-row td.col-ones { color: #a855f7; }
+  .pv-chart tr.val-row td.col-tenths { color: var(--tenths-color); }
+  .pv-chart tr.val-row td.col-hundredths { color: var(--hundredths-color); }
+
+  /* =========== DID YOU KNOW =========== */
+  .dyk-card {
+    grid-column: 1 / 3;
+    background: linear-gradient(135deg, #1a3a6b 60%, #2563eb);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+    padding: 18px 24px;
+  }
+  .dyk-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,58,107,0.22); }
+  .dyk-card::before {
+    content: '';
+    position: absolute; right: -30px; bottom: -30px;
+    width: 130px; height: 130px;
+    background: rgba(247,201,72,0.12);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .dyk-inner {
+    display: flex; align-items: center; gap: 16px;
+    animation: fadeInFact 0.4s ease;
+  }
+  @keyframes fadeInFact {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .dyk-emoji { font-size: 2.4rem; flex-shrink: 0; }
+  .dyk-text {}
+  .dyk-headline {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: var(--header-accent);
+    margin-bottom: 3px;
+  }
+  .dyk-body {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.88);
+    line-height: 1.4;
+  }
+  .dyk-tap {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    white-space: nowrap;
+    font-weight: 700;
+  }
+
+  /* =========== PROMPT POPUP =========== */
+  .prompt-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .prompt-overlay.show { display: flex; }
+  .prompt-box {
+    background: #fff;
+    border-radius: 22px;
+    padding: 32px 36px 28px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+    text-align: center;
+    animation: popIn 0.25s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .prompt-emoji { font-size: 3rem; margin-bottom: 10px; }
+  .prompt-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--header-bg);
+    margin-bottom: 8px;
+  }
+  .prompt-text {
+    font-size: 1.15rem;
+    color: #444;
+    font-weight: 700;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+  .prompt-close {
+    background: var(--prompt-color);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 32px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .prompt-close:hover { background: #0284c7; }
+
+  /* Responsive */
+  @media (max-width: 820px) {
+    .main-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      padding: 14px;
+    }
+    .grid-card { grid-column: 1; grid-row: auto; }
+    .bottom-row { grid-column: 1; }
+    .dyk-card { grid-column: 1 !important; }
+    .dh-digit, .dh-dot { font-size: 3.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-icon">🔬</div>
+  <div class="header-text">
+    <h1>Mrs. Nava's Decimal Lab</h1>
+    <p>Build • Explore • Connect Decimals, Fractions & Area Models</p>
+  </div>
+  <div class="header-right">
+    <button class="btn-prompt" onclick="showPrompt()">💡 Try a Challenge</button>
+    <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- DECIMAL BUILDER + DISPLAY -->
+  <div class="card decimal-display-card">
+    <div class="card-title">🔢 Decimal Builder <span class="pill">Change any part to explore!</span></div>
+
+    <div class="type-row">
+      <span class="type-label">Type a decimal:</span>
+      <input class="decimal-input" id="decimalInput" type="text" value="0.35" placeholder="0.00" maxlength="6"/>
+    </div>
+
+    <div class="decimal-hero" id="decimalHero">
+      <span class="dh-digit" id="dh-ones">0</span>
+      <span class="dh-dot">.</span>
+      <span class="dh-digit dh-tenths" id="dh-tenths">3</span>
+      <span class="dh-digit dh-hundredths" id="dh-hundredths">5</span>
+    </div>
+
+    <div class="builder-row">
+      <div class="place-control ones-ctrl">
+        <div class="place-label">Ones</div>
+        <div class="place-value-hint">value: 1</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="adjustPlace('ones',-1)">−</button>
+          <span class="stepper-val" id="sv-ones">0</span>
+          <button class="stepper-btn" onclick="adjustPlace('ones',1)">+</button>
+        </div>
+      </div>
+      <div class="place-control tenths-ctrl">
+        <div class="place-label">Tenths</div>
+        <div class="place-value-hint">value: 0.1</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="adjustPlace('tenths',-1)">−</button>
+          <span class="stepper-val" id="sv-tenths">3</span>
+          <button class="stepper-btn" onclick="adjustPlace('tenths',1)">+</button>
+        </div>
+      </div>
+      <div class="place-control hundredths-ctrl">
+        <div class="place-label">Hundredths</div>
+        <div class="place-value-hint">value: 0.01</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="adjustPlace('hundredths',-1)">−</button>
+          <span class="stepper-val" id="sv-hundredths">5</span>
+          <button class="stepper-btn" onclick="adjustPlace('hundredths',1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AREA MODEL GRID -->
+  <div class="card grid-card">
+    <div class="card-title">🟦 Area Model Grid <span class="pill">10×10 = 100 squares</span></div>
+    <div class="grid-legend">
+      <div class="legend-item"><div class="legend-swatch ls-tenths"></div> Tenths (rows)</div>
+      <div class="legend-item"><div class="legend-swatch ls-hundredths"></div> Hundredths</div>
+      <div class="legend-item"><div class="legend-swatch ls-empty"></div> Empty</div>
+    </div>
+    <div class="grid-wrap" id="gridWrap"></div>
+    <div class="grid-mode-row">
+      <span class="grid-mode-label">Shade mode:</span>
+      <button class="mode-btn mode-tenths active" id="modeBtn-tenths" onclick="setMode('tenths')">Tenths (row)</button>
+      <button class="mode-btn mode-hundredths" id="modeBtn-hundredths" onclick="setMode('hundredths')">Hundredths</button>
+      <button class="mode-btn mode-erase" id="modeBtn-erase" onclick="setMode('erase')">✕ Erase</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW: FRACTION + PLACE VALUE CHART -->
+  <div class="bottom-row">
+
+    <!-- FRACTION -->
+    <div class="card">
+      <div class="card-title">🟩 Fraction Connection</div>
+      <div class="fraction-display">
+        <div class="frac-main">
+          <div class="frac-block" id="fracBlock1">
+            <div class="frac-top" id="frac1-top">35</div>
+            <div class="frac-line"></div>
+            <div class="frac-bottom" id="frac1-bot">100</div>
+          </div>
+          <div class="frac-or" id="fracOr">=</div>
+          <div class="frac-block" id="fracBlock2">
+            <div class="frac-top" id="frac2-top">7</div>
+            <div class="frac-line"></div>
+            <div class="frac-bottom" id="frac2-bot">20</div>
+          </div>
+        </div>
+        <div class="frac-simplified-tag" id="fracSimTag">simplified ✓</div>
+      </div>
+    </div>
+
+    <!-- PLACE VALUE CHART -->
+    <div class="card">
+      <div class="card-title">📊 Place Value Chart</div>
+      <table class="pv-chart">
+        <thead>
+          <tr>
+            <th class="col-ones">ONES</th>
+            <th class="col-tenths">TENTHS</th>
+            <th class="col-hundredths">HUNDREDTHS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-ones">1 whole</td>
+            <td class="col-tenths">1/10 = 0.1</td>
+            <td class="col-hundredths">1/100 = 0.01</td>
+          </tr>
+          <tr class="val-row">
+            <td class="col-ones" id="pv-ones">0</td>
+            <td class="col-tenths" id="pv-tenths">3</td>
+            <td class="col-hundredths" id="pv-hundredths">5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- DID YOU KNOW CARD -->
+  <div class="card dyk-card" id="dykCard" onclick="nextFact()">
+    <div class="dyk-inner" id="dykInner">
+      <div class="dyk-emoji" id="dykEmoji">🍕</div>
+      <div class="dyk-text">
+        <div class="dyk-headline" id="dykHeadline">Pizza Slices!</div>
+        <div class="dyk-body" id="dykBody">If you cut a pizza into 10 equal slices and eat 3 slices, you ate 0.3 — three tenths — of the pizza!</div>
+      </div>
+      <div class="dyk-tap">Tap for a new fact! →</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PROMPT OVERLAY -->
+<div class="prompt-overlay" id="promptOverlay">
+  <div class="prompt-box">
+    <div class="prompt-emoji" id="promptEmoji">🎯</div>
+    <div class="prompt-title">Try This!</div>
+    <div class="prompt-text" id="promptText">Build 0.7 using the grid.</div>
+    <button class="prompt-close" onclick="closePrompt()">Let's Go! 🚀</button>
+  </div>
+</div>
+
+<script>
+// ====== STATE ======
+let ones = 0, tenths = 3, hundredths = 5;
+let shadeMode = 'tenths'; // 'tenths', 'hundredths', 'erase'
+let isDragging = false;
+let lastFactIndex = -1;
+
+// ====== FACTS ======
+const facts = [
+  { emoji: '🍕', headline: 'Pizza Slices!', body: 'Cut a pizza into 10 equal slices. Eat 3 slices and you ate 0.3 — three tenths — of the pizza!' },
+  { emoji: '💵', headline: 'Pennies & Decimals', body: 'One dollar = 100 cents. A quarter is 0.25 dollars — that\'s 25 hundredths of a dollar!' },
+  { emoji: '🏊', headline: 'Olympic Pool', body: 'An Olympic pool is 50 meters long. Swim 35 meters and you\'ve swum 0.7 (seven tenths) of the pool!' },
+  { emoji: '🌧️', headline: 'Rainfall', body: 'Weather reporters say "0.4 inches of rain" — that\'s four tenths of an inch. Decimals help measure tiny amounts!' },
+  { emoji: '🍫', headline: 'Chocolate Bar', body: 'Break a chocolate bar into 10 pieces. If you eat 7 pieces, you ate 0.7 of the bar — seven tenths!' },
+  { emoji: '🏃', headline: 'Track & Field', body: 'A 100-meter dash takes about 10 seconds. Each second is 0.1 of the whole race — one tenth!' },
+  { emoji: '🧃', headline: 'Juice Box', body: 'A juice box holds about 200ml. Drink 50ml and you drank 0.25 of the juice — twenty-five hundredths!' },
+  { emoji: '🌡️', headline: 'Temperature', body: 'A thermometer can show 98.6°F. The .6 means six tenths of a degree — decimals are super precise!' },
+  { emoji: '📏', headline: 'Centimeters', body: '1 centimeter = 10 millimeters. So 3 millimeters = 0.3 centimeters. Decimals are everywhere in measuring!' },
+  { emoji: '🍰', headline: 'Birthday Cake', body: 'Slice a cake into 100 pieces (super tiny!). Take 25 pieces and you have 0.25 — same as 1/4 of the cake!' },
+  { emoji: '🎮', headline: 'Video Game Battery', body: 'Your tablet shows 70% battery — that\'s 0.70, or seven tenths of a full charge. Decimals keep you gaming!' },
+  { emoji: '🐠', headline: 'Fish Tank', body: 'Fill a tank to 6/10 full and that\'s 0.6 of the tank. The fish need that water at exactly the right level!' },
+  { emoji: '🛒', headline: 'Grocery Store', body: 'Apples cost $1.49 — that\'s 1 dollar and 49 hundredths of a dollar. Prices use decimals every day!' },
+  { emoji: '⚽', headline: 'Soccer Stats', body: 'A player scores 3 out of 10 shots. Their success rate is 0.3 — three tenths. Coaches track this with decimals!' },
+  { emoji: '🌎', headline: 'Maps & Distance', body: 'GPS uses decimals to find your exact location. Latitude 37.5 means 37 and five tenths degrees north!' },
+  { emoji: '🎵', headline: 'Music & Rhythm', body: 'A song at 120 BPM means each beat is 0.5 seconds — five tenths of a second apart. Decimals create music!' },
+  { emoji: '🧁', headline: 'Baking Measurements', body: 'A recipe needs 0.75 cups of sugar — that\'s 75 hundredths, or three quarters of a cup. Decimals help baking!' },
+  { emoji: '🚗', headline: 'Speed Limits', body: 'A car travels 55.5 miles per hour — that\'s 55 and five tenths miles. Speedometers use decimals too!' },
+];
+
+function nextFact() {
+  let idx;
+  do { idx = Math.floor(Math.random() * facts.length); } while (idx === lastFactIndex);
+  lastFactIndex = idx;
+  const f = facts[idx];
+  const inner = document.getElementById('dykInner');
+  inner.style.animation = 'none';
+  inner.offsetHeight; // reflow
+  inner.style.animation = 'fadeInFact 0.4s ease';
+  document.getElementById('dykEmoji').textContent = f.emoji;
+  document.getElementById('dykHeadline').textContent = f.headline;
+  document.getElementById('dykBody').textContent = f.body;
+}
+
+// ====== PROMPTS ======
+const prompts = [
+  { emoji: '🎯', text: 'Build 0.7 using the stepper — then shade the grid to match!' },
+  { emoji: '🌟', text: 'Show 0.25 on the area model. How many squares is that?' },
+  { emoji: '🤔', text: 'Can you make 0.5 in two different ways on the grid?' },
+  { emoji: '🔍', text: 'What fraction equals 0.4? Use the fraction display to check!' },
+  { emoji: '🏆', text: 'Build 0.08 — that\'s eight hundredths. How many tiny squares?' },
+  { emoji: '💡', text: 'Try 0.30 and 0.3 — are they the same? See what happens!' },
+  { emoji: '🎨', text: 'Shade exactly 5 rows on the grid. What decimal does that show?' },
+  { emoji: '🚀', text: 'Build 0.99 — how close to a whole one is that?' },
+];
+let lastPromptIdx = -1;
+
+function showPrompt() {
+  let idx;
+  do { idx = Math.floor(Math.random() * prompts.length); } while (idx === lastPromptIdx);
+  lastPromptIdx = idx;
+  document.getElementById('promptEmoji').textContent = prompts[idx].emoji;
+  document.getElementById('promptText').textContent = prompts[idx].text;
+  document.getElementById('promptOverlay').classList.add('show');
+}
+function closePrompt() {
+  document.getElementById('promptOverlay').classList.remove('show');
+}
+
+// ====== GRID SETUP ======
+const grid = [];
+
+function buildGrid() {
+  const wrap = document.getElementById('gridWrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 100; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.dataset.idx = i;
+    cell.addEventListener('mousedown', onCellDown);
+    cell.addEventListener('mouseover', onCellOver);
+    cell.addEventListener('touchstart', onTouchStart, { passive: false });
+    cell.addEventListener('touchmove', onTouchMove, { passive: false });
+    wrap.appendChild(cell);
+    grid.push(cell);
+  }
+  document.addEventListener('mouseup', () => isDragging = false);
+  document.addEventListener('touchend', () => isDragging = false);
+}
+
+function onCellDown(e) {
+  isDragging = true;
+  applyCell(e.target);
+}
+function onCellOver(e) {
+  if (isDragging) applyCell(e.target);
+}
+function onTouchStart(e) {
+  e.preventDefault();
+  isDragging = true;
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (el && el.classList.contains('grid-cell')) applyCell(el);
+}
+function onTouchMove(e) {
+  e.preventDefault();
+  if (!isDragging) return;
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (el && el.classList.contains('grid-cell')) applyCell(el);
+}
+
+function applyCell(cell) {
+  const idx = parseInt(cell.dataset.idx);
+  if (shadeMode === 'tenths') {
+    // shade entire row
+    const row = Math.floor(idx / 10);
+    for (let c = 0; c < 10; c++) {
+      const ci = row * 10 + c;
+      grid[ci].classList.remove('shaded-tenths', 'shaded-hundredths');
+      grid[ci].classList.add('shaded-tenths');
+    }
+  } else if (shadeMode === 'hundredths') {
+    cell.classList.remove('shaded-tenths', 'shaded-hundredths');
+    cell.classList.add('shaded-hundredths');
+  } else if (shadeMode === 'erase') {
+    const row = Math.floor(idx / 10);
+    const rowAll = Array.from({length:10}, (_,c) => grid[row*10+c]);
+    const allTenths = rowAll.every(c => c.classList.contains('shaded-tenths'));
+    if (allTenths) {
+      // Erase the whole tenths row at once
+      rowAll.forEach(c => c.classList.remove('shaded-tenths', 'shaded-hundredths'));
+    } else {
+      // Erase single cell
+      cell.classList.remove('shaded-tenths', 'shaded-hundredths');
+    }
+  }
+  syncFromGrid();
+}
+
+function setMode(mode) {
+  shadeMode = mode;
+  ['tenths','hundredths','erase'].forEach(m => {
+    document.getElementById('modeBtn-'+m).classList.toggle('active', m === mode);
+  });
+}
+
+// ====== SYNC LOGIC ======
+let syncing = false;
+
+function getGridDecimal() {
+  let total = 0;
+  for (let r = 0; r < 10; r++) {
+    const rowAll = Array.from({length:10}, (_,c) => grid[r*10+c]);
+    const allTenths = rowAll.every(c => c.classList.contains('shaded-tenths'));
+    if (allTenths) {
+      // Full row = 10 hundredths (one tenth)
+      total += 10;
+    } else {
+      // Count each shaded cell individually as one hundredth
+      rowAll.forEach(c => {
+        if (c.classList.contains('shaded-hundredths') || c.classList.contains('shaded-tenths')) {
+          total += 1;
+        }
+      });
+    }
+  }
+  return total; // total in hundredths
+}
+
+function syncFromGrid() {
+  if (syncing) return;
+  syncing = true;
+  const total = getGridDecimal(); // count of hundredths total
+  const h = total % 10;
+  const t = Math.floor(total / 10) % 10;
+  const o = Math.floor(total / 100);
+  ones = o; tenths = t; hundredths = h;
+  updateAllDisplays();
+  syncing = false;
+}
+
+function syncToGrid(suppressGrid) {
+  if (!suppressGrid) {
+    // calculate total hundredths
+    const total = ones * 100 + tenths * 10 + hundredths;
+    // Reset grid
+    grid.forEach(c => c.classList.remove('shaded-tenths', 'shaded-hundredths'));
+    // Shade tenths rows first
+    for (let t = 0; t < tenths; t++) {
+      for (let c = 0; c < 10; c++) {
+        grid[t * 10 + c].classList.add('shaded-tenths');
+      }
+    }
+    // Shade remaining hundredths
+    for (let h = 0; h < hundredths; h++) {
+      const cellIdx = tenths * 10 + h;
+      if (cellIdx < 100) {
+        grid[cellIdx].classList.remove('shaded-tenths');
+        grid[cellIdx].classList.add('shaded-hundredths');
+      }
+    }
+  }
+}
+
+function updateAllDisplays() {
+  // Decimal hero digits
+  document.getElementById('dh-ones').textContent = ones;
+  document.getElementById('dh-tenths').textContent = tenths;
+  document.getElementById('dh-hundredths').textContent = hundredths;
+  // Steppers
+  document.getElementById('sv-ones').textContent = ones;
+  document.getElementById('sv-tenths').textContent = tenths;
+  document.getElementById('sv-hundredths').textContent = hundredths;
+  // Place value chart
+  document.getElementById('pv-ones').textContent = ones;
+  document.getElementById('pv-tenths').textContent = tenths;
+  document.getElementById('pv-hundredths').textContent = hundredths;
+  // Decimal input
+  const val = ones + tenths * 0.1 + hundredths * 0.01;
+  document.getElementById('decimalInput').value = formatDecimal(val);
+  // Fraction
+  updateFraction(val);
+}
+
+function formatDecimal(val) {
+  // Always show at least one decimal place for clarity, max 2
+  const s = val.toFixed(2);
+  // Remove trailing zeros after decimal but keep at least one decimal digit
+  return s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '.0');
+}
+
+function updateFraction(val) {
+  const total = Math.round(ones * 100 + tenths * 10 + hundredths);
+  if (total === 0) {
+    document.getElementById('frac1-top').textContent = '0';
+    document.getElementById('frac1-bot').textContent = '100';
+    document.getElementById('fracBlock2').style.display = 'none';
+    document.getElementById('fracOr').style.display = 'none';
+    document.getElementById('fracSimTag').style.display = 'none';
+    return;
+  }
+  // Primary fraction: /100
+  document.getElementById('frac1-top').textContent = total;
+  document.getElementById('frac1-bot').textContent = '100';
+
+  // Check if simplifiable
+  const g = gcd(total, 100);
+  if (g > 1) {
+    const sn = total / g, sd = 100 / g;
+    document.getElementById('frac2-top').textContent = sn;
+    document.getElementById('frac2-bot').textContent = sd;
+    document.getElementById('fracBlock2').style.display = 'flex';
+    document.getElementById('fracOr').style.display = 'flex';
+    document.getElementById('fracSimTag').style.display = 'block';
+    document.getElementById('fracSimTag').textContent = `simplified ✓`;
+  } else {
+    document.getElementById('fracBlock2').style.display = 'none';
+    document.getElementById('fracOr').style.display = 'none';
+    document.getElementById('fracSimTag').style.display = 'none';
+  }
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+// ====== USER INTERACTIONS ======
+function adjustPlace(place, delta) {
+  if (place === 'ones') {
+    ones = Math.max(0, Math.min(9, ones + delta));
+  } else if (place === 'tenths') {
+    tenths = Math.max(0, Math.min(9, tenths + delta));
+  } else if (place === 'hundredths') {
+    hundredths = Math.max(0, Math.min(9, hundredths + delta));
+  }
+  syncToGrid(false);
+  updateAllDisplays();
+}
+
+document.getElementById('decimalInput').addEventListener('change', function() {
+  parseDecimalInput(this.value);
+});
+document.getElementById('decimalInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') parseDecimalInput(this.value);
+});
+
+function parseDecimalInput(raw) {
+  const val = parseFloat(raw);
+  if (isNaN(val) || val < 0 || val > 9.99) return;
+  ones = Math.floor(val);
+  const dec = Math.round((val - ones) * 100);
+  tenths = Math.floor(dec / 10);
+  hundredths = dec % 10;
+  syncToGrid(false);
+  updateAllDisplays();
+}
+
+function resetAll() {
+  ones = 0; tenths = 0; hundredths = 0;
+  grid.forEach(c => c.classList.remove('shaded-tenths', 'shaded-hundredths'));
+  updateAllDisplays();
+}
+
+// ====== INIT ======
+buildGrid();
+syncToGrid(false);
+updateAllDisplays();
+// Show first fact
+nextFact();
+</script>
+</body>
+</html>
