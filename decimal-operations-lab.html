@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mrs. Nava's Decimal Operations Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hundreds-color: #E67E22;
+    --hundreds-light: #FEF0E3;
+    --tens-color: #D4AC0D;
+    --tens-light: #FEFCE8;
+    --ones-color: #FF6B6B;
+    --ones-light: #FFE8E8;
+    --ones-mid: #FFB3B3;
+    --tenths-color: #4ECDC4;
+    --tenths-light: #E0F7F6;
+    --tenths-mid: #A8E6E3;
+    --hundredths-color: #9B59B6;
+    --hundredths-light: #F3E8FF;
+    --hundredths-mid: #D4A8F0;
+    --add-color: #27AE60;
+    --add-light: #D5F5E3;
+    --sub-color: #E74C3C;
+    --sub-light: #FADBD8;
+    --bg: #F8F6FF;
+    --card: #FFFFFF;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+    --radius: 16px;
+    --text: #2C3E50;
+    --muted: #7F8C8D;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 24px 20px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    color: white;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .header .subtitle {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 4px;
+    position: relative;
+  }
+
+  /* MAIN LAYOUT */
+  .main-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+
+  /* OPERATION TOGGLE */
+  .op-toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .op-toggle {
+    background: white;
+    border-radius: 50px;
+    padding: 6px;
+    display: flex;
+    gap: 4px;
+    box-shadow: var(--shadow);
+    border: 2px solid #E8E0FF;
+  }
+  .op-btn {
+    padding: 10px 28px;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    transition: all 0.25s ease;
+    background: transparent;
+    color: var(--muted);
+  }
+  .op-btn.active-add {
+    background: var(--add-color);
+    color: white;
+    box-shadow: 0 4px 14px rgba(39,174,96,0.4);
+    transform: scale(1.03);
+  }
+  .op-btn.active-sub {
+    background: var(--sub-color);
+    color: white;
+    box-shadow: 0 4px 14px rgba(231,76,60,0.4);
+    transform: scale(1.03);
+  }
+
+  /* INPUT SECTION */
+  .input-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    border: 2px solid #EEE8FF;
+  }
+  .input-card h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #7B68EE;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .input-group label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .num-input {
+    width: 110px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 2px solid #DDD;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    text-align: center;
+    color: var(--text);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .num-input:focus { border-color: #7B68EE; }
+  .op-symbol {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--muted);
+    padding: 0 4px;
+    margin-top: 14px;
+  }
+  .op-symbol.add { color: var(--add-color); }
+  .op-symbol.sub { color: var(--sub-color); }
+
+  .btn-load {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.4);
+  }
+  .btn-load:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.5); }
+  .btn-reset {
+    background: white;
+    color: var(--muted);
+    border: 2px solid #DDD;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: #999; color: var(--text); }
+
+  /* PROMPTS */
+  .prompt-bar {
+    background: linear-gradient(135deg, #FFF9E6, #FFF3CC);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    border: 2px solid #FFE082;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .prompt-bar .prompt-icon { font-size: 1.2rem; }
+  .prompt-bar .prompt-text {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #7A6000;
+    flex: 1;
+  }
+  .prompt-next {
+    background: #FFE082;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #7A6000;
+    transition: background 0.2s;
+  }
+  .prompt-next:hover { background: #FFD740; }
+
+  /* WORKSPACE ROW */
+  .workspace-row {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .workspace-row { grid-template-columns: 1fr; }
+  }
+
+  /* PLACE VALUE CHART */
+  .chart-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 2px solid #EEE8FF;
+  }
+  .chart-header-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    background: #F4F0FF;
+    border-bottom: 2px solid #EEE8FF;
+  }
+  .chart-col-header {
+    padding: 14px 8px;
+    text-align: center;
+    border-right: 2px solid #EEE8FF;
+  }
+  .chart-col-header:last-child { border-right: none; }
+  .chart-col-header .pv-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    display: block;
+  }
+  .chart-col-header .pv-val {
+    font-size: 0.78rem;
+    font-weight: 700;
+    opacity: 0.75;
+  }
+  .ones-header .pv-name { color: var(--ones-color); }
+  .tenths-header .pv-name { color: var(--tenths-color); }
+  .hundredths-header .pv-name { color: var(--hundredths-color); }
+  .row-label-header { font-size: 0.7rem; color: var(--muted); font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; }
+
+  /* NUMBER ROWS */
+  .chart-number-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    border-bottom: 2px solid #EEE8FF;
+    min-height: 100px;
+    position: relative;
+  }
+  .chart-number-row:last-of-type { border-bottom: none; }
+  .chart-number-row.row-a { background: #FAFCFF; }
+  .chart-number-row.row-b { background: #FFFAFA; }
+
+  .row-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: white;
+    padding: 8px;
+    border-right: 2px solid #EEE8FF;
+  }
+  .row-label.label-a { background: #7B68EE; }
+  .row-label.label-b { background: #FF7675; }
+
+  .cell {
+    padding: 10px;
+    border-right: 2px solid #EEE8FF;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    min-height: 100px;
+  }
+  .cell:last-child { border-right: none; }
+  .cell.ones-cell { background: linear-gradient(to bottom, var(--ones-light), transparent); }
+  .cell.tenths-cell { background: linear-gradient(to bottom, var(--tenths-light), transparent); }
+  .cell.hundredths-cell { background: linear-gradient(to bottom, var(--hundredths-light), transparent); }
+
+  /* UNIT BLOCKS */
+  .units-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+    min-height: 60px;
+  }
+  .unit-block {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .unit-block:hover { transform: scale(1.15); box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
+  .unit-block.ones-unit { background: var(--ones-color); color: white; }
+  .unit-block.tenths-unit { background: var(--tenths-color); color: white; }
+  .unit-block.hundredths-unit { background: var(--hundredths-color); color: white; }
+  .unit-block.carry-unit { animation: pop-in 0.4s ease; border: 2px dashed rgba(255,255,255,0.7); }
+  .unit-block.removing { animation: pop-out 0.3s ease forwards; }
+
+  @keyframes pop-in {
+    0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+    70% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes pop-out {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  @keyframes slide-up {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes bounce-in {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes carry-travel {
+    0% { transform: translateX(0) translateY(0) scale(1); }
+    50% { transform: translateX(-40px) translateY(-20px) scale(1.3); opacity: 0.8; }
+    100% { transform: translateX(-80px) translateY(0) scale(1); opacity: 0; }
+  }
+
+  .cell-count {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .cell-count.ones-count { color: var(--ones-color); }
+  .cell-count.tenths-count { color: var(--tenths-color); }
+  .cell-count.hundredths-count { color: var(--hundredths-color); }
+
+  /* ACTION BUTTONS INSIDE CELLS */
+  .cell-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    align-items: center;
+  }
+  .btn-add-unit, .btn-remove-unit {
+    border: none;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-add-unit { background: var(--add-light); color: var(--add-color); }
+  .btn-add-unit:hover { background: var(--add-color); color: white; }
+  .btn-remove-unit { background: var(--sub-light); color: var(--sub-color); }
+  .btn-remove-unit:hover { background: var(--sub-color); color: white; }
+
+  /* RESULT ROW */
+  .chart-result-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    background: linear-gradient(135deg, #F0F4FF, #E8F5E9);
+    border-top: 3px solid #7B68EE;
+  }
+  .result-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    color: #7B68EE;
+    padding: 8px;
+    border-right: 2px solid #EEE8FF;
+    background: rgba(123,104,238,0.1);
+  }
+  .result-cell {
+    padding: 10px;
+    text-align: center;
+    border-right: 2px solid #EEE8FF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 70px;
+  }
+  .result-cell:last-child { border-right: none; }
+  .result-digit {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    line-height: 1;
+    transition: all 0.3s ease;
+  }
+  .result-digit.ones-count { color: var(--ones-color); }
+  .result-digit.tenths-count { color: var(--tenths-color); }
+  .result-digit.hundredths-count { color: var(--hundredths-color); }
+  .result-digit.changed { animation: bounce-in 0.4s ease; }
+
+  /* REGROUPING BUTTON */
+  .regroup-btn {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 3px 10px rgba(240,147,251,0.4);
+  }
+  .regroup-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(240,147,251,0.5); }
+
+  .decompose-btn {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 3px 10px rgba(79,172,254,0.4);
+  }
+  .decompose-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(79,172,254,0.5); }
+  .decompose-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* NOTIFICATION MESSAGES */
+  .notification {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: white;
+    border-radius: 14px;
+    padding: 12px 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    border: 2px solid #EEE;
+  }
+  .notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .notification.success { border-color: var(--add-color); color: var(--add-color); }
+  .notification.info { border-color: #7B68EE; color: #7B68EE; }
+  .notification.warning { border-color: #F39C12; color: #F39C12; }
+
+  /* ALGORITHM PANEL */
+  .algo-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 2px solid #EEE8FF;
+    overflow: hidden;
+  }
+  .algo-title {
+    background: #F4F0FF;
+    padding: 12px 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: #7B68EE;
+    border-bottom: 2px solid #EEE8FF;
+    text-align: center;
+  }
+  .algo-body {
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+  }
+  .algo-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.3s;
+    min-height: 38px;
+  }
+  .algo-row.active-row { background: #F4F0FF; }
+  .algo-digit {
+    width: 32px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s;
+  }
+  .algo-digit.ones-d { color: var(--ones-color); }
+  .algo-digit.tenths-d { color: var(--tenths-color); }
+  .algo-digit.hundredths-d { color: var(--hundredths-color); }
+  .algo-dot { color: #555; width: 12px; text-align: center; }
+  .algo-op { color: var(--muted); margin-right: 4px; font-family: 'Fredoka One', cursive; }
+  .algo-line {
+    border: none;
+    border-top: 2.5px solid #555;
+    margin: 6px 0;
+  }
+  .algo-carry {
+    font-size: 0.7rem;
+    color: #E91E63;
+    font-weight: 900;
+    height: 20px;
+    width: 32px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .algo-borrow {
+    font-size: 0.65rem;
+    color: #2196F3;
+    font-weight: 900;
+    position: relative;
+  }
+  .algo-strikethrough {
+    text-decoration: line-through;
+    color: #999;
+  }
+
+  .carry-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    padding: 0 8px;
+    min-height: 22px;
+  }
+
+  /* ANSWER DISPLAY */
+  .answer-display {
+    background: linear-gradient(135deg, #667eea22, #764ba222);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 14px;
+    text-align: center;
+    border: 2px solid #DDD6FF;
+  }
+  .answer-display .answer-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .answer-display .answer-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: #7B68EE;
+    line-height: 1.1;
+    transition: all 0.3s;
+  }
+  .answer-display .answer-value.changed { animation: bounce-in 0.4s ease; }
+  .answer-display .answer-equation {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* DID YOU KNOW CARD */
+  .fact-card {
+    background: linear-gradient(135deg, #FFF9C4, #FFF59D);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-top: 20px;
+    border: 2px solid #FFE082;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(255,224,130,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  .fact-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,224,130,0.5); }
+  .fact-card .fact-header {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: #9C6E00;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .fact-card .fact-emoji {
+    font-size: 1.6rem;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .fact-card .fact-headline {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: #6D4C00;
+    margin-bottom: 4px;
+  }
+  .fact-card .fact-body {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #7A5A00;
+    line-height: 1.5;
+  }
+  .fact-card .tap-hint {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #9C6E00;
+    opacity: 0.7;
+    margin-top: 8px;
+    text-align: right;
+    font-style: italic;
+  }
+  .fact-content { animation: slide-up 0.35s ease; }
+
+  /* REGROUP ZONE */
+  .regroup-zone {
+    background: linear-gradient(135deg, #FCE4EC, #F8BBD0);
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #C2185B;
+    text-align: center;
+    border: 1px dashed #F48FB1;
+    display: none;
+    animation: slide-up 0.3s ease;
+  }
+  .regroup-zone.visible { display: block; }
+
+  /* OPERATION INDICATOR STRIPE */
+  .op-stripe {
+    height: 4px;
+    transition: background 0.3s;
+  }
+  .op-stripe.add { background: linear-gradient(90deg, var(--add-color), #52c789); }
+  .op-stripe.sub { background: linear-gradient(90deg, var(--sub-color), #ff7675); }
+
+  /* SEPARATOR LINE in chart */
+  .separator-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    background: #FFF8DC;
+    border-top: 2px solid #FFE082;
+    border-bottom: 2px solid #FFE082;
+    min-height: 36px;
+  }
+  .separator-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    border-right: 2px solid #EEE8FF;
+    background: rgba(255,224,130,0.3);
+  }
+  .separator-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 2px solid #EEE8FF;
+    color: #9C6E00;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.8rem;
+  }
+  .separator-cell:last-child { border-right: none; }
+
+  /* COMBINED ROW */
+  .combined-area {
+    min-height: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 6px;
+  }
+
+  /* HELP TEXT */
+  .help-text {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-align: center;
+    font-style: italic;
+    padding: 4px;
+  }
+  .help-text.add-hint { color: var(--add-color); }
+  .help-text.sub-hint { color: var(--sub-color); }
+
+  /* BOTTOM CONTROLS */
+  .bottom-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* COMBINE BUTTON */
+  .btn-combine {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(86,171,47,0.4);
+  }
+  .btn-combine:hover { transform: translateY(-2px); }
+
+  .btn-calculate {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.4);
+  }
+  .btn-calculate:hover { transform: translateY(-2px); }
+
+  /* OVERFLOW INDICATOR */
+  .overflow-badge {
+    background: #E91E63;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    animation: bounce-in 0.3s ease;
+  }
+
+  /* BORROW INDICATOR */
+  .borrow-indicator {
+    background: #2196F3;
+    color: white;
+    border-radius: 8px;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: inline-block;
+    margin-top: 2px;
+    animation: pop-in 0.3s ease;
+  }
+
+  /* ============================================================
+     EXTENDED PLACE VALUE VIEW TOGGLE
+     ============================================================ */
+  .ext-toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .ext-toggle-btn {
+    background: white;
+    border: 2px solid #C9B8FF;
+    border-radius: 50px;
+    padding: 9px 22px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    color: #7B68EE;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.22s ease;
+    box-shadow: 0 2px 10px rgba(123,104,238,0.12);
+  }
+  .ext-toggle-btn:hover {
+    background: #F0ECFF;
+    box-shadow: 0 4px 16px rgba(123,104,238,0.22);
+    transform: translateY(-1px);
+  }
+  .ext-toggle-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.4);
+  }
+  .ext-toggle-icon { font-size: 1.1rem; transition: transform 0.3s; }
+  .ext-toggle-btn.active .ext-toggle-icon { transform: rotate(180deg); }
+
+  /* ============================================================
+     EXTENDED PLACE VALUE CHART PANEL
+     ============================================================ */
+  .ext-chart-panel {
+    display: none;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 2px solid #EEE8FF;
+    overflow: hidden;
+    margin-bottom: 20px;
+    animation: slide-up 0.35s ease;
+  }
+  .ext-chart-panel.visible { display: block; }
+
+  /* Header bar */
+  .ext-panel-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ext-panel-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: white;
+    flex: 1;
+  }
+  .ext-panel-subtitle {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+  }
+
+  /* The 10x banner */
+  .ext-10x-banner {
+    background: linear-gradient(90deg,
+      rgba(230,126,34,0.08),
+      rgba(212,172,13,0.08),
+      rgba(255,107,107,0.08),
+      rgba(78,205,196,0.08),
+      rgba(155,89,182,0.08));
+    border-bottom: 1px solid #EEE8FF;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .ext-arrow-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0 6px;
+    color: var(--muted);
+  }
+  .ext-arrow-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+  }
+  .ext-arrow-val.hund-c { color: var(--hundreds-color); }
+  .ext-arrow-val.tens-c  { color: var(--tens-color); }
+  .ext-arrow-val.ones-c  { color: var(--ones-color); }
+  .ext-arrow-val.tenth-c { color: var(--tenths-color); }
+  .ext-arrow-val.hun-c   { color: var(--hundredths-color); }
+  .ext-10x-arrow {
+    font-size: 0.9rem;
+    color: #bbb;
+    margin: 0 2px;
+  }
+  .ext-10x-label {
+    font-size: 0.65rem;
+    background: #f0f0f0;
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #888;
+    font-weight: 700;
+    margin: 0 2px;
+  }
+
+  /* Column header grid: row-label | H | T | O | DOT | Tenth | Hundredth */
+  .ext-header-grid {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 1fr 30px 1fr 1fr;
+    background: #F4F0FF;
+    border-bottom: 2px solid #EEE8FF;
+  }
+  .ext-col-header {
+    padding: 12px 6px;
+    text-align: center;
+    border-right: 2px solid #EEE8FF;
+    position: relative;
+  }
+  .ext-col-header:last-child { border-right: none; }
+  .ext-col-header .pv-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.88rem;
+    display: block;
+    line-height: 1.2;
+  }
+  .ext-col-header .pv-val {
+    font-size: 0.72rem;
+    font-weight: 700;
+    opacity: 0.8;
+    display: block;
+    margin-top: 2px;
+  }
+  .ext-col-header.whole-side { background: rgba(255,200,100,0.07); }
+  .ext-col-header.decimal-side { background: rgba(100,200,255,0.07); }
+
+  .ext-hundreds-h .pv-name  { color: var(--hundreds-color); }
+  .ext-tens-h .pv-name      { color: var(--tens-color); }
+  .ext-ones-h .pv-name      { color: var(--ones-color); }
+  .ext-tenths-h .pv-name    { color: var(--tenths-color); }
+  .ext-hundredths-h .pv-name { color: var(--hundredths-color); }
+
+  /* Decimal point column header */
+  .ext-dot-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 4px solid #6C5CE7;
+    border-left: 4px solid #6C5CE7;
+    background: linear-gradient(to bottom, #EEE8FF, #F8F4FF);
+    padding: 4px 2px;
+    position: relative;
+    z-index: 2;
+  }
+  .ext-dot-symbol {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: #6C5CE7;
+    line-height: 1;
+    text-shadow: 0 0 8px rgba(108,92,231,0.3);
+  }
+  .ext-dot-label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #6C5CE7;
+    display: block;
+    text-align: center;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
+
+  /* Row label header */
+  .ext-row-label-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--muted);
+    border-right: 2px solid #EEE8FF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #F4F0FF;
+  }
+
+  /* Whole / Decimal side labels */
+  .ext-side-labels {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 1fr 30px 1fr 1fr;
+    border-bottom: 1px solid #EEE8FF;
+  }
+  .ext-side-label {
+    padding: 5px 8px;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .ext-side-label.whole { color: var(--ones-color); background: rgba(255,107,107,0.05); }
+  .ext-side-label.decimal { color: var(--tenths-color); background: rgba(78,205,196,0.05); }
+  .ext-side-label.dot-space { border-left: 4px solid #6C5CE7; border-right: 4px solid #6C5CE7; background: rgba(108,92,231,0.05); }
+
+  /* NUMBER ROWS in extended chart */
+  .ext-number-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 1fr 30px 1fr 1fr;
+    border-bottom: 2px solid #EEE8FF;
+    min-height: 90px;
+  }
+  .ext-number-row:last-of-type { border-bottom: none; }
+  .ext-number-row.ext-row-a { background: #FAFCFF; }
+  .ext-number-row.ext-row-b { background: #FFFAFA; }
+
+  .ext-row-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: white;
+    border-right: 2px solid #EEE8FF;
+    padding: 6px;
+  }
+  .ext-row-label.label-a { background: #7B68EE; }
+  .ext-row-label.label-b { background: #FF7675; }
+
+  .ext-cell {
+    padding: 8px 6px;
+    border-right: 2px solid #EEE8FF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 90px;
+    position: relative;
+  }
+  .ext-cell:last-child { border-right: none; }
+  .ext-cell.whole-side { background: rgba(255,220,130,0.06); }
+  .ext-cell.decimal-side { background: rgba(100,200,255,0.05); }
+  .ext-cell.hundreds-cell  { background: linear-gradient(to bottom, var(--hundreds-light), rgba(254,240,227,0)); }
+  .ext-cell.tens-cell      { background: linear-gradient(to bottom, var(--tens-light), rgba(254,252,232,0)); }
+  .ext-cell.ext-ones-cell  { background: linear-gradient(to bottom, var(--ones-light), rgba(255,232,232,0)); }
+  .ext-cell.ext-tenths-cell     { background: linear-gradient(to bottom, var(--tenths-light), rgba(224,247,246,0)); }
+  .ext-cell.ext-hundredths-cell { background: linear-gradient(to bottom, var(--hundredths-light), rgba(243,232,255,0)); }
+
+  /* Decimal point divider cell in number rows */
+  .ext-dot-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 4px solid #6C5CE7;
+    border-left: 4px solid #6C5CE7;
+    background: linear-gradient(to bottom, rgba(108,92,231,0.08), rgba(108,92,231,0.03));
+    z-index: 1;
+  }
+  .ext-dot-mid {
+    width: 10px;
+    height: 10px;
+    background: #6C5CE7;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(108,92,231,0.5);
+  }
+
+  /* Digit display in ext cells */
+  .ext-digit {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    line-height: 1;
+    transition: all 0.25s;
+  }
+  .ext-digit.hundreds-d  { color: var(--hundreds-color); }
+  .ext-digit.tens-d      { color: var(--tens-color); }
+  .ext-digit.ext-ones-d  { color: var(--ones-color); }
+  .ext-digit.ext-tenths-d     { color: var(--tenths-color); }
+  .ext-digit.ext-hundredths-d { color: var(--hundredths-color); }
+  .ext-digit.changed { animation: bounce-in 0.4s ease; }
+
+  /* +/- controls in ext chart */
+  .ext-ctrl-row {
+    display: flex;
+    gap: 3px;
+    margin-top: 3px;
+  }
+  .ext-btn-add, .ext-btn-sub {
+    border: none;
+    border-radius: 6px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .ext-btn-add { background: var(--add-light); color: var(--add-color); }
+  .ext-btn-add:hover { background: var(--add-color); color: white; }
+  .ext-btn-sub { background: var(--sub-light); color: var(--sub-color); }
+  .ext-btn-sub:hover { background: var(--sub-color); color: white; }
+  .ext-btn-sub:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Place value arrows (10x chain) */
+  @keyframes shimmer-right {
+    0% { opacity: 0.4; transform: translateX(-4px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Extended chart result row */
+  .ext-result-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 1fr 30px 1fr 1fr;
+    background: linear-gradient(135deg, #F0F4FF, #E8F5E9);
+    border-top: 3px solid #7B68EE;
+  }
+  .ext-result-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: #7B68EE;
+    border-right: 2px solid #EEE8FF;
+    background: rgba(123,104,238,0.1);
+    padding: 6px;
+  }
+  .ext-result-cell {
+    padding: 8px 6px;
+    text-align: center;
+    border-right: 2px solid #EEE8FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+  }
+  .ext-result-cell:last-child { border-right: none; }
+  .ext-result-digit {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    line-height: 1;
+    transition: all 0.3s;
+  }
+  .ext-result-digit.hundreds-d  { color: var(--hundreds-color); }
+  .ext-result-digit.tens-d      { color: var(--tens-color); }
+  .ext-result-digit.ext-ones-d  { color: var(--ones-color); }
+  .ext-result-digit.ext-tenths-d     { color: var(--tenths-color); }
+  .ext-result-digit.ext-hundredths-d { color: var(--hundredths-color); }
+  .ext-result-digit.changed { animation: bounce-in 0.4s ease; }
+
+  /* Separator row in extended chart */
+  .ext-separator-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 1fr 30px 1fr 1fr;
+    background: #FFF8DC;
+    border-top: 2px solid #FFE082;
+    border-bottom: 2px solid #FFE082;
+    min-height: 32px;
+  }
+  .ext-sep-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border-right: 2px solid #EEE8FF;
+    background: rgba(255,224,130,0.3);
+  }
+  .ext-sep-cell {
+    border-right: 2px solid #EEE8FF;
+  }
+  .ext-sep-dot-cell {
+    border-right: 4px solid #6C5CE7;
+    border-left: 4px solid #6C5CE7;
+    background: rgba(108,92,231,0.06);
+  }
+
+  /* Insight callout under extended chart */
+  .ext-insight-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #EEE8FF;
+    background: linear-gradient(135deg, #FAFAFE, #F8FFFE);
+    flex-wrap: wrap;
+  }
+  .ext-insight-chip {
+    background: white;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: 1.5px solid #EEE8FF;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    min-width: 140px;
+    color: var(--text);
+  }
+  .ext-insight-chip .chip-emoji { font-size: 1rem; }
+  .ext-insight-chip .chip-text { line-height: 1.3; }
+
+  /* 10x visual connector between headers */
+  .ext-10x-connector {
+    position: absolute;
+    bottom: -1px;
+    right: -14px;
+    background: #EEE8FF;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    color: #7B68EE;
+    z-index: 5;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="op-stripe add" id="opStripe"></div>
+
+<div class="header">
+  <h1>🔢 Mrs. Nava's Decimal Operations Lab</h1>
+  <div class="subtitle">Explore adding and subtracting decimals with place value!</div>
+</div>
+
+<div class="main-wrap">
+
+  <!-- OPERATION TOGGLE -->
+  <div class="op-toggle-wrap">
+    <div class="op-toggle">
+      <button class="op-btn active-add" id="btnAdd" onclick="setOperation('add')">➕ Addition</button>
+      <button class="op-btn" id="btnSub" onclick="setOperation('sub')">➖ Subtraction</button>
+    </div>
+  </div>
+
+  <!-- INPUT SECTION -->
+  <div class="input-card">
+    <h3>📝 Enter Your Decimals</h3>
+    <div class="input-row">
+      <div class="input-group">
+        <label>Number A</label>
+        <input class="num-input" id="inputA" type="number" step="0.01" min="0" max="9.99" value="0.50" placeholder="0.50">
+      </div>
+      <div class="op-symbol add" id="opSymbolDisplay">+</div>
+      <div class="input-group">
+        <label>Number B</label>
+        <input class="num-input" id="inputB" type="number" step="0.01" min="0" max="9.99" value="0.35" placeholder="0.35">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-load" onclick="loadNumbers()">📊 Load into Chart</button>
+      <button class="btn-reset" onclick="resetAll()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <!-- PROMPT BAR -->
+  <div class="prompt-bar" id="promptBar">
+    <span class="prompt-icon">💡</span>
+    <span class="prompt-text" id="promptText">Try loading 0.50 + 0.35 and combine the tenths and hundredths!</span>
+    <button class="prompt-next" onclick="nextPrompt()">Next Tip ›</button>
+  </div>
+
+  <!-- EXTENDED PLACE VALUE VIEW TOGGLE -->
+  <div class="ext-toggle-wrap">
+    <button class="ext-toggle-btn" id="extToggleBtn" onclick="toggleExtChart()">
+      <span class="ext-toggle-icon">🔭</span>
+      Show Full Place Value Chart
+      <span style="font-size:0.78rem;opacity:0.75;margin-left:4px;">Hundreds → Hundredths</span>
+    </button>
+  </div>
+
+  <!-- EXTENDED PLACE VALUE CHART PANEL -->
+  <div class="ext-chart-panel" id="extChartPanel">
+
+    <div class="ext-panel-header">
+      <div>
+        <div class="ext-panel-title">🌐 The Full Place Value System</div>
+        <div class="ext-panel-subtitle">Values get 10× smaller as you move right across the decimal point</div>
+      </div>
+    </div>
+
+    <!-- 10× progression banner -->
+    <div class="ext-10x-banner">
+      <div class="ext-arrow-step">
+        <span class="ext-arrow-val hund-c">100</span>
+      </div>
+      <span class="ext-10x-arrow">→</span>
+      <span class="ext-10x-label">÷10</span>
+      <span class="ext-10x-arrow">→</span>
+      <div class="ext-arrow-step">
+        <span class="ext-arrow-val tens-c">10</span>
+      </div>
+      <span class="ext-10x-arrow">→</span>
+      <span class="ext-10x-label">÷10</span>
+      <span class="ext-10x-arrow">→</span>
+      <div class="ext-arrow-step">
+        <span class="ext-arrow-val ones-c">1</span>
+      </div>
+      <span class="ext-10x-arrow">→</span>
+      <span style="font-size:1.1rem;color:#6C5CE7;font-weight:900;margin:0 3px;">•</span>
+      <span class="ext-10x-arrow">→</span>
+      <span class="ext-10x-label">÷10</span>
+      <span class="ext-10x-arrow">→</span>
+      <div class="ext-arrow-step">
+        <span class="ext-arrow-val tenth-c">0.1</span>
+      </div>
+      <span class="ext-10x-arrow">→</span>
+      <span class="ext-10x-label">÷10</span>
+      <span class="ext-10x-arrow">→</span>
+      <div class="ext-arrow-step">
+        <span class="ext-arrow-val hun-c">0.01</span>
+      </div>
+    </div>
+
+    <!-- Side labels: WHOLE NUMBERS | . | DECIMALS -->
+    <div class="ext-side-labels">
+      <div></div>
+      <div class="ext-side-label whole" style="grid-column:span 3;border-right:none;">⬅ WHOLE NUMBERS</div>
+      <div class="ext-side-label dot-space"></div>
+      <div class="ext-side-label decimal" style="grid-column:span 2;">DECIMAL FRACTIONS ➡</div>
+    </div>
+
+    <!-- Column headers -->
+    <div class="ext-header-grid">
+      <div class="ext-row-label-header">ROW</div>
+      <div class="ext-col-header ext-hundreds-h whole-side">
+        <span class="pv-name">HUNDREDS</span>
+        <span class="pv-val">100</span>
+      </div>
+      <div class="ext-col-header ext-tens-h whole-side">
+        <span class="pv-name">TENS</span>
+        <span class="pv-val">10</span>
+      </div>
+      <div class="ext-col-header ext-ones-h whole-side">
+        <span class="pv-name">ONES</span>
+        <span class="pv-val">1</span>
+      </div>
+      <div class="ext-dot-header">
+        <div>
+          <div class="ext-dot-symbol">.</div>
+          <div class="ext-dot-label">point</div>
+        </div>
+      </div>
+      <div class="ext-col-header ext-tenths-h decimal-side">
+        <span class="pv-name">TENTHS</span>
+        <span class="pv-val">0.1</span>
+      </div>
+      <div class="ext-col-header ext-hundredths-h decimal-side">
+        <span class="pv-name">HUNDREDTHS</span>
+        <span class="pv-val">0.01</span>
+      </div>
+    </div>
+
+    <!-- ROW A -->
+    <div class="ext-number-row ext-row-a">
+      <div class="ext-row-label label-a">A</div>
+      <div class="ext-cell hundreds-cell whole-side">
+        <div class="ext-digit hundreds-d" id="ext-a-hundreds">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('a','hundreds',1)" title="Add hundred">+</button>
+          <button class="ext-btn-sub" id="ext-sub-a-hundreds" onclick="extAdjust('a','hundreds',-1)" title="Remove hundred">−</button>
+        </div>
+      </div>
+      <div class="ext-cell tens-cell whole-side">
+        <div class="ext-digit tens-d" id="ext-a-tens">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('a','tens',1)" title="Add ten">+</button>
+          <button class="ext-btn-sub" id="ext-sub-a-tens" onclick="extAdjust('a','tens',-1)" title="Remove ten">−</button>
+        </div>
+      </div>
+      <div class="ext-cell ext-ones-cell whole-side">
+        <div class="ext-digit ext-ones-d" id="ext-a-ones">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('a','ones',1)" title="Add one">+</button>
+          <button class="ext-btn-sub" id="ext-sub-a-ones" onclick="extAdjust('a','ones',-1)" title="Remove one">−</button>
+        </div>
+      </div>
+      <div class="ext-dot-cell">
+        <div class="ext-dot-mid"></div>
+      </div>
+      <div class="ext-cell ext-tenths-cell decimal-side">
+        <div class="ext-digit ext-tenths-d" id="ext-a-tenths">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('a','tenths',1)" title="Add tenth">+</button>
+          <button class="ext-btn-sub" id="ext-sub-a-tenths" onclick="extAdjust('a','tenths',-1)" title="Remove tenth">−</button>
+        </div>
+      </div>
+      <div class="ext-cell ext-hundredths-cell decimal-side">
+        <div class="ext-digit ext-hundredths-d" id="ext-a-hundredths">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('a','hundredths',1)" title="Add hundredth">+</button>
+          <button class="ext-btn-sub" id="ext-sub-a-hundredths" onclick="extAdjust('a','hundredths',-1)" title="Remove hundredth">−</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Separator -->
+    <div class="ext-separator-row">
+      <div class="ext-sep-label" id="extSepOp">➕</div>
+      <div class="ext-sep-cell"></div>
+      <div class="ext-sep-cell"></div>
+      <div class="ext-sep-cell"></div>
+      <div class="ext-sep-dot-cell"></div>
+      <div class="ext-sep-cell"></div>
+      <div class="ext-sep-cell"></div>
+    </div>
+
+    <!-- ROW B -->
+    <div class="ext-number-row ext-row-b">
+      <div class="ext-row-label label-b">B</div>
+      <div class="ext-cell hundreds-cell whole-side">
+        <div class="ext-digit hundreds-d" id="ext-b-hundreds">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('b','hundreds',1)" title="Add hundred">+</button>
+          <button class="ext-btn-sub" id="ext-sub-b-hundreds" onclick="extAdjust('b','hundreds',-1)" title="Remove hundred">−</button>
+        </div>
+      </div>
+      <div class="ext-cell tens-cell whole-side">
+        <div class="ext-digit tens-d" id="ext-b-tens">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('b','tens',1)" title="Add ten">+</button>
+          <button class="ext-btn-sub" id="ext-sub-b-tens" onclick="extAdjust('b','tens',-1)" title="Remove ten">−</button>
+        </div>
+      </div>
+      <div class="ext-cell ext-ones-cell whole-side">
+        <div class="ext-digit ext-ones-d" id="ext-b-ones">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('b','ones',1)" title="Add one">+</button>
+          <button class="ext-btn-sub" id="ext-sub-b-ones" onclick="extAdjust('b','ones',-1)" title="Remove one">−</button>
+        </div>
+      </div>
+      <div class="ext-dot-cell">
+        <div class="ext-dot-mid"></div>
+      </div>
+      <div class="ext-cell ext-tenths-cell decimal-side">
+        <div class="ext-digit ext-tenths-d" id="ext-b-tenths">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('b','tenths',1)" title="Add tenth">+</button>
+          <button class="ext-btn-sub" id="ext-sub-b-tenths" onclick="extAdjust('b','tenths',-1)" title="Remove tenth">−</button>
+        </div>
+      </div>
+      <div class="ext-cell ext-hundredths-cell decimal-side">
+        <div class="ext-digit ext-hundredths-d" id="ext-b-hundredths">0</div>
+        <div class="ext-ctrl-row">
+          <button class="ext-btn-add" onclick="extAdjust('b','hundredths',1)" title="Add hundredth">+</button>
+          <button class="ext-btn-sub" id="ext-sub-b-hundredths" onclick="extAdjust('b','hundredths',-1)" title="Remove hundredth">−</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result row -->
+    <div class="ext-result-row">
+      <div class="ext-result-label">=</div>
+      <div class="ext-result-cell">
+        <div class="ext-result-digit hundreds-d" id="ext-r-hundreds">—</div>
+      </div>
+      <div class="ext-result-cell">
+        <div class="ext-result-digit tens-d" id="ext-r-tens">—</div>
+      </div>
+      <div class="ext-result-cell">
+        <div class="ext-result-digit ext-ones-d" id="ext-r-ones">—</div>
+      </div>
+      <div class="ext-dot-cell" style="border-top:3px solid #7B68EE;">
+        <div class="ext-dot-mid"></div>
+      </div>
+      <div class="ext-result-cell">
+        <div class="ext-result-digit ext-tenths-d" id="ext-r-tenths">—</div>
+      </div>
+      <div class="ext-result-cell">
+        <div class="ext-result-digit ext-hundredths-d" id="ext-r-hundredths">—</div>
+      </div>
+    </div>
+
+    <!-- Calculate button -->
+    <div style="display:flex;justify-content:center;padding:12px 16px 4px;gap:10px;flex-wrap:wrap;">
+      <button class="btn-calculate" onclick="extCalculate()" style="font-size:0.95rem;padding:10px 20px;">✨ Calculate Answer</button>
+      <button class="btn-reset" onclick="extReset()" style="font-size:0.9rem;padding:8px 16px;">🔄 Clear Chart</button>
+    </div>
+
+    <!-- Answer display for extended chart -->
+    <div class="answer-display" id="extAnswerDisplay" style="margin:10px 16px 4px;">
+      <div class="answer-label">Full Answer</div>
+      <div class="answer-value" id="extAnswerValue">?</div>
+      <div class="answer-equation" id="extAnswerEquation"></div>
+    </div>
+
+    <!-- Insight chips -->
+    <div class="ext-insight-row">
+      <div class="ext-insight-chip">
+        <span class="chip-emoji">💡</span>
+        <span class="chip-text">Each place is <strong>10× bigger</strong> than the one to its right</span>
+      </div>
+      <div class="ext-insight-chip">
+        <span class="chip-emoji">🔴</span>
+        <span class="chip-text">Whole numbers are on the <strong>LEFT</strong> of the dot</span>
+      </div>
+      <div class="ext-insight-chip">
+        <span class="chip-emoji">🔵</span>
+        <span class="chip-text">Decimal fractions are on the <strong>RIGHT</strong> of the dot</span>
+      </div>
+      <div class="ext-insight-chip">
+        <span class="chip-emoji">🎯</span>
+        <span class="chip-text">Digits must <strong>align by place value</strong> to add correctly</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace-row">
+
+    <!-- PLACE VALUE CHART -->
+    <div class="chart-card">
+      <!-- OPERATION STRIPE -->
+      <div style="height:3px;background:linear-gradient(90deg, #667eea, #764ba2);"></div>
+
+      <!-- COLUMN HEADERS -->
+      <div class="chart-header-row">
+        <div class="chart-col-header row-label-header">ROW</div>
+        <div class="chart-col-header ones-header">
+          <span class="pv-name">ONES</span>
+          <span class="pv-val">1</span>
+        </div>
+        <div class="chart-col-header tenths-header">
+          <span class="pv-name">TENTHS</span>
+          <span class="pv-val">0.1</span>
+        </div>
+        <div class="chart-col-header hundredths-header">
+          <span class="pv-name">HUNDREDTHS</span>
+          <span class="pv-val">0.01</span>
+        </div>
+      </div>
+
+      <!-- ROW A -->
+      <div class="chart-number-row row-a">
+        <div class="row-label label-a">A</div>
+
+        <!-- A: Ones -->
+        <div class="cell ones-cell" id="cell-a-ones">
+          <div class="units-area" id="units-a-ones"></div>
+          <div class="cell-count ones-count" id="count-a-ones">0</div>
+          <div class="cell-actions" id="actions-a-ones"></div>
+        </div>
+
+        <!-- A: Tenths -->
+        <div class="cell tenths-cell" id="cell-a-tenths">
+          <div class="units-area" id="units-a-tenths"></div>
+          <div class="cell-count tenths-count" id="count-a-tenths">0</div>
+          <div class="cell-actions" id="actions-a-tenths"></div>
+        </div>
+
+        <!-- A: Hundredths -->
+        <div class="cell hundredths-cell" id="cell-a-hundredths">
+          <div class="units-area" id="units-a-hundredths"></div>
+          <div class="cell-count hundredths-count" id="count-a-hundredths">0</div>
+          <div class="cell-actions" id="actions-a-hundredths"></div>
+        </div>
+      </div>
+
+      <!-- SEPARATOR -->
+      <div class="separator-row" id="separatorRow">
+        <div class="separator-label" id="separatorOp">➕</div>
+        <div class="separator-cell"></div>
+        <div class="separator-cell"></div>
+        <div class="separator-cell"></div>
+      </div>
+
+      <!-- ROW B -->
+      <div class="chart-number-row row-b">
+        <div class="row-label label-b">B</div>
+
+        <!-- B: Ones -->
+        <div class="cell ones-cell" id="cell-b-ones">
+          <div class="units-area" id="units-b-ones"></div>
+          <div class="cell-count ones-count" id="count-b-ones">0</div>
+        </div>
+
+        <!-- B: Tenths -->
+        <div class="cell tenths-cell" id="cell-b-tenths">
+          <div class="units-area" id="units-b-tenths"></div>
+          <div class="cell-count tenths-count" id="count-b-tenths">0</div>
+        </div>
+
+        <!-- B: Hundredths -->
+        <div class="cell hundredths-cell" id="cell-b-hundredths">
+          <div class="units-area" id="units-b-hundredths"></div>
+          <div class="cell-count hundredths-count" id="count-b-hundredths">0</div>
+        </div>
+      </div>
+
+      <!-- RESULT ROW -->
+      <div class="chart-result-row">
+        <div class="result-label">=</div>
+        <div class="result-cell">
+          <div class="result-digit ones-count" id="result-ones">—</div>
+          <div class="help-text" id="hint-ones"></div>
+        </div>
+        <div class="result-cell">
+          <div class="result-digit tenths-count" id="result-tenths">—</div>
+          <div class="help-text" id="hint-tenths"></div>
+          <div class="regroup-zone" id="regroup-zone-tenths"></div>
+        </div>
+        <div class="result-cell">
+          <div class="result-digit hundredths-count" id="result-hundredths">—</div>
+          <div class="help-text" id="hint-hundredths"></div>
+          <div class="regroup-zone" id="regroup-zone-hundredths"></div>
+        </div>
+      </div>
+
+      <!-- BOTTOM CONTROLS -->
+      <div class="bottom-controls" style="padding:0 16px 16px;">
+        <button class="btn-combine" id="btnCombine" onclick="combineUnits()">🔗 Combine Units</button>
+        <button class="btn-calculate" onclick="showAnswer()">✨ Show Answer</button>
+      </div>
+
+    </div>
+
+    <!-- ALGORITHM PANEL -->
+    <div>
+      <div class="algo-card">
+        <div class="algo-title">📐 Standard Algorithm</div>
+        <div class="algo-body">
+          <div class="carry-row" id="carryRow">
+            <div class="algo-carry" id="carry-ones"></div>
+            <div style="width:12px;"></div>
+            <div class="algo-carry" id="carry-tenths"></div>
+            <div class="algo-carry" id="carry-hundredths"></div>
+          </div>
+          <div class="algo-row" id="algoRowA">
+            <span class="algo-op" id="algoOpA"> </span>
+            <span class="algo-digit ones-d" id="algo-a-ones">—</span>
+            <span class="algo-dot">.</span>
+            <span class="algo-digit tenths-d" id="algo-a-tenths">—</span>
+            <span class="algo-digit hundredths-d" id="algo-a-hundredths">—</span>
+          </div>
+          <div class="algo-row" id="algoRowB">
+            <span class="algo-op" id="algoOpB">+</span>
+            <span class="algo-digit ones-d" id="algo-b-ones">—</span>
+            <span class="algo-dot">.</span>
+            <span class="algo-digit tenths-d" id="algo-b-tenths">—</span>
+            <span class="algo-digit hundredths-d" id="algo-b-hundredths">—</span>
+          </div>
+          <hr class="algo-line">
+          <div class="algo-row" id="algoRowResult">
+            <span class="algo-op"> </span>
+            <span class="algo-digit ones-d" id="algo-r-ones">—</span>
+            <span class="algo-dot">.</span>
+            <span class="algo-digit tenths-d" id="algo-r-tenths">—</span>
+            <span class="algo-digit hundredths-d" id="algo-r-hundredths">—</span>
+          </div>
+        </div>
+
+        <div class="answer-display" id="answerDisplay">
+          <div class="answer-label">Answer</div>
+          <div class="answer-value" id="answerValue">?</div>
+          <div class="answer-equation" id="answerEquation"></div>
+        </div>
+
+        <!-- REGROUP CONTROLS -->
+        <div style="padding: 10px 14px; display:flex; flex-direction:column; gap:8px;" id="regroupControls">
+          <button class="regroup-btn" id="btnRegroup" onclick="doRegroup()" style="display:none;">
+            🔄 Regroup (Carry)
+          </button>
+          <button class="decompose-btn" id="btnDecompose" onclick="doDecompose()" style="display:none;">
+            🔀 Decompose (Borrow)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DID YOU KNOW CARD -->
+  <div class="fact-card" onclick="nextFact()" id="factCard">
+    <div class="fact-header">⭐ Did You Know?</div>
+    <div class="fact-content" id="factContent">
+      <div class="fact-emoji" id="factEmoji">🍕</div>
+      <div class="fact-headline" id="factHeadline">Pizza Slices and Decimals!</div>
+      <div class="fact-body" id="factBody">If a pizza is cut into 10 equal slices, each slice = 0.1 of the whole pizza. Eat 5 slices and you've eaten 0.5 — that's 5 tenths!</div>
+    </div>
+    <div class="tap-hint">👆 Tap for a new fact!</div>
+  </div>
+
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification">
+  <span id="notifIcon">✅</span>
+  <span id="notifText">Done!</span>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let operation = 'add';
+let numA = { ones: 0, tenths: 5, hundredths: 0 };
+let numB = { ones: 0, tenths: 3, hundredths: 5 };
+let combined = { ones: 0, tenths: 0, hundredths: 0 };
+let carries = { ones: 0, tenths: 0, hundredths: 0 };
+let borrows = { ones: false, tenths: false };
+// Pre-borrow originals for algorithm display
+let preBorrow = { aOnes: 0, aTenths: 0, aHundredths: 0 };
+let resultRevealed = false;
+let numbersLoaded = false;
+let combineDone = false; // guard against double-combine
+
+const PLACES = ['ones', 'tenths', 'hundredths'];
+const PLACE_CLASS = { ones: 'ones-unit', tenths: 'tenths-unit', hundredths: 'hundredths-unit' };
+const PLACE_LABEL = { ones: '1', tenths: '.1', hundredths: '.01' };
+
+// ============================================================
+// FACTS
+// ============================================================
+const facts = [
+  { emoji: '🍕', headline: 'Pizza Slices!', body: 'A pizza cut into 10 slices = each slice is 0.1. Eat 5 slices = 0.5! Adding 0.3 + 0.2 is like combining slices.' },
+  { emoji: '💰', headline: 'Money is Decimals!', body: 'A quarter is $0.25 — that\'s 2 tenths and 5 hundredths. $0.25 + $0.35 = $0.60. You do decimal addition every time you count coins!' },
+  { emoji: '🏃', headline: 'Track Records!', body: 'Runners measure time in hundredths of seconds. 0.01 seconds can mean the difference between 1st and 2nd place in the Olympics!' },
+  { emoji: '⚾', headline: 'Batting Averages!', body: 'A baseball batting average of 0.35 means a batter got a hit 35 times out of 100 at-bats. Pros study decimal subtraction to track improvement!' },
+  { emoji: '🌡️', headline: 'Weather Temperatures!', body: 'Meteorologists report temperatures like 98.6°F. The 0.6 is 6 tenths of a degree — decimals make measurements super precise!' },
+  { emoji: '🚗', headline: 'Gas Prices!', body: 'Gas prices show three decimal places! $3.459 means 3 dollars, 4 tenths, 5 hundredths, and 9 thousandths. That\'s why it looks like such a strange number!' },
+  { emoji: '🏊', headline: 'Olympic Swimming!', body: 'Swimmers at the Olympics are timed to 0.01 seconds (hundredths). In 2008, Michael Phelps won by just 0.01 seconds — the width of a fingernail!' },
+  { emoji: '🍫', headline: 'Chocolate Bars!', body: 'If you eat 0.50 of a chocolate bar and give away 0.25, you gave away HALF of what you ate! Subtracting 0.50 − 0.25 = 0.25 left for you.' },
+  { emoji: '🔬', headline: 'Super Tiny Measurements!', body: 'Scientists measure bacteria in hundredths of a millimeter. 0.03 mm is about the width of a strand of silk! Tiny but mighty.' },
+  { emoji: '🎵', headline: 'Music Fractions!', body: 'A quarter note lasts 0.25 of a whole note. Four quarter notes (0.25 + 0.25 + 0.25 + 0.25) add up to 1.00 — a complete measure!' },
+  { emoji: '🌍', headline: 'Earth\'s Tilt!', body: 'Earth is tilted exactly 23.45 degrees on its axis. That 0.45 (4 tenths + 5 hundredths) is WHY we have seasons — tiny decimal, HUGE difference!' },
+  { emoji: '🏀', headline: 'Free Throw Stats!', body: 'NBA player Steph Curry makes about 0.91 of his free throws. That\'s 91 out of 100 — incredible! Subtracting from 1.00 shows he misses only 0.09.' },
+  { emoji: '💧', headline: 'Rainfall Measurement!', body: 'Meteorologists measure rain in inches with decimals. 0.50 inches + 0.35 inches = 0.85 inches of rain. Farmers use this to decide when to water crops!' },
+  { emoji: '🧪', headline: 'Medicine Doses!', body: 'Doctors prescribe 0.5 mg or 0.25 mg doses of medicine. Getting decimal addition right is literally life-saving! That\'s why decimals matter SO much.' },
+  { emoji: '🎯', headline: 'Archery Scores!', body: 'Olympic archers score to 0.1 precision. Miss by 0.5 cm and you drop from the gold zone to the red zone. Tenths of a point can mean a medal!' },
+  { emoji: '🏗️', headline: 'Building Blueprints!', body: 'Architects measure in decimals of a foot. A wall must be exactly 8.75 feet — that\'s 8 and 75 hundredths. Off by 0.01 feet and the door won\'t fit!' },
+];
+let factIndex = 0;
+
+function nextFact() {
+  factIndex = (factIndex + 1) % facts.length;
+  const f = facts[factIndex];
+  const el = document.getElementById('factContent');
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'slide-up 0.35s ease';
+  document.getElementById('factEmoji').textContent = f.emoji;
+  document.getElementById('factHeadline').textContent = f.headline;
+  document.getElementById('factBody').textContent = f.body;
+}
+
+// ============================================================
+// PROMPTS
+// ============================================================
+const prompts = [
+  'Try loading 0.50 + 0.35 — hit "Combine Units" to see them merge!',
+  'Can you regroup? Try 0.48 + 0.67 and watch the hundredths overflow!',
+  'Explore subtraction: try 0.90 − 0.35. Does Row A have enough hundredths?',
+  'What happens when you borrow? Try 0.50 − 0.28 in subtraction mode.',
+  'Notice how the decimals ALIGN in the chart. That\'s the secret to decimal math!',
+  'Try 1.25 + 0.75 — can you make exactly 2.00?',
+  'In subtraction, try 0.80 − 0.45. Use "Decompose" if you need to borrow!',
+  'Can you find two decimals that add to exactly 1.00?',
+];
+let promptIndex = 0;
+function nextPrompt() {
+  promptIndex = (promptIndex + 1) % prompts.length;
+  document.getElementById('promptText').textContent = prompts[promptIndex];
+}
+
+// ============================================================
+// OPERATION
+// ============================================================
+function setOperation(op) {
+  operation = op;
+  const btnAdd = document.getElementById('btnAdd');
+  const btnSub = document.getElementById('btnSub');
+  const stripe = document.getElementById('opStripe');
+  const sep = document.getElementById('separatorOp');
+  const sym = document.getElementById('opSymbolDisplay');
+  const combineBtn = document.getElementById('btnCombine');
+
+  btnAdd.className = 'op-btn' + (op === 'add' ? ' active-add' : '');
+  btnSub.className = 'op-btn' + (op === 'sub' ? ' active-sub' : '');
+  stripe.className = 'op-stripe ' + op;
+  sep.textContent = op === 'add' ? '➕' : '➖';
+  sym.className = 'op-symbol ' + op;
+  sym.textContent = op === 'add' ? '+' : '−';
+  combineBtn.textContent = op === 'add' ? '🔗 Combine Units' : '➖ Subtract Units';
+
+  document.getElementById('algoOpB').textContent = op === 'add' ? '+' : '−';
+
+  updateRegroupButtons();
+  if (numbersLoaded) { resetResult(); renderAll(); }
+}
+
+// ============================================================
+// PARSE / CLAMP
+// ============================================================
+function parseDecimal(val) {
+  let v = parseFloat(val) || 0;
+  v = Math.max(0, Math.min(9.99, v));
+  const rounded = Math.round(v * 100);
+  return {
+    ones: Math.floor(rounded / 100),
+    tenths: Math.floor((rounded % 100) / 10),
+    hundredths: rounded % 10
+  };
+}
+
+// ============================================================
+// LOAD
+// ============================================================
+function loadNumbers() {
+  const vA = document.getElementById('inputA').value;
+  const vB = document.getElementById('inputB').value;
+  numA = parseDecimal(vA);
+  numB = parseDecimal(vB);
+  carries = { ones: 0, tenths: 0, hundredths: 0 };
+  borrows = { ones: false, tenths: false };
+  preBorrow = { aOnes: numA.ones, aTenths: numA.tenths, aHundredths: numA.hundredths };
+  combined = { ones: 0, tenths: 0, hundredths: 0 };
+  resultRevealed = false;
+  combineDone = false;
+  numbersLoaded = true;
+
+  renderAll();
+  updateAlgorithm();
+  resetResultDisplay();
+  hideRegroupZones();
+  updateRegroupButtons();
+  showNotif('✅', 'Numbers loaded into the chart!', 'success');
+}
+
+function resetAll() {
+  numbersLoaded = false;
+  numA = { ones: 0, tenths: 0, hundredths: 0 };
+  numB = { ones: 0, tenths: 0, hundredths: 0 };
+  carries = { ones: 0, tenths: 0, hundredths: 0 };
+  borrows = { ones: false, tenths: false };
+  preBorrow = { aOnes: 0, aTenths: 0, aHundredths: 0 };
+  combined = { ones: 0, tenths: 0, hundredths: 0 };
+  resultRevealed = false;
+  combineDone = false;
+  PLACES.forEach(p => {
+    renderUnits('a', p, 0);
+    renderUnits('b', p, 0);
+    document.getElementById(`count-a-${p}`).textContent = '0';
+    document.getElementById(`count-b-${p}`).textContent = '0';
+    document.getElementById(`result-${p}`).textContent = '—';
+    document.getElementById(`hint-${p}`).textContent = '';
+  });
+  resetResultDisplay();
+  updateAlgorithmEmpty();
+  updateRegroupButtons();
+  hideRegroupZones();
+}
+
+function resetResult() {
+  combined = { ones: 0, tenths: 0, hundredths: 0 };
+  carries = { ones: 0, tenths: 0, hundredths: 0 };
+  borrows = { ones: false, tenths: false };
+  preBorrow = { aOnes: numA.ones, aTenths: numA.tenths, aHundredths: numA.hundredths };
+  resultRevealed = false;
+  combineDone = false;
+  PLACES.forEach(p => {
+    document.getElementById(`result-${p}`).textContent = '—';
+    document.getElementById(`hint-${p}`).textContent = '';
+  });
+  hideRegroupZones();
+  resetResultDisplay();
+}
+
+// ============================================================
+// RENDER UNITS
+// ============================================================
+function renderUnits(row, place, count) {
+  const area = document.getElementById(`units-${row}-${place}`);
+  if (!area) return;
+  area.innerHTML = '';
+  const cls = PLACE_CLASS[place];
+  const lbl = PLACE_LABEL[place];
+  for (let i = 0; i < Math.min(count, 15); i++) {
+    const b = document.createElement('div');
+    b.className = `unit-block ${cls}`;
+    b.textContent = lbl;
+    b.title = `One ${place} unit`;
+    area.appendChild(b);
+  }
+  if (count > 15) {
+    const more = document.createElement('div');
+    more.style.cssText = 'font-size:0.7rem;font-weight:700;color:#666;padding:2px;';
+    more.textContent = `+${count - 15} more`;
+    area.appendChild(more);
+  }
+  const countEl = document.getElementById(`count-${row}-${place}`);
+  if (countEl) countEl.textContent = count;
+}
+
+function renderAll() {
+  PLACES.forEach(p => {
+    renderUnits('a', p, numA[p]);
+    renderUnits('b', p, numB[p]);
+  });
+  renderCellActions();
+}
+
+function renderCellActions() {
+  PLACES.forEach(p => {
+    const el = document.getElementById(`actions-a-${p}`);
+    if (!el) return;
+    el.innerHTML = '';
+    if (!numbersLoaded) return;
+
+    if (operation === 'add') {
+      const btnAdd = document.createElement('button');
+      btnAdd.className = 'btn-add-unit';
+      btnAdd.textContent = '+ Add';
+      btnAdd.onclick = () => { numA[p]++; renderAll(); updateAlgorithm(); };
+      el.appendChild(btnAdd);
+      if (numA[p] > 0) {
+        const btnRem = document.createElement('button');
+        btnRem.className = 'btn-remove-unit';
+        btnRem.textContent = '− Remove';
+        btnRem.onclick = () => { if (numA[p] > 0) { numA[p]--; renderAll(); updateAlgorithm(); } };
+        el.appendChild(btnRem);
+      }
+    } else {
+      // subtraction mode — add/remove from A
+      const btnAdd = document.createElement('button');
+      btnAdd.className = 'btn-add-unit';
+      btnAdd.textContent = '+ Add';
+      btnAdd.onclick = () => { numA[p]++; renderAll(); updateAlgorithm(); resetResult(); };
+      el.appendChild(btnAdd);
+      if (numA[p] > 0) {
+        const btnRem = document.createElement('button');
+        btnRem.className = 'btn-remove-unit';
+        btnRem.textContent = '− Remove';
+        btnRem.onclick = () => { numA[p]--; renderAll(); updateAlgorithm(); resetResult(); };
+        el.appendChild(btnRem);
+      }
+    }
+  });
+}
+
+// ============================================================
+// COMBINE / SUBTRACT
+// ============================================================
+function combineUnits() {
+  if (!numbersLoaded) {
+    showNotif('⚠️', 'Load your numbers first!', 'warning');
+    return;
+  }
+  // Guard: reset carries/borrows so re-clicking is idempotent
+  carries = { ones: 0, tenths: 0, hundredths: 0 };
+  borrows = { ones: false, tenths: false };
+  hideRegroupZones();
+
+  if (operation === 'add') {
+    // Snapshot originals for hint display BEFORE carry mutation
+    const snapAH = numA.hundredths, snapAT = numA.tenths, snapAO = numA.ones;
+    const snapBH = numB.hundredths, snapBT = numB.tenths, snapBO = numB.ones;
+
+    combined.hundredths = snapAH + snapBH;
+    combined.tenths = snapAT + snapBT;
+    combined.ones = snapAO + snapBO;
+
+    // Carry from hundredths → tenths
+    if (combined.hundredths >= 10) {
+      carries.hundredths = Math.floor(combined.hundredths / 10);
+      combined.tenths += carries.hundredths;
+      combined.hundredths = combined.hundredths % 10;
+    }
+    // Carry from tenths → ones
+    if (combined.tenths >= 10) {
+      carries.tenths = Math.floor(combined.tenths / 10);
+      combined.ones += carries.tenths;
+      combined.tenths = combined.tenths % 10;
+    }
+    // Carry from ones (result can exceed 9)
+    if (combined.ones >= 10) {
+      carries.ones = Math.floor(combined.ones / 10);
+      combined.ones = combined.ones % 10;
+    }
+
+    PLACES.forEach(p => {
+      const el = document.getElementById(`result-${p}`);
+      el.textContent = combined[p];
+      el.classList.add('changed');
+      setTimeout(() => el.classList.remove('changed'), 500);
+    });
+
+    // Show regroup zone messages using snapshot values
+    if (carries.hundredths > 0) {
+      const rawH = snapAH + snapBH;
+      const zone = document.getElementById('regroup-zone-hundredths');
+      zone.textContent = `${snapAH} + ${snapBH} = ${rawH} hundredths → carry ${carries.hundredths} tenth!`;
+      zone.classList.add('visible');
+      showNotif('🔄', `Regrouping! ${rawH} hundredths → ${carries.hundredths} tenth carried!`, 'info');
+    }
+    if (carries.tenths > 0) {
+      const rawT = snapAT + snapBT + carries.hundredths;
+      if (carries.hundredths === 0) {
+        showNotif('🔄', `Regrouping! ${rawT} tenths → carry to ones!`, 'info');
+      }
+    }
+
+    updateHints('add', { snapAH, snapAT, snapAO, snapBH, snapBT, snapBO });
+
+  } else {
+    // SUBTRACTION — work on local copies; do NOT mutate numA
+    let aH = numA.hundredths, aT = numA.tenths, aO = numA.ones;
+    const bH = numB.hundredths, bT = numB.tenths, bO = numB.ones;
+
+    // Snapshot pre-borrow values for hints & algorithm display
+    const preAH = aH, preAT = aT, preAO = aO;
+
+    // --- Borrow for hundredths if needed ---
+    if (aH < bH) {
+      if (aT > 0) {
+        // Borrow 1 tenth → 10 hundredths
+        aT--;
+        aH += 10;
+        borrows.tenths = true;
+        showNotif('🔀', `Borrowing! 1 tenth → 10 hundredths`, 'info');
+      } else if (aO > 0) {
+        // No tenths: borrow 1 one → 10 tenths, then borrow 1 tenth → 10 hundredths
+        aO--;
+        aT += 10; // got 10 tenths from one
+        aT--;     // spend 1 tenth for the hundredths borrow
+        aH += 10;
+        borrows.tenths = true;
+        borrows.ones = true;
+        showNotif('🔀', `Borrowing across two columns!`, 'info');
+      } else {
+        showNotif('⚠️', `Cannot subtract — A is too small!`, 'warning');
+        return;
+      }
+    }
+
+    // --- Borrow for tenths if needed ---
+    if (aT < bT) {
+      if (aO > 0) {
+        aO--;
+        aT += 10;
+        borrows.ones = true;
+      } else {
+        showNotif('⚠️', `Cannot subtract — not enough tenths or ones!`, 'warning');
+        return;
+      }
+    }
+
+    // --- Check ones ---
+    if (aO < bO) {
+      showNotif('⚠️', `Cannot subtract — A ones are too small!`, 'warning');
+      return;
+    }
+
+    combined.hundredths = aH - bH;
+    combined.tenths = aT - bT;
+    combined.ones = aO - bO;
+
+    // Store pre-borrow snapshot for algorithm display
+    preBorrow = { aOnes: preAO, aTenths: preAT, aHundredths: preAH };
+
+    PLACES.forEach(p => {
+      const el = document.getElementById(`result-${p}`);
+      el.textContent = combined[p];
+      el.classList.add('changed');
+      setTimeout(() => el.classList.remove('changed'), 500);
+    });
+
+    updateHints('sub', { preAH, preAT, preAO, aH, aT, aO, bH, bT, bO });
+  }
+
+  combineDone = true;
+  updateAlgorithm();
+  updateRegroupButtons();
+}
+
+function updateHints(op, snap) {
+  if (op === 'add') {
+    const { snapAH, snapAT, snapAO, snapBH, snapBT, snapBO } = snap;
+    const rawH = snapAH + snapBH;
+    const rawT = snapAT + snapBT + carries.hundredths;
+    const rawO = snapAO + snapBO + carries.tenths;
+    document.getElementById('hint-hundredths').textContent =
+      rawH > 9 ? `${snapAH} + ${snapBH} = ${rawH} → carry!` : `${snapAH} + ${snapBH} = ${rawH}`;
+    document.getElementById('hint-hundredths').className = 'help-text add-hint';
+    document.getElementById('hint-tenths').textContent =
+      `${snapAT} + ${snapBT}${carries.hundredths ? ' + ' + carries.hundredths + '↑' : ''} = ${combined.tenths}${carries.tenths ? ' → carry!' : ''}`;
+    document.getElementById('hint-tenths').className = 'help-text add-hint';
+    document.getElementById('hint-ones').textContent =
+      `${snapAO} + ${snapBO}${carries.tenths ? ' + ' + carries.tenths + '↑' : ''} = ${combined.ones}`;
+    document.getElementById('hint-ones').className = 'help-text add-hint';
+  } else {
+    const { preAH, preAT, preAO, aH, aT, aO, bH, bT, bO } = snap;
+    document.getElementById('hint-hundredths').textContent =
+      borrows.tenths
+        ? `${preAH} + 10(borrowed) − ${bH} = ${combined.hundredths}`
+        : `${preAH} − ${bH} = ${combined.hundredths}`;
+    document.getElementById('hint-hundredths').className = 'help-text sub-hint';
+    document.getElementById('hint-tenths').textContent =
+      borrows.tenths && borrows.ones
+        ? `${preAT} + 10 − 1(lent) − ${bT} = ${combined.tenths}`
+        : borrows.tenths
+          ? `${preAT} − 1(lent) − ${bT} = ${combined.tenths}`
+          : borrows.ones
+            ? `${preAT} + 10(borrowed) − ${bT} = ${combined.tenths}`
+            : `${preAT} − ${bT} = ${combined.tenths}`;
+    document.getElementById('hint-tenths').className = 'help-text sub-hint';
+    document.getElementById('hint-ones').textContent =
+      borrows.ones
+        ? `${preAO} − 1(lent) − ${bO} = ${combined.ones}`
+        : `${preAO} − ${bO} = ${combined.ones}`;
+    document.getElementById('hint-ones').className = 'help-text sub-hint';
+  }
+}
+
+// ============================================================
+// REGROUP / DECOMPOSE BUTTONS
+// ============================================================
+function updateRegroupButtons() {
+  const regroupBtn = document.getElementById('btnRegroup');
+  const decomposeBtn = document.getElementById('btnDecompose');
+
+  if (!numbersLoaded) {
+    regroupBtn.style.display = 'none';
+    decomposeBtn.style.display = 'none';
+    return;
+  }
+
+  if (operation === 'add') {
+    const totalH = numA.hundredths + numB.hundredths;
+    const totalT = numA.tenths + numB.tenths;
+    regroupBtn.style.display = (totalH >= 10 || totalT >= 10) ? 'flex' : 'none';
+    decomposeBtn.style.display = 'none';
+  } else {
+    regroupBtn.style.display = 'none';
+    const needBorrow = numA.hundredths < numB.hundredths || numA.tenths < numB.tenths;
+    decomposeBtn.style.display = needBorrow ? 'flex' : 'none';
+    decomposeBtn.disabled = false;
+  }
+}
+
+function doRegroup() {
+  const totalH = numA.hundredths + numB.hundredths;
+  const totalT = numA.tenths + numB.tenths;
+  if (totalH >= 10) {
+    showNotif('🔄', `${totalH} hundredths → ${Math.floor(totalH/10)} tenth + ${totalH%10} hundredths!`, 'info');
+  } else if (totalT >= 10) {
+    showNotif('🔄', `${totalT} tenths → ${Math.floor(totalT/10)} one + ${totalT%10} tenths!`, 'info');
+  }
+  combineUnits();
+}
+
+function doDecompose() {
+  if (numA.hundredths < numB.hundredths) {
+    if (numA.tenths > 0) {
+      numA.tenths--;
+      numA.hundredths += 10;
+      preBorrow = { aOnes: numA.ones, aTenths: numA.tenths + 1, aHundredths: numA.hundredths - 10 };
+      renderAll();
+      updateAlgorithm();
+      resetResult();
+      showNotif('🔀', '1 tenth → 10 hundredths! Now you can subtract!', 'info');
+      const zone = document.getElementById('regroup-zone-tenths');
+      zone.textContent = `Borrowed! 1 tenth → +10 hundredths`;
+      zone.classList.add('visible');
+    } else {
+      showNotif('⚠️', 'No tenths to borrow from! Try changing your numbers.', 'warning');
+    }
+  } else if (numA.tenths < numB.tenths) {
+    if (numA.ones > 0) {
+      numA.ones--;
+      numA.tenths += 10;
+      preBorrow = { aOnes: numA.ones + 1, aTenths: numA.tenths - 10, aHundredths: numA.hundredths };
+      renderAll();
+      updateAlgorithm();
+      resetResult();
+      showNotif('🔀', '1 one → 10 tenths! Now you can subtract!', 'info');
+    } else {
+      showNotif('⚠️', 'No ones to borrow from! Try changing your numbers.', 'warning');
+    }
+  }
+  updateRegroupButtons();
+}
+
+// ============================================================
+// SHOW ANSWER
+// ============================================================
+function showAnswer() {
+  if (!numbersLoaded) {
+    showNotif('⚠️', 'Load numbers first!', 'warning');
+    return;
+  }
+  // Only combine if not already done
+  if (!combineDone) {
+    combineUnits();
+    if (!combineDone) return; // combineUnits returned early due to error
+  }
+
+  // Compute answer from combined digits to avoid floating-point drift
+  const answerHundredths = combined.ones * 100 + combined.tenths * 10 + combined.hundredths;
+  const answer = (answerHundredths / 100).toFixed(2);
+  const aVal = (numA.ones * 100 + numA.tenths * 10 + numA.hundredths) / 100;
+  const bVal = (numB.ones * 100 + numB.tenths * 10 + numB.hundredths) / 100;
+  const opSym = operation === 'add' ? '+' : '−';
+
+  const ansEl = document.getElementById('answerValue');
+  ansEl.textContent = answer;
+  ansEl.classList.add('changed');
+  setTimeout(() => ansEl.classList.remove('changed'), 500);
+
+  document.getElementById('answerEquation').textContent =
+    `${aVal.toFixed(2)} ${opSym} ${bVal.toFixed(2)} = ${answer}`;
+
+  resultRevealed = true;
+  updateAlgorithmResult();
+  showNotif('🎉', `Answer: ${answer}`, 'success');
+}
+
+// ============================================================
+// ALGORITHM SYNC
+// ============================================================
+function updateAlgorithm() {
+  if (!numbersLoaded) return;
+
+  // Row A: use current numA values
+  document.getElementById('algo-a-ones').textContent = numA.ones;
+  document.getElementById('algo-a-tenths').textContent = numA.tenths;
+  document.getElementById('algo-a-hundredths').textContent = numA.hundredths;
+
+  // Row B
+  document.getElementById('algo-b-ones').textContent = numB.ones;
+  document.getElementById('algo-b-tenths').textContent = numB.tenths;
+  document.getElementById('algo-b-hundredths').textContent = numB.hundredths;
+
+  // Carry indicators (addition)
+  document.getElementById('carry-hundredths').textContent = carries.hundredths > 0 ? carries.hundredths : '';
+  document.getElementById('carry-tenths').textContent = carries.tenths > 0 ? carries.tenths : '';
+  document.getElementById('carry-ones').textContent = carries.ones > 0 ? carries.ones : '';
+
+  // Borrow display (subtraction) — show strikethrough of pre-borrow value
+  if (operation === 'sub' && combineDone) {
+    if (borrows.tenths && preBorrow.aTenths !== numA.tenths) {
+      document.getElementById('algo-a-tenths').innerHTML =
+        `<span style="text-decoration:line-through;color:#bbb;font-size:0.8em">${preBorrow.aTenths}</span><span style="color:#E91E63;font-size:0.85em">${numA.tenths}</span>`;
+    }
+    if (borrows.ones && preBorrow.aOnes !== numA.ones) {
+      document.getElementById('algo-a-ones').innerHTML =
+        `<span style="text-decoration:line-through;color:#bbb;font-size:0.8em">${preBorrow.aOnes}</span><span style="color:#E91E63;font-size:0.85em">${numA.ones}</span>`;
+    }
+  }
+
+  if (!resultRevealed) {
+    document.getElementById('algo-r-ones').textContent = '—';
+    document.getElementById('algo-r-tenths').textContent = '—';
+    document.getElementById('algo-r-hundredths').textContent = '—';
+  }
+}
+
+function updateAlgorithmResult() {
+  document.getElementById('algo-r-ones').textContent = combined.ones;
+  document.getElementById('algo-r-tenths').textContent = combined.tenths;
+  document.getElementById('algo-r-hundredths').textContent = combined.hundredths;
+  ['algo-r-ones', 'algo-r-tenths', 'algo-r-hundredths'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.add('changed');
+    setTimeout(() => el.classList.remove('changed'), 400);
+  });
+}
+
+function updateAlgorithmEmpty() {
+  ['a', 'b', 'r'].forEach(row => {
+    PLACES.forEach(p => {
+      const el = document.getElementById(`algo-${row}-${p}`);
+      if (el) el.textContent = '—';
+    });
+  });
+  ['carry-ones', 'carry-tenths', 'carry-hundredths'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
+  document.getElementById('answerValue').textContent = '?';
+  document.getElementById('answerEquation').textContent = '';
+}
+
+function resetResultDisplay() {
+  document.getElementById('answerValue').textContent = '?';
+  document.getElementById('answerEquation').textContent = '';
+}
+
+function hideRegroupZones() {
+  document.getElementById('regroup-zone-hundredths').classList.remove('visible');
+  document.getElementById('regroup-zone-tenths').classList.remove('visible');
+}
+
+// ============================================================
+// NOTIFICATION
+// ============================================================
+let notifTimeout = null;
+function showNotif(icon, text, type) {
+  const el = document.getElementById('notification');
+  document.getElementById('notifIcon').textContent = icon;
+  document.getElementById('notifText').textContent = text;
+  el.className = `notification ${type} show`;
+  if (notifTimeout) clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(() => { el.className = 'notification'; }, 3000);
+}
+
+// ============================================================
+// EXTENDED PLACE VALUE CHART
+// ============================================================
+let extVisible = false;
+let extA = { hundreds: 0, tens: 0, ones: 0, tenths: 0, hundredths: 0 };
+let extB = { hundreds: 0, tens: 0, ones: 0, tenths: 0, hundredths: 0 };
+const EXT_PLACES = ['hundreds', 'tens', 'ones', 'tenths', 'hundredths'];
+const EXT_MAX = { hundreds: 9, tens: 9, ones: 9, tenths: 9, hundredths: 9 };
+
+function toggleExtChart() {
+  extVisible = !extVisible;
+  const panel = document.getElementById('extChartPanel');
+  const btn = document.getElementById('extToggleBtn');
+  panel.classList.toggle('visible', extVisible);
+  btn.classList.toggle('active', extVisible);
+  btn.querySelector('.ext-toggle-icon').textContent = extVisible ? '🔼' : '🔭';
+  if (extVisible) {
+    // Sync the decimal part from the main chart if numbers are loaded
+    if (numbersLoaded) extSyncFromMain();
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function extSyncFromMain() {
+  // Copy ones/tenths/hundredths from main chart into ext chart
+  extA.ones = numA.ones;
+  extA.tenths = numA.tenths;
+  extA.hundredths = numA.hundredths;
+  extB.ones = numB.ones;
+  extB.tenths = numB.tenths;
+  extB.hundredths = numB.hundredths;
+  extRenderAll();
+  showNotif('🔁', 'Extended chart synced from main workspace!', 'info');
+}
+
+function extAdjust(row, place, delta) {
+  const state = row === 'a' ? extA : extB;
+  const newVal = state[place] + delta;
+  if (newVal < 0 || newVal > EXT_MAX[place]) return;
+  state[place] = newVal;
+  // Animate the digit
+  const el = document.getElementById(`ext-${row}-${place}`);
+  if (el) {
+    el.classList.remove('changed');
+    void el.offsetWidth;
+    el.classList.add('changed');
+    setTimeout(() => el.classList.remove('changed'), 400);
+  }
+  extRenderAll();
+  // Clear result when values change
+  EXT_PLACES.forEach(p => {
+    const r = document.getElementById(`ext-r-${p}`);
+    if (r) r.textContent = '—';
+  });
+  document.getElementById('extAnswerValue').textContent = '?';
+  document.getElementById('extAnswerEquation').textContent = '';
+}
+
+function extRenderAll() {
+  ['a', 'b'].forEach(row => {
+    const state = row === 'a' ? extA : extB;
+    EXT_PLACES.forEach(p => {
+      const el = document.getElementById(`ext-${row}-${p}`);
+      if (el) el.textContent = state[p];
+      // Disable sub button when at 0
+      const subBtn = document.getElementById(`ext-sub-${row}-${p}`);
+      if (subBtn) subBtn.disabled = state[p] === 0;
+    });
+  });
+  // Sync separator op symbol
+  const sep = document.getElementById('extSepOp');
+  if (sep) sep.textContent = operation === 'add' ? '➕' : '➖';
+}
+
+function extCalculate() {
+  // Convert to integer-cents to avoid floating point
+  function toInt(s) {
+    return s.hundreds * 10000 + s.tens * 1000 + s.ones * 100 + s.tenths * 10 + s.hundredths;
+  }
+
+  const aInt = toInt(extA);
+  const bInt = toInt(extB);
+  let rInt = operation === 'add' ? aInt + bInt : aInt - bInt;
+
+  if (rInt < 0) {
+    showNotif('⚠️', 'Result is negative! Try swapping A and B, or use a larger number for A.', 'warning');
+    return;
+  }
+
+  // Decompose result back into place values
+  const rHundreds  = Math.floor(rInt / 10000);
+  const rTens      = Math.floor((rInt % 10000) / 1000);
+  const rOnes      = Math.floor((rInt % 1000) / 100);
+  const rTenths    = Math.floor((rInt % 100) / 10);
+  const rHundredths = rInt % 10;
+
+  const resultMap = { hundreds: rHundreds, tens: rTens, ones: rOnes, tenths: rTenths, hundredths: rHundredths };
+  const idMap = { hundreds: 'ext-r-hundreds', tens: 'ext-r-tens', ones: 'ext-r-ones', tenths: 'ext-r-tenths', hundredths: 'ext-r-hundredths' };
+
+  EXT_PLACES.forEach(p => {
+    const el = document.getElementById(idMap[p]);
+    if (el) {
+      el.textContent = resultMap[p];
+      el.classList.remove('changed');
+      void el.offsetWidth;
+      el.classList.add('changed');
+      setTimeout(() => el.classList.remove('changed'), 500);
+    }
+  });
+
+  // Format full decimal numbers
+  const aVal = aInt / 100;
+  const bVal = bInt / 100;
+  const rVal = rInt / 100;
+  const opSym = operation === 'add' ? '+' : '−';
+
+  const ansEl = document.getElementById('extAnswerValue');
+  ansEl.textContent = rVal.toFixed(2);
+  ansEl.classList.remove('changed');
+  void ansEl.offsetWidth;
+  ansEl.classList.add('changed');
+  setTimeout(() => ansEl.classList.remove('changed'), 500);
+
+  document.getElementById('extAnswerEquation').textContent =
+    `${aVal.toFixed(2)} ${opSym} ${bVal.toFixed(2)} = ${rVal.toFixed(2)}`;
+
+  showNotif('🎉', `Answer: ${rVal.toFixed(2)}`, 'success');
+}
+
+function extReset() {
+  extA = { hundreds: 0, tens: 0, ones: 0, tenths: 0, hundredths: 0 };
+  extB = { hundreds: 0, tens: 0, ones: 0, tenths: 0, hundredths: 0 };
+  extRenderAll();
+  EXT_PLACES.forEach(p => {
+    const el = document.getElementById(`ext-r-${p}`);
+    if (el) el.textContent = '—';
+  });
+  document.getElementById('extAnswerValue').textContent = '?';
+  document.getElementById('extAnswerEquation').textContent = '';
+}
+
+// Keep ext separator in sync with operation changes
+const _origSetOperation = setOperation;
+// Patch setOperation to also update ext separator
+const _patchedSetOperation = function(op) {
+  _origSetOperation(op);
+  const sep = document.getElementById('extSepOp');
+  if (sep) sep.textContent = op === 'add' ? '➕' : '➖';
+};
+// Override globally
+window.setOperation = _patchedSetOperation;
+
+// ============================================================
+// INIT
+// ============================================================
+loadNumbers();
+</script>
+</body>
+</html>
