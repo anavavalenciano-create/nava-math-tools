@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Laboratorio de Líneas de la Sra. Nava</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --shadow: 0 4px 24px rgba(80,80,160,0.10);
+    --c-line:   #4f8ef7;
+    --c-seg:    #f7944f;
+    --c-ray:    #5ec26a;
+    --c-point:  #a855f7;
+    --c-inter1: #e05b6a;
+    --c-inter2: #f0a500;
+    --c-para1:  #0ea5e9;
+    --c-para2:  #8b5cf6;
+    --c-perp1:  #14b8a6;
+    --c-perp2:  #f43f5e;
+    --lbl-line:  #2563c7;
+    --lbl-seg:   #c25a10;
+    --lbl-ray:   #1e8a2e;
+    --lbl-point: #7e22ce;
+    --lbl-inter: #b91c1c;
+    --lbl-para:  #1d4ed8;
+    --lbl-perp:  #0f766e;
+    --dot:       #1a1a2e;
+    --header-bg: linear-gradient(135deg,#5b6be8 0%,#8b5cf6 100%);
+    --text-dark: #1e1b4b;
+    --text-mid:  #4b5563;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Nunito',sans-serif;
+    background:var(--bg);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:0 0 48px;
+  }
+
+  /* HEADER */
+  header {
+    width:100%; background:var(--header-bg);
+    padding:20px 32px 16px;
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    box-shadow:0 4px 20px rgba(91,107,232,0.3);
+  }
+  .hi { font-size:2rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
+  .ht h1 { font-family:'Fredoka One',cursive; font-size:1.9rem; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.18); }
+  .ht p  { color:rgba(255,255,255,.85); font-size:.9rem; font-weight:600; margin-top:2px; }
+
+  /* MAIN */
+  .main { width:100%; max-width:1040px; padding:22px 16px 0; display:flex; flex-direction:column; gap:16px; }
+
+  /* SELECTOR */
+  .selector-row { display:flex; gap:22px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+  .selector-col { display:flex; flex-direction:column; gap:7px; }
+  .group-label {
+    font-family:'Fredoka One',cursive; font-size:.75rem;
+    letter-spacing:1.2px; text-transform:uppercase; color:var(--text-mid); padding:0 4px 2px;
+  }
+  .btn-group { display:flex; gap:9px; flex-wrap:wrap; }
+
+  .shape-btn {
+    font-family:'Fredoka One',cursive; font-size:1rem;
+    padding:10px 20px; border-radius:50px; border:3px solid transparent;
+    cursor:pointer; transition:all .16s cubic-bezier(.4,0,.2,1);
+    background:white; box-shadow:0 2px 8px rgba(0,0,0,.08);
+    display:flex; align-items:center; gap:9px; user-select:none; white-space:nowrap;
+  }
+  .sw-line { display:inline-block; width:22px; height:5px; border-radius:3px; }
+  .sw-dot  { display:inline-block; width:13px; height:13px; border-radius:50%; }
+  .sw-dual { display:flex; flex-direction:column; gap:3px; }
+  .sw-dual span { width:22px; height:4px; border-radius:2px; display:block; }
+
+  .btn-line  { color:var(--lbl-line);  }
+  .btn-line.active,  .btn-line:hover  { background:#eff4ff; border-color:var(--c-line);  transform:translateY(-2px); box-shadow:0 5px 16px rgba(79,142,247,.25); }
+  .btn-seg   { color:var(--lbl-seg);   }
+  .btn-seg.active,   .btn-seg:hover   { background:#fff5ee; border-color:var(--c-seg);   transform:translateY(-2px); box-shadow:0 5px 16px rgba(247,148,79,.25); }
+  .btn-ray   { color:var(--lbl-ray);   }
+  .btn-ray.active,   .btn-ray:hover   { background:#f0fff2; border-color:var(--c-ray);   transform:translateY(-2px); box-shadow:0 5px 16px rgba(94,194,106,.22); }
+  .btn-point { color:var(--lbl-point); }
+  .btn-point.active, .btn-point:hover { background:#faf5ff; border-color:var(--c-point); transform:translateY(-2px); box-shadow:0 5px 16px rgba(168,85,247,.22); }
+  .btn-inter { color:var(--lbl-inter); }
+  .btn-inter.active, .btn-inter:hover { background:#fff1f2; border-color:var(--c-inter1);transform:translateY(-2px); box-shadow:0 5px 16px rgba(224,91,106,.22); }
+  .btn-para  { color:var(--lbl-para);  }
+  .btn-para.active,  .btn-para:hover  { background:#eff6ff; border-color:var(--c-para1); transform:translateY(-2px); box-shadow:0 5px 16px rgba(14,165,233,.22); }
+  .btn-perp  { color:var(--lbl-perp);  }
+  .btn-perp.active,  .btn-perp:hover  { background:#f0fdfa; border-color:var(--c-perp1); transform:translateY(-2px); box-shadow:0 5px 16px rgba(20,184,166,.22); }
+
+  /* CANVAS CARD */
+  .canvas-card {
+    background:white; border-radius:24px;
+    box-shadow:var(--shadow); overflow:hidden; position:relative;
+  }
+
+  /* BADGE */
+  .live-badge {
+    position:absolute; top:16px; left:50%; transform:translateX(-50%);
+    font-family:'Fredoka One',cursive; font-size:1.4rem;
+    padding:7px 28px; border-radius:50px;
+    pointer-events:none; z-index:10;
+    transition:background .2s,color .2s;
+    white-space:nowrap; letter-spacing:.4px;
+    box-shadow:0 3px 14px rgba(0,0,0,.12);
+  }
+  .badge-line  { background:#dbeafe; color:var(--lbl-line);  }
+  .badge-seg   { background:#ffedd5; color:var(--lbl-seg);   }
+  .badge-ray   { background:#dcfce7; color:var(--lbl-ray);   }
+  .badge-point { background:#f3e8ff; color:var(--lbl-point); }
+  .badge-inter { background:#fee2e2; color:var(--lbl-inter); }
+  .badge-para  { background:#dbeafe; color:var(--lbl-para);  }
+  .badge-perp  { background:#ccfbf1; color:var(--lbl-perp);  }
+
+  canvas { display:block; width:100%; cursor:default; border-radius:24px; }
+  canvas.dragging { cursor:grabbing; }
+  canvas.hovering { cursor:grab; }
+
+  /* BOTTOM */
+  .bottom-bar { display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; }
+  .btn {
+    font-family:'Fredoka One',cursive; font-size:1rem;
+    padding:11px 26px; border-radius:50px; border:2px solid #c7d2fe;
+    background:white; color:var(--text-dark); cursor:pointer;
+    transition:all .15s; box-shadow:0 2px 8px rgba(0,0,0,.07);
+    display:flex; align-items:center; gap:8px; user-select:none;
+  }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 5px 16px rgba(0,0,0,.12); }
+  .reset-btn { border-color:#fca5a5; color:#dc2626; }
+  .reset-btn:hover { background:#fef2f2; }
+  .prompt-btn { border-color:#a5b4fc; color:#4338ca; background:#eef2ff; }
+  .prompt-btn:hover { background:#e0e7ff; }
+
+  /* PROMPT */
+  .prompt-card {
+    background:linear-gradient(120deg,#eef2ff,#f5f3ff);
+    border:2px solid #c7d2fe; border-radius:18px;
+    padding:14px 24px; text-align:center; display:none;
+    animation:slideIn .2s ease;
+  }
+  .prompt-card.visible { display:block; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  .prompt-card p { font-family:'Fredoka One',cursive; font-size:1.1rem; color:#3730a3; }
+
+  /* LEGEND */
+  .legend { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; padding:2px 0 0; }
+  .legend-item { display:flex; align-items:center; gap:7px; font-size:.82rem; font-weight:700; color:var(--text-mid); }
+  .leg-dot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .leg-line { width:28px; height:5px;  border-radius:3px; flex-shrink:0; }
+  .leg-dual { display:flex; flex-direction:column; gap:3px; flex-shrink:0; }
+  .leg-dual span { width:28px; height:4px; border-radius:2px; display:block; }
+
+  /* INFO BUTTON */
+  .info-wrap { position:relative; display:inline-flex; align-items:center; }
+  .info-btn {
+    width:26px; height:26px; border-radius:50%;
+    border:2px solid currentColor; background:white;
+    font-family:'Fredoka One',cursive; font-size:.85rem;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .15s; flex-shrink:0; line-height:1;
+    opacity:.65; padding:0;
+  }
+  .info-btn:hover { opacity:1; transform:scale(1.15); }
+
+  /* POPUP */
+  .def-popup {
+    display:none;
+    position:absolute;
+    top:calc(100% + 10px);
+    left:50%; transform:translateX(-50%);
+    background:#1e1b4b;
+    color:#fff;
+    border-radius:16px;
+    padding:14px 18px;
+    width:230px;
+    z-index:200;
+    box-shadow:0 8px 32px rgba(0,0,0,.25);
+    animation:popIn .18s cubic-bezier(.34,1.56,.64,1);
+    pointer-events:none;
+  }
+  .def-popup.visible { display:block; pointer-events:auto; }
+  .def-popup::before {
+    content:'';
+    position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
+    border:8px solid transparent;
+    border-bottom-color:#1e1b4b;
+  }
+  .def-popup .pop-title {
+    font-family:'Fredoka One',cursive; font-size:1.05rem;
+    margin-bottom:6px; display:flex; align-items:center; gap:8px;
+  }
+  .def-popup .pop-icon { font-size:1.3rem; }
+  .def-popup .pop-body { font-size:.88rem; font-weight:600; line-height:1.5; color:rgba(255,255,255,.88); }
+  .def-popup .pop-example {
+    margin-top:8px; padding:7px 10px;
+    background:rgba(255,255,255,.1); border-radius:10px;
+    font-size:.82rem; color:rgba(255,255,255,.75); font-style:italic;
+  }
+  @keyframes popIn {
+    from { opacity:0; transform:translateX(-50%) scale(.85); }
+    to   { opacity:1; transform:translateX(-50%) scale(1); }
+  }
+
+  /* overlay to close on outside click */
+  #popOverlay {
+    display:none; position:fixed; inset:0; z-index:190;
+  }
+  #popOverlay.visible { display:block; }
+
+  @media(max-width:640px){
+    .ht h1 { font-size:1.4rem; }
+    .shape-btn { font-size:.9rem; padding:9px 14px; }
+    .live-badge { font-size:1.15rem; padding:6px 18px; top:10px; }
+    .def-popup { width:200px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hi">🔬</div>
+  <div class="ht">
+    <h1>El Laboratorio de Líneas de la Sra. Nava</h1>
+    <p>¡Elige una figura — arrastra los puntos — explora!</p>
+  </div>
+</header>
+
+<div id="popOverlay" onclick="closeAllPopups()"></div>
+
+<div class="main">
+
+  <div class="selector-row">
+    <!-- Basic Figures -->
+    <div class="selector-col">
+      <div class="group-label">Figuras Básicas</div>
+      <div class="btn-group">
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-line active" onclick="setMode('line')">
+            <span class="sw-line" style="background:var(--c-line)"></span> Línea
+          </button>
+          <button class="info-btn btn-line" onclick="togglePopup(event,'pop-line')" title="¿Qué es una Línea?">i</button>
+          <div class="def-popup" id="pop-line">
+            <div class="pop-title"><span class="pop-icon">↔️</span> Línea</div>
+            <div class="pop-body">Un camino recto que continúa para siempre en ambas direcciones. No tiene puntos extremos.</div>
+            <div class="pop-example">Ejemplo: ¡El borde de una carretera que nunca termina!</div>
+          </div>
+        </div>
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-seg" onclick="setMode('segment')">
+            <span class="sw-line" style="background:var(--c-seg)"></span> Segmento de Línea
+          </button>
+          <button class="info-btn btn-seg" onclick="togglePopup(event,'pop-seg')" title="¿Qué es un Segmento de Línea?">i</button>
+          <div class="def-popup" id="pop-seg">
+            <div class="pop-title"><span class="pop-icon">📏</span> Segmento de Línea</div>
+            <div class="pop-body">Un camino recto con dos puntos extremos. Tiene un inicio y un fin definidos — ¡y se puede medir!</div>
+            <div class="pop-example">Ejemplo: El lado de un triángulo o un cuadrado.</div>
+          </div>
+        </div>
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-ray" onclick="setMode('ray')">
+            <span class="sw-line" style="background:var(--c-ray)"></span> Rayo
+          </button>
+          <button class="info-btn btn-ray" onclick="togglePopup(event,'pop-ray')" title="¿Qué es un Rayo?">i</button>
+          <div class="def-popup" id="pop-ray">
+            <div class="pop-title"><span class="pop-icon">☀️</span> Rayo</div>
+            <div class="pop-body">Un camino recto con un punto extremo que continúa para siempre en una sola dirección.</div>
+            <div class="pop-example">Ejemplo: ¡Un rayo de luz del sol!</div>
+          </div>
+        </div>
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-point" onclick="setMode('point')">
+            <span class="sw-dot" style="background:var(--c-point)"></span> Punto
+          </button>
+          <button class="info-btn btn-point" onclick="togglePopup(event,'pop-point')" title="¿Qué es un Punto?">i</button>
+          <div class="def-popup" id="pop-point">
+            <div class="pop-title"><span class="pop-icon">📍</span> Punto</div>
+            <div class="pop-body">Una ubicación exacta en el espacio. No tiene tamaño, longitud ni ancho — ¡solo una posición!</div>
+            <div class="pop-example">Ejemplo: Un punto en un mapa que marca tu escuela.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Relaciones entre Líneas -->
+    <div class="selector-col">
+      <div class="group-label">Relaciones entre Líneas</div>
+      <div class="btn-group">
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-inter" onclick="setMode('intersecting')">
+            <span class="sw-dual">
+              <span style="background:var(--c-inter1)"></span>
+              <span style="background:var(--c-inter2)"></span>
+            </span>
+            Líneas Secantes
+          </button>
+          <button class="info-btn btn-inter" onclick="togglePopup(event,'pop-inter')" title="¿Qué son las Líneas Secantes?">i</button>
+          <div class="def-popup" id="pop-inter">
+            <div class="pop-title"><span class="pop-icon">✖️</span> Líneas Secantes</div>
+            <div class="pop-body">Dos líneas que se cruzan en exactamente un punto llamado el punto de intersección.</div>
+            <div class="pop-example">Ejemplo: ¡Dos calles que se cruzan en una intersección!</div>
+          </div>
+        </div>
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-para" onclick="setMode('parallel')">
+            <span class="sw-dual">
+              <span style="background:var(--c-para1)"></span>
+              <span style="background:var(--c-para2)"></span>
+            </span>
+            Líneas Paralelas
+          </button>
+          <button class="info-btn btn-para" onclick="togglePopup(event,'pop-para')" title="¿Qué son las Líneas Paralelas?">i</button>
+          <div class="def-popup" id="pop-para">
+            <div class="pop-title"><span class="pop-icon">🛤️</span> Líneas Paralelas</div>
+            <div class="pop-body">Dos líneas que siempre están a la misma distancia y nunca se encuentran, sin importar cuánto se extiendan.</div>
+            <div class="pop-example">Ejemplo: ¡Los rieles de un tren — siempre a la misma distancia!</div>
+          </div>
+        </div>
+
+        <div class="info-wrap">
+          <button class="shape-btn btn-perp" onclick="setMode('perpendicular')">
+            <span class="sw-dual">
+              <span style="background:var(--c-perp1)"></span>
+              <span style="background:var(--c-perp2)"></span>
+            </span>
+            Líneas Perpendiculares
+          </button>
+          <button class="info-btn btn-perp" onclick="togglePopup(event,'pop-perp')" title="¿Qué son las Líneas Perpendiculares?">i</button>
+          <div class="def-popup" id="pop-perp">
+            <div class="pop-title"><span class="pop-icon">📐</span> Líneas Perpendiculares</div>
+            <div class="pop-body">Dos líneas que se intersectan y forman un ángulo recto perfecto (90°) en su punto de encuentro.</div>
+            <div class="pop-example">Ejemplo: ¡La esquina de una hoja de papel o el signo +!</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-card">
+    <div class="live-badge badge-line" id="liveBadge">Line</div>
+    <canvas id="lineCanvas"></canvas>
+  </div>
+
+  <!-- Controls -->
+  <div class="bottom-bar">
+    <button class="btn reset-btn" onclick="resetPoints()">↺ Reiniciar</button>
+    <button class="btn prompt-btn" onclick="showPrompt()">💡 ¡Dame un reto!</button>
+  </div>
+
+  <div class="prompt-card" id="promptCard">
+    <p id="promptText"></p>
+  </div>
+
+  <div class="legend" id="legend"></div>
+</div>
+
+<script>
+// ── COLORS ──────────────────────────────────────────────────────────
+const C = {
+  line:'#4f8ef7', seg:'#f7944f', ray:'#5ec26a', point:'#a855f7',
+  inter1:'#e05b6a', inter2:'#f0a500',
+  para1:'#0ea5e9',  para2:'#8b5cf6',
+  perp1:'#14b8a6',  perp2:'#f43f5e',
+  dot:'#1a1a2e', dotStroke:'#fff', bg:'#f8faff', grid:'#e8edf8',
+};
+
+const DOT_R=14, LINE_W=5, ARROW_LEN=28, ARROW_ANG=Math.PI/6, MARGIN=38;
+
+let mode='line', pts=[], dragIdx=-1, W=0, H=0, dpr=1;
+
+const canvas=document.getElementById('lineCanvas');
+const ctx=canvas.getContext('2d');
+const badge=document.getElementById('liveBadge');
+const promptCard=document.getElementById('promptCard');
+const promptText=document.getElementById('promptText');
+
+// ── PROMPTS ──────────────────────────────────────────────────────────
+const PROMPTS={
+  line:         ["¡Haz una línea perfectamente horizontal! ↔️","¡Inclina la línea en diagonal! ↗️","¿Puedes hacer una línea vertical? ↕️"],
+  segment:      ["¡Haz un segmento muy corto! 📏","¡Haz un segmento diagonal! 📐","¡Intenta un segmento perfectamente vertical! ↕️"],
+  ray:          ["¡Haz un rayo que apunte a la derecha! ➡️","¡Apunta el rayo hacia abajo! ⬇️","¡Haz un rayo diagonal hacia arriba-derecha! ↗️"],
+  point:        ["¡Mueve el punto al centro! 🎯","¡Pon el punto en una esquina! 📍","¿Puedes poner el punto en la parte de arriba? ⬆️"],
+  intersecting: ["¡Haz que las líneas se crucen en el medio! ✖️","¿Puedes hacer una X grande? ✖️","¡Haz una línea plana y otra que suba y baje!"],
+  parallel:     ["¡Acerca mucho las dos líneas! 👯","¡Haz las líneas paralelas en diagonal! ↗️","¡Sepáralas lo más lejos posible!"],
+  perpendicular:["¡Mueve el punto de cruce a una esquina! 📐","¡Haz una forma de + perfecta! ➕","¡Inclina ambas líneas para que aún formen una esquina cuadrada!"],
+};
+let lastPrompt='';
+
+// ── META ─────────────────────────────────────────────────────────────
+const META={
+  line:         {label:'Línea',                  badgeClass:'badge-line' },
+  segment:      {label:'Segmento de Línea',       badgeClass:'badge-seg'  },
+  ray:          {label:'Rayo',                    badgeClass:'badge-ray'  },
+  point:        {label:'Punto',                   badgeClass:'badge-point'},
+  intersecting: {label:'Líneas Secantes',         badgeClass:'badge-inter'},
+  parallel:     {label:'Líneas Paralelas',        badgeClass:'badge-para' },
+  perpendicular:{label:'Líneas Perpendiculares',  badgeClass:'badge-perp' },
+};
+
+// ── LEGEND ───────────────────────────────────────────────────────────
+function buildLegend(){
+  document.getElementById('legend').innerHTML=[
+    `<span class="leg-line" style="background:${C.line}"></span><span style="color:var(--lbl-line)">Línea: flechas en ambos lados ↔</span>`,
+    `<span class="leg-line" style="background:${C.seg}"></span><span style="color:var(--lbl-seg)">Segmento: dos puntos extremos</span>`,
+    `<span class="leg-line" style="background:${C.ray}"></span><span style="color:var(--lbl-ray)">Rayo: un extremo, una flecha →</span>`,
+    `<span class="leg-dot" style="background:${C.point}"></span><span style="color:var(--lbl-point)">Punto: una ubicación exacta</span>`,
+    `<div class="leg-dual"><span style="background:${C.inter1}"></span><span style="background:${C.inter2}"></span></div><span style="color:var(--lbl-inter)">Secantes: se cruzan</span>`,
+    `<div class="leg-dual"><span style="background:${C.para1}"></span><span style="background:${C.para2}"></span></div><span style="color:var(--lbl-para)">Paralelas: nunca se encuentran</span>`,
+    `<div class="leg-dual"><span style="background:${C.perp1}"></span><span style="background:${C.perp2}"></span></div><span style="color:var(--lbl-perp)">Perpendiculares: se cruzan a 90°</span>`,
+  ].map(h=>`<div class="legend-item">${h}</div>`).join('');
+}
+
+// ── RESIZE / INIT ────────────────────────────────────────────────────
+function resize(){
+  dpr=window.devicePixelRatio||1;
+  const rect=canvas.parentElement.getBoundingClientRect();
+  W=rect.width;
+  H=Math.max(400,Math.min(520,window.innerHeight*0.50));
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(pts.length!==ptCount(mode)) initPts();
+  draw();
+}
+window.addEventListener('resize',resize);
+setTimeout(resize,40);
+buildLegend();
+
+function ptCount(m){
+  if(m==='point') return 1;
+  if(m==='intersecting'||m==='parallel'||m==='perpendicular') return 4;
+  return 2;
+}
+
+function initPts(){
+  const cx=W/2, cy=H/2;
+  if(mode==='point'){
+    pts=[{x:cx,y:cy}];
+  } else if(mode==='intersecting'){
+    pts=[{x:cx-100,y:cy-70},{x:cx+100,y:cy+70},
+         {x:cx-100,y:cy+70},{x:cx+100,y:cy-70}];
+  } else if(mode==='parallel'){
+    pts=[{x:cx-110,y:cy-55},{x:cx+110,y:cy-55},
+         {x:cx-110,y:cy+55},{x:cx+110,y:cy+55}];
+  } else if(mode==='perpendicular'){
+    pts=[{x:cx-110,y:cy},{x:cx+110,y:cy},
+         {x:cx,y:cy-110},{x:cx,y:cy+110}];
+  } else {
+    pts=[{x:cx-120,y:cy},{x:cx+120,y:cy}];
+  }
+}
+
+// ── MODE ─────────────────────────────────────────────────────────────
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('active'));
+  const map={line:'btn-line',segment:'btn-seg',ray:'btn-ray',point:'btn-point',
+             intersecting:'btn-inter',parallel:'btn-para',perpendicular:'btn-perp'};
+  document.querySelector('.'+map[m]).classList.add('active');
+  pts=[]; initPts(); updateBadge(); draw();
+  promptCard.classList.remove('visible');
+}
+
+function updateBadge(){
+  badge.textContent=META[mode].label;
+  badge.className='live-badge '+META[mode].badgeClass;
+}
+
+function resetPoints(){ pts=[]; initPts(); draw(); promptCard.classList.remove('visible'); }
+
+function showPrompt(){
+  const list=PROMPTS[mode];
+  let p; do{p=list[Math.floor(Math.random()*list.length)];}while(p===lastPrompt&&list.length>1);
+  lastPrompt=p; promptText.textContent=p; promptCard.classList.add('visible');
+}
+
+// ── GEOMETRY ─────────────────────────────────────────────────────────
+function tToEdge(px,py,vx,vy){
+  let t=Infinity;
+  if(Math.abs(vx)>1e-9){
+    const t1=(MARGIN-px)/vx, t2=(W-MARGIN-px)/vx;
+    if(t1>1e-9) t=Math.min(t,t1);
+    if(t2>1e-9) t=Math.min(t,t2);
+  }
+  if(Math.abs(vy)>1e-9){
+    const t3=(MARGIN-py)/vy, t4=(H-MARGIN-py)/vy;
+    if(t3>1e-9) t=Math.min(t,t3);
+    if(t4>1e-9) t=Math.min(t,t4);
+  }
+  return t===Infinity?9999:t;
+}
+
+function lineEndpoints(A,B){
+  const dx=B.x-A.x, dy=B.y-A.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+  const ux=dx/len, uy=dy/len;
+  const tF=tToEdge(A.x,A.y, ux, uy);
+  const tB=tToEdge(A.x,A.y,-ux,-uy);
+  return {
+    start:{x:A.x-ux*tB,y:A.y-uy*tB},
+    end:  {x:A.x+ux*tF,y:A.y+uy*tF},
+    ux,uy
+  };
+}
+
+function lineIntersect(A,B,C,D){
+  const dx1=B.x-A.x,dy1=B.y-A.y,dx2=D.x-C.x,dy2=D.y-C.y;
+  const d=dx1*dy2-dy1*dx2;
+  if(Math.abs(d)<1e-9) return null;
+  const t=((C.x-A.x)*dy2-(C.y-A.y)*dx2)/d;
+  return {x:A.x+t*dx1,y:A.y+t*dy1};
+}
+
+// ── ENFORCE CONSTRAINTS ───────────────────────────────────────────────
+function enforceParallel(){
+  // Keep direction of line2 matching line1; only midpoint of line2 moves freely
+  const dx=pts[1].x-pts[0].x, dy=pts[1].y-pts[0].y;
+  const len=Math.sqrt(dx*dx+dy*dy)||1, ux=dx/len, uy=dy/len;
+  const mx=(pts[2].x+pts[3].x)/2, my=(pts[2].y+pts[3].y)/2;
+  const hl=Math.max(90,len/2);
+  pts[2]={x:mx-ux*hl,y:my-uy*hl};
+  pts[3]={x:mx+ux*hl,y:my+uy*hl};
+}
+
+function enforcePerpendicular(){
+  const dx=pts[1].x-pts[0].x, dy=pts[1].y-pts[0].y;
+  const len=Math.sqrt(dx*dx+dy*dy)||1;
+  const px=-dy/len, py=dx/len;
+  const mx=(pts[2].x+pts[3].x)/2, my=(pts[2].y+pts[3].y)/2;
+  const hl=Math.max(90,len/2);
+  pts[2]={x:mx-px*hl,y:my-py*hl};
+  pts[3]={x:mx+px*hl,y:my+py*hl};
+}
+
+// ── DRAW PRIMITIVES ───────────────────────────────────────────────────
+function drawArrow(x,y,ux,uy,color){
+  const ax=-ux*ARROW_LEN, ay=-uy*ARROW_LEN;
+  const cos=Math.cos(ARROW_ANG), sin=Math.sin(ARROW_ANG);
+  ctx.save(); ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x+ax*cos-ay*sin, y+ax*sin+ay*cos);
+  ctx.lineTo(x+ax*cos+ay*sin, y-ax*sin+ay*cos);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+function drawFullLine(A,B,color){
+  const {start,end,ux,uy}=lineEndpoints(A,B);
+  ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=LINE_W; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(start.x,start.y); ctx.lineTo(end.x,end.y); ctx.stroke(); ctx.restore();
+  drawArrow(end.x,  end.y,   ux, uy,color);
+  drawArrow(start.x,start.y,-ux,-uy,color);
+}
+
+function drawDot(p,color){
+  ctx.save(); ctx.beginPath(); ctx.arc(p.x,p.y,DOT_R+7,0,Math.PI*2);
+  ctx.fillStyle=color+'28'; ctx.fill(); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(p.x,p.y,DOT_R,0,Math.PI*2);
+  ctx.fillStyle=C.dot; ctx.fill();
+  ctx.strokeStyle=C.dotStroke; ctx.lineWidth=3; ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(p.x,p.y,DOT_R*.38,0,Math.PI*2);
+  ctx.fillStyle=color; ctx.fill(); ctx.restore();
+}
+
+function drawRightAngleBox(ix,iy,ux1,uy1,ux2,uy2){
+  const s=20;
+  const p1x=ix+ux1*s, p1y=iy+uy1*s;
+  const p2x=ix+ux2*s, p2y=iy+uy2*s;
+  const mx=p1x+ux2*s, my=p1y+uy2*s;
+  ctx.save(); ctx.strokeStyle='#334155'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(p1x,p1y); ctx.lineTo(mx,my); ctx.lineTo(p2x,p2y);
+  ctx.stroke(); ctx.restore();
+}
+
+function drawParallelTicks(A,B,color){
+  const dx=B.x-A.x, dy=B.y-A.y, len=Math.sqrt(dx*dx+dy*dy)||1;
+  const ux=dx/len, uy=dy/len;
+  const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+  const px=-uy, py=ux;
+  const tickLen=11;
+  ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=3; ctx.lineCap='round';
+  [-12,0,12].forEach(off=>{
+    const cx=mx+ux*off, cy=my+uy*off;
+    ctx.beginPath();
+    ctx.moveTo(cx-px*tickLen,cy-py*tickLen);
+    ctx.lineTo(cx+px*tickLen,cy+py*tickLen);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+// ── MAIN DRAW ─────────────────────────────────────────────────────────
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.save(); ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  for(let x=40;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=40;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.restore();
+
+  if(mode==='point'){
+    const P=pts[0];
+    ctx.save(); ctx.beginPath(); ctx.arc(P.x,P.y,DOT_R+18,0,Math.PI*2);
+    ctx.fillStyle=C.point+'18'; ctx.fill(); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.arc(P.x,P.y,DOT_R+8,0,Math.PI*2);
+    ctx.strokeStyle=C.point+'44'; ctx.lineWidth=2; ctx.stroke(); ctx.restore();
+    drawDot(P,C.point);
+    ctx.save(); ctx.font='bold 17px Nunito,sans-serif';
+    ctx.fillStyle=C.point; ctx.textAlign='center';
+    ctx.fillText('Punto A',P.x,P.y+DOT_R+24); ctx.restore();
+    return;
+  }
+
+  if(mode==='line'){
+    drawFullLine(pts[0],pts[1],C.line);
+    pts.forEach(p=>drawDot(p,C.line));
+    return;
+  }
+
+  if(mode==='segment'){
+    ctx.save(); ctx.strokeStyle=C.seg; ctx.lineWidth=LINE_W; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y); ctx.lineTo(pts[1].x,pts[1].y); ctx.stroke(); ctx.restore();
+    pts.forEach(p=>drawDot(p,C.seg));
+    return;
+  }
+
+  if(mode==='ray'){
+    const A=pts[0],B=pts[1];
+    const dx=B.x-A.x,dy=B.y-A.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+    const ux=dx/len,uy=dy/len;
+    const tF=tToEdge(A.x,A.y,ux,uy);
+    const end={x:A.x+ux*tF,y:A.y+uy*tF};
+    ctx.save(); ctx.strokeStyle=C.ray; ctx.lineWidth=LINE_W; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(end.x,end.y); ctx.stroke(); ctx.restore();
+    drawArrow(end.x,end.y,ux,uy,C.ray);
+    pts.forEach(p=>drawDot(p,C.ray));
+    return;
+  }
+
+  if(mode==='intersecting'){
+    drawFullLine(pts[0],pts[1],C.inter1);
+    drawFullLine(pts[2],pts[3],C.inter2);
+    const ix=lineIntersect(pts[0],pts[1],pts[2],pts[3]);
+    if(ix&&ix.x>MARGIN&&ix.x<W-MARGIN&&ix.y>MARGIN&&ix.y<H-MARGIN){
+      ctx.save(); ctx.beginPath(); ctx.arc(ix.x,ix.y,9,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.fill();
+      ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=3; ctx.stroke(); ctx.restore();
+    }
+    [pts[0],pts[1]].forEach(p=>drawDot(p,C.inter1));
+    [pts[2],pts[3]].forEach(p=>drawDot(p,C.inter2));
+    return;
+  }
+
+  if(mode==='parallel'){
+    drawFullLine(pts[0],pts[1],C.para1);
+    drawFullLine(pts[2],pts[3],C.para2);
+    drawParallelTicks(pts[0],pts[1],C.para1);
+    drawParallelTicks(pts[2],pts[3],C.para2);
+    [pts[0],pts[1]].forEach(p=>drawDot(p,C.para1));
+    [pts[2],pts[3]].forEach(p=>drawDot(p,C.para2));
+    return;
+  }
+
+  if(mode==='perpendicular'){
+    drawFullLine(pts[0],pts[1],C.perp1);
+    drawFullLine(pts[2],pts[3],C.perp2);
+    const ix=lineIntersect(pts[0],pts[1],pts[2],pts[3]);
+    if(ix){
+      const dx1=pts[1].x-pts[0].x,dy1=pts[1].y-pts[0].y,l1=Math.sqrt(dx1*dx1+dy1*dy1)||1;
+      const dx2=pts[3].x-pts[2].x,dy2=pts[3].y-pts[2].y,l2=Math.sqrt(dx2*dx2+dy2*dy2)||1;
+      drawRightAngleBox(ix.x,ix.y,dx1/l1,dy1/l1,dx2/l2,dy2/l2);
+    }
+    [pts[0],pts[1]].forEach(p=>drawDot(p,C.perp1));
+    [pts[2],pts[3]].forEach(p=>drawDot(p,C.perp2));
+    return;
+  }
+}
+
+// ── HIT TEST ─────────────────────────────────────────────────────────
+function hitDot(x,y){
+  for(let i=0;i<pts.length;i++){
+    const dx=pts[i].x-x,dy=pts[i].y-y;
+    if(Math.sqrt(dx*dx+dy*dy)<DOT_R+12) return i;
+  }
+  return -1;
+}
+
+// ── POINTER EVENTS ────────────────────────────────────────────────────
+function pointerPos(e){
+  const rect=canvas.getBoundingClientRect();
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-rect.left)*(W/rect.width),y:(src.clientY-rect.top)*(H/rect.height)};
+}
+
+function applyConstraints(){
+  if(mode==='parallel')      enforceParallel();
+  if(mode==='perpendicular') enforcePerpendicular();
+}
+
+canvas.addEventListener('mousedown',e=>{
+  const{x,y}=pointerPos(e);
+  dragIdx=hitDot(x,y);
+  if(dragIdx>=0){canvas.classList.add('dragging');canvas.classList.remove('hovering');}
+});
+canvas.addEventListener('mousemove',e=>{
+  const{x,y}=pointerPos(e);
+  if(dragIdx>=0){
+    pts[dragIdx]={x:clamp(x,0,W),y:clamp(y,0,H)};
+    applyConstraints(); draw();
+  } else {
+    canvas.classList.toggle('hovering',hitDot(x,y)>=0);
+  }
+});
+canvas.addEventListener('mouseup',  ()=>{dragIdx=-1;canvas.classList.remove('dragging');});
+canvas.addEventListener('mouseleave',()=>{dragIdx=-1;canvas.classList.remove('dragging');});
+
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const{x,y}=pointerPos(e); dragIdx=hitDot(x,y);
+},{passive:false});
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(dragIdx<0) return;
+  const{x,y}=pointerPos(e);
+  pts[dragIdx]={x:clamp(x,0,W),y:clamp(y,0,H)};
+  applyConstraints(); draw();
+},{passive:false});
+canvas.addEventListener('touchend',()=>{dragIdx=-1;});
+
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+// ── POPUPS ────────────────────────────────────────────────────────────
+function togglePopup(e, id) {
+  e.stopPropagation();
+  const target = document.getElementById(id);
+  const isOpen = target.classList.contains('visible');
+  closeAllPopups();
+  if (!isOpen) {
+    target.classList.add('visible');
+    document.getElementById('popOverlay').classList.add('visible');
+    // Flip popup above button if too close to bottom of screen
+    const rect = target.getBoundingClientRect();
+    if (rect.bottom > window.innerHeight - 20) {
+      target.style.top = 'auto';
+      target.style.bottom = 'calc(100% + 10px)';
+    } else {
+      target.style.top = 'calc(100% + 10px)';
+      target.style.bottom = 'auto';
+    }
+  }
+}
+function closeAllPopups() {
+  document.querySelectorAll('.def-popup').forEach(p => {
+    p.classList.remove('visible');
+    p.style.top=''; p.style.bottom='';
+  });
+  document.getElementById('popOverlay').classList.remove('visible');
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeAllPopups(); });
+
+updateBadge();
+</script>
+</body>
+</html>
