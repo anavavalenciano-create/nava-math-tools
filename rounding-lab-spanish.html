@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Laboratorio de Redondeo de la Sra. Nava</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4ff; --panel:#fff; --blue:#4361ee; --red:#e63946;
+  --orange:#f4a261; --green:#2dc653; --purple:#7b2d8b;
+  --track:#dde3f7; --shadow:0 4px 20px rgba(0,0,0,.10); --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);
+  background-image:radial-gradient(circle at 15% 15%,#c8d8ff 0%,transparent 40%),
+                   radial-gradient(circle at 85% 80%,#ffd6e7 0%,transparent 40%);
+  min-height:100vh;padding-bottom:40px}
+
+header{background:linear-gradient(135deg,#4361ee,#7b2d8b);color:white;
+  text-align:center;padding:18px 20px 16px;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 50%,rgba(255,255,255,.08),transparent 60%)}
+header h1{font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,5vw,3rem);
+  position:relative;text-shadow:0 3px 10px rgba(0,0,0,.25)}
+header p{font-size:1rem;font-weight:700;opacity:.85;margin-top:4px;position:relative}
+
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 0;display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow);padding:20px 24px}
+
+/* CONTROLS */
+.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.ctrl{display:flex;flex-direction:column;gap:6px}
+.ctrl label{font-weight:800;font-size:.75rem;letter-spacing:.07em;color:#666;text-transform:uppercase}
+.ctrl input,.ctrl select{font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:700;
+  padding:10px 14px;border:2.5px solid #dde3f7;border-radius:12px;
+  background:#f7f9ff;color:#222;outline:none;width:200px;transition:border-color .2s}
+.ctrl input:focus,.ctrl select:focus{border-color:var(--blue)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+button{font-family:'Nunito',sans-serif;font-weight:800;border:none;border-radius:12px;
+  padding:10px 18px;font-size:.95rem;cursor:pointer;
+  transition:transform .12s,box-shadow .12s;display:flex;align-items:center;gap:6px}
+button:active{transform:scale(.96)}
+.btn-blue{background:var(--blue);color:white;box-shadow:0 4px 14px rgba(67,97,238,.3)}
+.btn-blue:hover{background:#3451d4}
+.btn-reset{background:#fff0f3;color:var(--red);border:2px solid #ffc0c6}
+.btn-reset:hover{background:#ffe0e4}
+.btn-orange{background:#fff4e8;color:#c06000;border:2px solid #ffd9a0}
+.btn-orange:hover{background:#ffe8cc}
+.btn-green{background:#e8fff0;color:#1a7a35;border:2px solid #a8d5b5}
+.btn-green:hover{background:#d4f5de}
+.btn-toggle.on{background:var(--orange);color:white;border-color:var(--orange)}
+
+/* INFO STRIP */
+.info-strip{display:flex;flex-wrap:wrap;gap:16px;align-items:center;
+  background:#f7f9ff;border-radius:14px;padding:14px 20px}
+.chip{display:flex;flex-direction:column;align-items:center;gap:2px}
+.chip .lbl{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#777}
+.chip .val{font-family:'Fredoka One',cursive;font-size:1.6rem;line-height:1}
+.chip.cn .val{color:var(--red)}.chip.cp .val{color:var(--purple)}
+.check-btn{margin-left:auto;background:linear-gradient(135deg,#7b2d8b,#4361ee);
+  color:white;font-family:'Fredoka One',cursive;font-size:1.05rem;
+  padding:11px 26px;border-radius:50px;border:none;cursor:pointer;
+  box-shadow:0 4px 18px rgba(123,45,139,.35);transition:transform .15s,box-shadow .15s}
+.check-btn:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(123,45,139,.45)}
+
+/* VIEW BAR */
+.vbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:#f7f9ff;border-radius:12px;padding:10px 16px}
+.vbar span{font-weight:800;font-size:.78rem;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.vbtn{background:#e8edff;color:var(--blue);border:2px solid #c8d4f8;padding:6px 14px;font-size:.88rem;border-radius:10px}
+.vbtn.active{background:var(--blue);color:white;border-color:var(--blue)}
+
+/* NL AREA */
+.nl-area{min-height:240px;overflow:visible}
+.nl-title{font-weight:800;font-size:.78rem;color:#bbb;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+
+/* HORIZONTAL */
+.h-wrap{padding:50px 44px 72px;position:relative;overflow:visible;user-select:none;-webkit-user-select:none}
+.h-track{width:100%;height:10px;background:var(--track);border-radius:5px;position:relative;overflow:visible;cursor:crosshair}
+.hf{position:absolute;top:0;height:100%;border-radius:5px}
+.htk{position:absolute;bottom:-8px;transform:translateX(-50%);border-radius:2px;pointer-events:none}
+.htk.b{width:3px;height:24px;background:var(--blue)}
+.htk.m{width:3px;height:32px;background:var(--orange)}
+.htk.n{width:4px;height:44px;background:var(--red)}
+.hd{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.22);pointer-events:none}
+.hd.b{width:18px;height:18px;background:var(--blue)}
+.hd.m{width:14px;height:14px;background:var(--orange)}
+.hd.n{width:28px;height:28px;background:var(--red);cursor:grab;pointer-events:auto}
+.hl{position:absolute;bottom:16px;transform:translateX(-50%);font-weight:800;font-size:.78rem;white-space:nowrap;text-align:center;pointer-events:none}
+.hl.b{color:var(--blue)}.hl.m{color:var(--orange)}.hl.n{color:var(--red)}
+.harrow{position:absolute;top:2px;transform:translateX(-50%);font-size:1.5rem;pointer-events:none;animation:bH .7s ease infinite alternate}
+@keyframes bH{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-6px)}}
+
+/* VERTICAL */
+.v-wrap{display:flex;justify-content:center;padding:20px 0 30px;min-height:360px;user-select:none;-webkit-user-select:none}
+.v-inner{position:relative;width:260px;height:320px;cursor:crosshair}
+.v-track{position:absolute;left:50%;transform:translateX(-50%);width:10px;height:100%;background:var(--track);border-radius:5px}
+.vf{position:absolute;left:50%;transform:translateX(-50%);width:10px;border-radius:5px}
+.vtk{position:absolute;left:50%;transform:translateX(-50%);border-radius:2px;pointer-events:none}
+.vtk.b{width:28px;height:3px;background:var(--blue)}
+.vtk.m{width:24px;height:3px;background:var(--orange)}
+.vtk.n{width:36px;height:4px;background:var(--red)}
+.vd{position:absolute;left:50%;transform:translate(-50%,50%);border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.22);pointer-events:none}
+.vd.b{width:18px;height:18px;background:var(--blue)}
+.vd.m{width:14px;height:14px;background:var(--orange)}
+.vd.n{width:28px;height:28px;background:var(--red);pointer-events:auto;cursor:grab}
+.vl{position:absolute;font-weight:800;font-size:.78rem;white-space:nowrap;pointer-events:none;transform:translateY(50%)}
+.vl.L{right:calc(50% + 22px);text-align:right}.vl.R{left:calc(50% + 22px);text-align:left}
+.vl.b{color:var(--blue)}.vl.m{color:var(--orange)}.vl.n{color:var(--red)}
+.varrow{position:absolute;left:calc(50% + 34px);transform:translateY(50%);font-size:1.3rem;pointer-events:none;animation:bV .7s ease infinite alternate}
+@keyframes bV{from{transform:translateY(50%) translateX(0)}to{transform:translateY(50%) translateX(6px)}}
+
+/* COMPARE */
+.cmp-wrap{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.cmp-panel{flex:1;min-width:220px;max-width:460px;background:#f7f9ff;border-radius:14px;padding:14px}
+.cmp-panel h3{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--blue);text-align:center;margin-bottom:6px}
+
+/* NO TRANSITION DURING DRAG */
+.dragging .hf,.dragging .htk,.dragging .hd,.dragging .hl,.dragging .harrow,
+.dragging .vf,.dragging .vtk,.dragging .vd,.dragging .vl,.dragging .varrow{transition:none!important}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.leg{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:#555}
+.ldot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+
+/* RULE BOX */
+.rule-box{background:linear-gradient(135deg,#fff8e8,#fffaf5);border:2.5px solid var(--orange);border-radius:16px;padding:16px 22px;animation:fadeIn .3s ease}
+.rule-box h3{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--purple);margin-bottom:8px}
+.rl{font-size:1rem;font-weight:800;color:#444;padding:4px 10px;border-radius:8px;transition:background .3s}
+.rl.hi-up{background:#d4f5de;color:#1a7a35}.rl.hi-down{background:#ffe5e7;color:#c0293a}
+.drow{margin-top:10px;padding:8px 12px;background:white;border-radius:10px;font-size:.9rem;font-weight:700}
+.db{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;font-family:'Fredoka One',cursive;font-size:1.1rem;margin:0 1px;border:2px solid transparent}
+.db.rp{background:#dce8ff;border-color:var(--blue);color:var(--blue)}
+.db.nd{background:#fff0d4;border-color:var(--orange);color:#c06000;animation:pulse 1s ease infinite alternate}
+@keyframes pulse{from{box-shadow:0 0 0 0 rgba(244,162,97,.4)}to{box-shadow:0 0 0 6px rgba(244,162,97,0)}}
+
+/* PROMPT */
+.prompt-box{background:linear-gradient(135deg,#e8fff0,#f0fff8);border:2.5px solid #a8d5b5;border-radius:var(--r);padding:16px 22px;animation:fadeIn .3s ease}
+.prompt-box h3{font-family:'Fredoka One',cursive;font-size:1.05rem;color:#1a7a35;margin-bottom:8px}
+.ptxt{font-size:1rem;font-weight:700;color:#333;padding:10px 14px;background:white;border-radius:10px;margin-bottom:8px}
+
+/* DYK */
+.dyk{background:linear-gradient(135deg,#f3e8ff,#e8f0ff);border:2.5px solid #c8a8e8;border-radius:var(--r);padding:18px 24px;cursor:pointer;user-select:none;transition:transform .15s,box-shadow .15s}
+.dyk:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(123,45,139,.15)}
+.dyk-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.de{font-size:2rem;display:block;margin-bottom:4px}.dh{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--purple);margin-bottom:3px}
+.db2{font-size:.88rem;font-weight:600;color:#444;line-height:1.45}
+.dtap{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#bbb;margin-top:8px}
+
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(20,10,50,.55);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center}
+.mbg.open{display:flex}
+.mbox{background:white;border-radius:24px;padding:32px 36px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;animation:popIn .25s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mx{position:absolute;top:14px;right:16px;background:#f0f4ff;border:none;border-radius:50%;width:34px;height:34px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666}
+.mx:hover{background:#e0e8ff}
+.mi{font-size:3rem;text-align:center;margin-bottom:8px}
+.mt{font-family:'Fredoka One',cursive;font-size:1.55rem;text-align:center;margin-bottom:14px}
+.mt.up{color:#1a7a35}.mt.down{color:#c0293a}.mt.exact{color:#b86a00}
+.mb{background:#f7f9ff;border-radius:14px;padding:16px 18px;font-size:.96rem;font-weight:600;color:#333;line-height:1.65;margin-bottom:16px}
+.mnum{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--blue);font-weight:800;display:inline}
+.mans{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--green);display:inline}
+.mans.d{color:var(--red)}
+.mok{width:100%;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;font-family:'Fredoka One',cursive;font-size:1.1rem;padding:12px;border:none;border-radius:50px;cursor:pointer}
+.mok:hover{opacity:.88}
+
+.hidden{display:none!important}
+@media(max-width:600px){.h-wrap{padding:40px 20px 62px;overflow:visible}.cmp-wrap{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔬 El Laboratorio de Redondeo de la Sra. Nava</h1>
+  <p>¡Explora el redondeo viéndolo en una recta numérica!</p>
+</header>
+
+<div class="wrap">
+
+  <div class="panel controls">
+    <div class="ctrl">
+      <label>📊 Escribe un Número</label>
+      <input id="ni" type="text" inputmode="numeric" value="3,472,891" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="ctrl">
+      <label>🎯 Redondear a</label>
+      <select id="ps">
+        <option value="10">Al 10 más cercano</option>
+        <option value="100">Al 100 más cercano</option>
+        <option value="1000">Al 1,000 más cercano</option>
+        <option value="10000">Al 10,000 más cercano</option>
+        <option value="100000" selected>Al 100,000 más cercano</option>
+        <option value="1000000">Al 1,000,000 más cercano</option>
+      </select>
+    </div>
+    <div class="btns">
+      <button class="btn-blue"   onclick="rndNum()">🎲 Aleatorio</button>
+      <button class="btn-reset"  onclick="doReset()">↩ Reiniciar</button>
+      <button class="btn-orange btn-toggle" id="ruleBtn" onclick="toggleRule()">📜 Regla de Redondeo</button>
+      <button class="btn-green  btn-toggle" id="promptBtn" onclick="togglePrompt()">💡 ¡Inténtalo!</button>
+    </div>
+  </div>
+
+  <div class="panel" style="padding:14px 20px">
+    <div class="info-strip">
+      <div class="chip cn"><span class="lbl">Tu Número</span><span class="val" id="cN">3,472,891</span></div>
+      <div class="chip cp"><span class="lbl">Redondeando a</span><span class="val" id="cP">Al 100,000 más cercano</span></div>
+      <button class="check-btn" onclick="checkAnswer()">🔍 Revisar mi Respuesta</button>
+    </div>
+  </div>
+
+  <div class="panel" style="padding:12px 18px">
+    <div class="vbar">
+      <span>Vista:</span>
+      <button class="vbtn active" id="vbH" onclick="setView('h')">➡ Horizontal</button>
+      <button class="vbtn"        id="vbV" onclick="setView('v')">⬆ Vertical</button>
+      <button class="vbtn"        id="vbC" onclick="setView('c')">↔ Comparar</button>
+    </div>
+  </div>
+
+  <div class="panel nl-area" id="nlArea">
+
+    <!-- HORIZONTAL -->
+    <div id="vH">
+      <div class="nl-title">Recta Numérica Horizontal</div>
+      <div class="h-wrap" id="hw1">
+        <div class="h-track" id="ht1">
+          <div class="hf" id="hfl1" style="background:rgba(230,57,70,.2)"></div>
+          <div class="hf" id="hfh1" style="background:rgba(44,198,83,.2)"></div>
+          <div class="htk b" id="htkL1"></div><div class="htk b" id="htkU1"></div>
+          <div class="htk m" id="htkM1"></div><div class="htk n" id="htkN1"></div>
+          <div class="hd b"  id="hdL1"></div><div class="hd b" id="hdU1"></div>
+          <div class="hd m"  id="hdM1"></div><div class="hd n" id="hdN1"></div>
+          <div class="harrow" id="harr1"></div>
+        </div>
+        <div class="hl b" id="hlL1"></div><div class="hl b" id="hlU1"></div>
+        <div class="hl m" id="hlM1"></div><div class="hl n" id="hlN1"></div>
+      </div>
+    </div>
+
+    <!-- VERTICAL -->
+    <div id="vV" class="hidden">
+      <div class="nl-title">Recta Numérica Vertical</div>
+      <div class="v-wrap">
+        <div class="v-inner" id="vi1">
+          <div class="v-track"></div>
+          <div class="vf" id="vfl1" style="background:rgba(230,57,70,.2)"></div>
+          <div class="vf" id="vfh1" style="background:rgba(44,198,83,.2)"></div>
+          <div class="vtk b" id="vtkL1"></div><div class="vtk b" id="vtkU1"></div>
+          <div class="vtk m" id="vtkM1"></div><div class="vtk n" id="vtkN1"></div>
+          <div class="vd b"  id="vdL1"></div><div class="vd b" id="vdU1"></div>
+          <div class="vd m"  id="vdM1"></div><div class="vd n" id="vdN1"></div>
+          <div class="vl L b" id="vlL1"></div><div class="vl R b" id="vlU1"></div>
+          <div class="vl L m" id="vlM1"></div><div class="vl R n" id="vlN1"></div>
+          <div class="varrow" id="varr1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div id="vC" class="hidden">
+      <div class="nl-title">Comparar Vistas — Mismo Número, Mismo Redondeo</div>
+      <div class="cmp-wrap">
+        <div class="cmp-panel">
+          <h3>➡ Horizontal</h3>
+          <div class="h-wrap" id="hw2">
+            <div class="h-track" id="ht2">
+              <div class="hf" id="hfl2" style="background:rgba(230,57,70,.2)"></div>
+              <div class="hf" id="hfh2" style="background:rgba(44,198,83,.2)"></div>
+              <div class="htk b" id="htkL2"></div><div class="htk b" id="htkU2"></div>
+              <div class="htk m" id="htkM2"></div><div class="htk n" id="htkN2"></div>
+              <div class="hd b"  id="hdL2"></div><div class="hd b" id="hdU2"></div>
+              <div class="hd m"  id="hdM2"></div><div class="hd n" id="hdN2"></div>
+              <div class="harrow" id="harr2"></div>
+            </div>
+            <div class="hl b" id="hlL2"></div><div class="hl b" id="hlU2"></div>
+            <div class="hl m" id="hlM2"></div><div class="hl n" id="hlN2"></div>
+          </div>
+        </div>
+        <div class="cmp-panel">
+          <h3>⬆ Vertical</h3>
+          <div class="v-wrap">
+            <div class="v-inner" id="vi2">
+              <div class="v-track"></div>
+              <div class="vf" id="vfl2" style="background:rgba(230,57,70,.2)"></div>
+              <div class="vf" id="vfh2" style="background:rgba(44,198,83,.2)"></div>
+              <div class="vtk b" id="vtkL2"></div><div class="vtk b" id="vtkU2"></div>
+              <div class="vtk m" id="vtkM2"></div><div class="vtk n" id="vtkN2"></div>
+              <div class="vd b"  id="vdL2"></div><div class="vd b" id="vdU2"></div>
+              <div class="vd m"  id="vdM2"></div><div class="vd n" id="vdN2"></div>
+              <div class="vl L b" id="vlL2"></div><div class="vl R b" id="vlU2"></div>
+              <div class="vl L m" id="vlM2"></div><div class="vl R n" id="vlN2"></div>
+              <div class="varrow" id="varr2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="padding:12px 20px">
+    <div class="legend">
+      <div class="leg"><div class="ldot" style="background:var(--blue)"></div>Puntos de referencia</div>
+      <div class="leg"><div class="ldot" style="background:var(--red)"></div>Tu Número</div>
+      <div class="leg"><div class="ldot" style="background:var(--orange)"></div>Punto medio</div>
+      <div class="leg"><div class="ldot" style="background:rgba(230,57,70,.4)"></div>Distancia al menor</div>
+      <div class="leg"><div class="ldot" style="background:rgba(44,198,83,.4)"></div>Distancia al mayor</div>
+    </div>
+  </div>
+
+  <div class="panel rule-box hidden" id="ruleBox">
+    <h3>📜 La Regla de Redondeo</h3>
+    <div class="rl" id="rl1">"Encuentra tu número, mira al lado.</div>
+    <div class="rl" id="rl2">¿Cinco o más? ¡Sube uno más! ⬆</div>
+    <div class="rl" id="rl3">¿Cuatro o menos? ¡Déjalo así!" ⬇</div>
+    <div class="drow" id="drow">Loading…</div>
+  </div>
+
+  <div class="panel prompt-box hidden" id="promptBox">
+    <h3>💡 ¡Intenta Este Desafío!</h3>
+    <div class="ptxt" id="ptxt">Loading…</div>
+    <button class="btn-green" onclick="nextPrompt()">🔄 Nuevo Desafío</button>
+  </div>
+
+  <div class="dyk" onclick="nextFact()">
+    <div class="dyk-in" id="dykin">
+      <span class="de" id="de"></span>
+      <div class="dh" id="dh"></div>
+      <div class="db2" id="db2"></div>
+    </div>
+    <div class="dtap">✨ ¡Toca para ver un dato nuevo!</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mbg" id="mbg" onclick="bgClick(event)">
+  <div class="mbox">
+    <button class="mx" onclick="closeModal()">✕</button>
+    <div class="mi" id="mi"></div>
+    <div class="mt" id="mt"></div>
+    <div class="mb" id="mb"></div>
+    <button class="mok" onclick="closeModal()">¡Sigue Explorando! 🚀</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  ARCHITECTURE — Two globals, one rule.
+//
+//  N = current number  (integer)
+//  P = current place   (integer)
+//
+//  RULE: N and P are ONLY written in these exact places:
+//    • commitTyped()  — user presses Enter or blurs the input
+//    • endDrag()      — user releases the drag
+//    • rndNum()       — random button
+//    • doReset()      — reset button
+//    • placeSelect change handler
+//
+//  During drag: a local variable dragN holds the in-progress
+//  value. N is NOT touched until endDrag() fires.
+//  This means the input box, N, and the display are always
+//  in perfect sync — and nothing can interfere mid-drag.
+// ════════════════════════════════════════════════════════
+
+let N = 3472891;       // current dot position (changes when dragging)
+let P = 100000;
+let typedN = 3472891;  // the number the student TYPED — never changed by drag
+// Display range — set when student commits a number, unchanged by drag
+let dispLo = Math.floor(3472891/100000)*100000;
+let dispHi = dispLo + 100000;
+
+// ── helpers ──────────────────────────────────────────────
+const f   = n => Number(n).toLocaleString('en-US');
+const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
+const ratio  = (n,lo,hi) => clamp((n-lo)/(hi-lo),0,1);
+
+function pname(p){
+  return ({10:'Al 10 más cercano',100:'Al 100 más cercano',1000:'Al 1,000 más cercano',
+    10000:'Al 10,000 más cercano',100000:'Al 100,000 más cercano',1000000:'Al 1,000,000 más cercano'})[p]||'Al '+f(p)+' más cercano';
+}
+function bnd(n,p){
+  const lo=Math.floor(n/p)*p, hi=lo+p, mid=lo+p/2;
+  return {lo,hi,mid,r:n>=mid?hi:lo};
+}
+function hardMax(p){ return p===1000000?8999999:9999999; }
+
+// ── render ────────────────────────────────────────────────
+// Called after N or P are committed. Draws everything from N,P.
+function render(){
+  // Use dispLo/dispHi — the range the student is currently working in
+  // This never shifts even when N lands exactly on a benchmark
+  const mid=dispLo+P/2;
+  const r=N>=mid?dispHi:dispLo;
+  document.getElementById('cN').textContent=f(N);
+  document.getElementById('cP').textContent=pname(P);
+  drawAll(N,dispLo,dispHi,mid,r);
+  if(!document.getElementById('ruleBox').classList.contains('hidden')) drawRule(N,dispLo,dispHi,mid,P,r);
+}
+
+// Call this whenever the student explicitly sets a new number
+// It recalculates dispLo/dispHi for the new number's range
+function commitN(n) {
+  N = n;
+  typedN = n;           // remember what was typed
+  dispLo = Math.floor(N/P)*P;
+  dispHi = dispLo + P;
+  render();
+}
+
+function drawAll(n,lo,hi,mid,r){
+  dH('ht1','hw1','hfl1','hfh1','htkL1','htkU1','htkM1','htkN1','hdL1','hdU1','hdM1','hdN1','hlL1','hlU1','hlM1','hlN1','harr1',n,lo,hi,mid,r);
+  dV('vi1','vfl1','vfh1','vtkL1','vtkU1','vtkM1','vtkN1','vdL1','vdU1','vdM1','vdN1','vlL1','vlU1','vlM1','vlN1','varr1',n,lo,hi,mid,r);
+  dH('ht2','hw2','hfl2','hfh2','htkL2','htkU2','htkM2','htkN2','hdL2','hdU2','hdM2','hdN2','hlL2','hlU2','hlM2','hlN2','harr2',n,lo,hi,mid,r);
+  dV('vi2','vfl2','vfh2','vtkL2','vtkU2','vtkM2','vtkN2','vdL2','vdU2','vdM2','vdN2','vlL2','vlU2','vlM2','vlN2','varr2',n,lo,hi,mid,r);
+}
+
+function dH(trackId,wrapId,flId,fhId,tkLId,tkUId,tkMId,tkNId,dLId,dUId,dMId,dNId,lLId,lUId,lMId,lNId,arrId,n,lo,hi,mid,r){
+  const tk=document.getElementById(trackId); if(!tk)return;
+  const wp=document.getElementById(wrapId);
+  const pl=parseFloat(getComputedStyle(wp).paddingLeft)||44;
+  const pr=parseFloat(getComputedStyle(wp).paddingRight)||44;
+  const tw=Math.max(wp.clientWidth-pl-pr, 1); // never 0 — avoids divide-by-zero
+  const pN=ratio(n,lo,hi)*100;
+  // track-relative % for ticks/dots/fills
+  const sL=function(id,p){const e=document.getElementById(id);if(e)e.style.left=p+'%';};
+  sL(tkLId,0);sL(dLId,0);
+  sL(tkUId,100);sL(dUId,100);
+  sL(tkMId,50);sL(dMId,50);
+  sL(tkNId,pN);sL(dNId,pN);
+  const fl=document.getElementById(flId),fh=document.getElementById(fhId);
+  if(fl){fl.style.left='0%';fl.style.width=pN+'%';}
+  if(fh){fh.style.left=pN+'%';fh.style.width=(100-pN)+'%';}
+  // wrap-relative px for labels
+  const sLW=function(id,p){const e=document.getElementById(id);if(e)e.style.left=(pl+(p/100)*tw)+'px';};
+  sLW(lLId,0);sLW(lUId,100);sLW(lMId,50);sLW(lNId,pN);
+  const tx=function(id,t){const e=document.getElementById(id);if(e)e.textContent=t;};
+  tx(lLId,f(lo));tx(lUId,f(hi));tx(lMId,f(mid)+' ↑ mitad');tx(lNId,f(n));
+  const arr=document.getElementById(arrId);
+  if(arr){arr.style.left=ratio(r,lo,hi)*100+'%';arr.textContent=r===hi?'⬆':'⬇';arr.style.color=r===hi?'var(--green)':'var(--red)';}
+}
+
+function dV(wrpId,flId,fhId,tkLId,tkUId,tkMId,tkNId,dLId,dUId,dMId,dNId,lLId,lUId,lMId,lNId,arrId,n,lo,hi,mid,r){
+  const sB=function(id,p){const e=document.getElementById(id);if(e)e.style.bottom=p+'%';};
+  const pN=ratio(n,lo,hi)*100;
+  sB(tkLId,0);sB(dLId,0);sB(lLId,0);
+  sB(tkUId,100);sB(dUId,100);sB(lUId,100);
+  sB(tkMId,50);sB(dMId,50);sB(lMId,50);
+  sB(tkNId,pN);sB(dNId,pN);sB(lNId,pN);
+  const fl=document.getElementById(flId),fh=document.getElementById(fhId);
+  if(fl){fl.style.bottom='0%';fl.style.height=pN+'%';}
+  if(fh){fh.style.bottom=pN+'%';fh.style.height=(100-pN)+'%';}
+  const tx=function(id,t){const e=document.getElementById(id);if(e)e.textContent=t;};
+  tx(lLId,f(lo));tx(lUId,f(hi));tx(lMId,f(mid)+' ←');tx(lNId,'→ '+f(n));
+  const arr=document.getElementById(arrId);
+  if(arr){arr.style.bottom=ratio(r,lo,hi)*100+'%';arr.textContent=r===hi?'⬆':'⬇';arr.style.color=r===hi?'var(--green)':'var(--red)';}
+}
+
+// ── typed input ───────────────────────────────────────────
+let activeDrag  = false;
+let justDragged = false;  // prevents blur from overwriting typedN after drag
+let inputTimer  = null;
+
+// Live update as user types (debounced 350ms so mid-type states don't flash)
+document.getElementById('ni').addEventListener('input', function(){
+  if (activeDrag) return;
+  clearTimeout(inputTimer);
+  const captured = this.value;
+  inputTimer = setTimeout(() => {
+    const raw = captured.replace(/,/g,'').replace(/\D/g,'');
+    if (raw === '') return;
+    commitN(clamp(parseInt(raw)||0, 0, hardMax(P)));
+  }, 350);
+});
+
+// On blur: commit final value and reformat
+document.getElementById('ni').addEventListener('blur', function(){
+  if (activeDrag) return;
+  if (justDragged) { justDragged = false; return; }  // drag already committed N, don't overwrite typedN
+  clearTimeout(inputTimer);
+  const raw = this.value.replace(/,/g,'').replace(/\D/g,'');
+  const n = clamp(parseInt(raw)||0, 0, hardMax(P));
+  this.value = n > 0 ? f(n) : '';
+  commitN(n);
+});
+
+document.getElementById('ni').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') this.blur();
+});
+
+document.getElementById('ps').addEventListener('change',function(){
+  P=parseInt(this.value);
+  const nn=clamp(N,0,hardMax(P));
+  document.getElementById('ni').value=f(nn);
+  commitN(nn);
+});
+
+// ── drag ─────────────────────────────────────────────────
+// Drag moves the number. Range [lo,hi] locked at drag start.
+// N and input update BEFORE activeDrag clears so blur can't overwrite.
+function setupDrag(trackId,isVert){
+  const track=document.getElementById(trackId);
+  if(!track)return;
+  const nla=document.getElementById('nlArea');
+
+  track.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    track.setPointerCapture(e.pointerId);
+
+    // Lock range from current N — never recalculated during drag
+    const lo=Math.floor(N/P)*P;
+    const hi=lo+P;
+    const mid=lo+P/2;
+    let dragN=N;
+
+    clearTimeout(inputTimer);
+    activeDrag=true;
+    nla.classList.add('dragging');
+
+    function onMove(ev){
+      const rect=track.getBoundingClientRect();
+      const ratio=isVert
+        ? clamp(1-(ev.clientY-rect.top)/rect.height,0,1)
+        : clamp((ev.clientX-rect.left)/rect.width,0,1);
+      dragN=Math.round(lo+ratio*(hi-lo));
+      const rounded=dragN>=mid?hi:lo;
+      // Don't update the chip — it always shows typedN, not the drag position
+      drawAll(dragN,lo,hi,mid,rounded);
+    }
+
+    function onUp(){
+      N=dragN;
+      dispLo=lo;
+      dispHi=hi;
+      document.getElementById('ni').value=f(N);
+      justDragged=true;   // tell blur handler to skip — drag already handled this
+      activeDrag=false;
+      nla.classList.remove('dragging');
+      render();  // render() now uses dispLo/dispHi = lo/hi, dot stays put
+      track.removeEventListener('pointermove',onMove);
+      track.removeEventListener('pointerup',onUp);
+      track.removeEventListener('pointercancel',onUp);
+    }
+
+    track.addEventListener('pointermove',onMove);
+    track.addEventListener('pointerup',onUp);
+    track.addEventListener('pointercancel',onUp);
+  });
+}
+
+// ── view ─────────────────────────────────────────────────
+function setView(v){
+  ['h','v','c'].forEach(x=>document.getElementById('v'+x.toUpperCase()).classList.toggle('hidden',x!==v));
+  ['vbH','vbV','vbC'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById({h:'vbH',v:'vbV',c:'vbC'}[v]).classList.add('active');
+  setTimeout(render,40);
+}
+
+// ── random / reset ────────────────────────────────────────
+function rndNum(){
+  const min=P*2,max=Math.min(hardMax(P),P*9-1);
+  const n=Math.floor(Math.random()*(max-min+1))+min;
+  document.getElementById('ni').value=f(n);
+  commitN(n);
+}
+function doReset(){
+  P=100000;
+  document.getElementById('ps').value=P;
+  document.getElementById('ni').value=f(3472891);
+  commitN(3472891);
+}
+
+// ── check answer ──────────────────────────────────────────
+function checkAnswer(){
+  // typedN = number the student entered (never changed by drag)
+  // N      = where the student dragged the dot (their answer)
+  const {lo,hi,mid,r} = bnd(typedN,P);
+  const pt       = pname(P).toLowerCase();
+  const isExact  = (typedN===mid);
+  const isUp     = (r===hi);
+  const correct  = (N===r);   // did they drag to the right answer?
+
+  let icon, title, cls, explain;
+
+  // The math explanation is the same regardless of correct/wrong
+  if(isExact){
+    explain = `<b>${f(typedN)}</b> cae exactamente en el punto medio entre <span class="mnum">${f(lo)}</span> y <span class="mnum">${f(hi)}</span>. `
+            + `El punto medio es <span class="mnum">${f(mid)}</span>. `
+            + `Cuando un número cae exactamente en el punto medio, siempre redondeamos <strong>ARRIBA</strong>. `
+            + `Entonces <b>${f(typedN)}</b> redondeado al ${pt} es <span class="mans">${f(r)}</span>.`;
+  } else if(isUp){
+    explain = `<b>${f(typedN)}</b> está entre <span class="mnum">${f(lo)}</span> y <span class="mnum">${f(hi)}</span>. `
+            + `El punto medio es <span class="mnum">${f(mid)}</span>. `
+            + `Como <b>${f(typedN)}</b> es mayor que <span class="mnum">${f(mid)}</span>, `
+            + `está más cerca de <span class="mans">${f(hi)}</span> que a ${f(lo)}. `
+            + `Entonces <b>${f(typedN)}</b> redondeado al ${pt} es <span class="mans">${f(r)}</span>.`;
+  } else {
+    explain = `<b>${f(typedN)}</b> está entre <span class="mnum">${f(lo)}</span> y <span class="mnum">${f(hi)}</span>. `
+            + `El punto medio es <span class="mnum">${f(mid)}</span>. `
+            + `Como <b>${f(typedN)}</b> es menor que <span class="mnum">${f(mid)}</span>, `
+            + `está más cerca de <span class="mans d">${f(lo)}</span> que a ${f(hi)}. `
+            + `Entonces <b>${f(typedN)}</b> redondeado al ${pt} es <span class="mans d">${f(r)}</span>.`;
+  }
+
+  if(correct){
+    icon  = isExact ? '⭐' : '🎉';
+    title = '✅ ¡Correcto!';
+    cls   = 'up';
+  } else {
+    icon  = '🤔';
+    title = '¡Casi!';
+    cls   = 'down';
+    // Prepend a "not quite" line showing what they picked vs correct answer
+    explain = `Colocaste el punto en <span class="mnum">${f(N)}</span>, pero la respuesta correcta es <span class="mans">${f(r)}</span>. `
+            + `Aquí está la razón:<br><br>` + explain;
+  }
+
+  document.getElementById('mi').textContent=icon;
+  document.getElementById('mt').textContent=title;
+  document.getElementById('mt').className='mt '+cls;
+  document.getElementById('mb').innerHTML=explain;
+  document.getElementById('mbg').classList.add('open');
+}
+function closeModal(){document.getElementById('mbg').classList.remove('open');}
+function bgClick(e){if(e.target===document.getElementById('mbg'))closeModal();}
+
+// ── rounding rule ─────────────────────────────────────────
+let showRule=false;
+function toggleRule(){
+  showRule=!showRule;
+  document.getElementById('ruleBox').classList.toggle('hidden',!showRule);
+  document.getElementById('ruleBtn').classList.toggle('on',showRule);
+  if(showRule){const{lo,hi,mid,r}=bnd(N,P);drawRule(N,lo,hi,mid,P,r);}
+}
+function drawRule(n,lo,hi,mid,p,r){
+  const isUp=r===hi;
+  document.getElementById('rl2').className='rl'+(isUp?' hi-up':'');
+  document.getElementById('rl3').className='rl'+(!isUp?' hi-down':'');
+  const pi=Math.round(Math.log10(p));
+  const raw=String(Math.floor(n)).padStart(pi+1,'0');
+  let h='Revisando: ';
+  for(let i=0;i<raw.length;i++){
+    const pos=raw.length-1-i;
+    const c=pos===pi?'db rp':pos===pi-1?'db nd':'db';
+    h+=`<span class="${c}">${raw[i]}</span>`;
+  }
+  const nd=raw[raw.length-(pi-1)-1]||'0';
+  h+=`<br><small style="color:#777;font-size:.8rem"><span style="background:#dce8ff;padding:1px 6px;border-radius:5px;color:var(--blue)">azul</span> = lugar de redondeo &nbsp;<span style="background:#fff0d4;padding:1px 6px;border-radius:5px;color:#c06000">naranja</span> = dígito vecino (${nd} → ${parseInt(nd)>=5?'redondea ARRIBA ⬆':'déjalo así ⬇'})</small>`;
+  document.getElementById('drow').innerHTML=h;
+}
+
+// ── prompts ───────────────────────────────────────────────
+let showPrompt=false,pi2=0;
+const PROMPTS=['Encuentra un número que redondee a 4,000,000 al millón más cercano.','Encuentra un número exactamente a la mitad entre sus dos puntos de referencia.','Encuentra un número que redondee HACIA ABAJO. ¿Qué tan cerca puedes llegar al punto medio?','Encuentra un número que redondee HACIA ARRIBA. ¿Qué tan cerca puedes llegar al punto medio?','¿Qué pasa cuando tu número ES uno de los puntos de referencia?','Encuentra dos números diferentes que ambos redondeen a la misma respuesta.','Encuentra el número más pequeño que redondee hacia arriba al 10,000 más cercano.','Prueba un número cerca de 5,000,000. ¿Redondea hacia arriba o hacia abajo?','Encuentra un número donde el resultado redondeado sea 3,000,000.','Cambia el lugar de redondeo — ¿el mismo número siempre redondea igual?'];
+function togglePrompt(){showPrompt=!showPrompt;document.getElementById('promptBox').classList.toggle('hidden',!showPrompt);document.getElementById('promptBtn').classList.toggle('on',showPrompt);if(showPrompt)document.getElementById('ptxt').textContent=PROMPTS[pi2];}
+function nextPrompt(){pi2=(pi2+1)%PROMPTS.length;document.getElementById('ptxt').textContent=PROMPTS[pi2];}
+
+// ── did you know ──────────────────────────────────────────
+let lf=-1;
+const FACTS=[{e:'🍕',h:'¡Redondeo de Pizza!',b:"¡Una pizzería vendió 3,487 pizzas en un mes. Redondeado al 1,000 más cercano, ¡son 3,000!"},{e:'🏟️',h:'Asientos del Estadio',b:"¡Un estadio tiene capacidad para 47,382 personas. Redondeado al 10,000 más cercano, ¡son 50,000!"},{e:'🌊',h:'Profundidad del Océano',b:"¡La Fosa de las Marianas tiene 36,089 pies de profundidad. Redondeado al 1,000 más cercano, ¡son 36,000 pies!"},{e:'🏀',h:'Récord de Puntos de la NBA',b:"¡Kareem anotó 38,387 puntos en su carrera. Redondeado al 1,000 más cercano, ¡son 38,000!"},{e:'🍫',h:'Chispas de Chocolate',b:"¡Una bolsa grande tiene 385 chispas. Redondeado al 10 más cercano, ¡son 390!"},{e:'🚗',h:'Distancia en Auto',b:"¡Los estadounidenses manejan ~13,476 millas al año. Redondeado al 1,000 más cercano, ¡son 13,000!"},{e:'📚',h:'Libros de la Biblioteca',b:"¡Una biblioteca escolar tiene 4,832 libros. Redondeado al 100 más cercano, ¡son 4,800!"},{e:'🐝',h:'Abejas en una Colmena',b:"¡Una colmena saludable tiene ~60,000 abejas. Redondeado al 10,000 más cercano, ¡siguen siendo 60,000!"},{e:'🦕',h:'Edad de los Dinosaurios',b:"¡El T-Rex vivió hace ~66,038,000 años. Redondeado al millón más cercano, ¡son 66,000,000!"},{e:'🎵',h:'Reproducciones de Canciones',b:"¡Una canción popular puede tener 4,756,321 reproducciones. Redondeado al 100,000 más cercano, ¡son 4,800,000!"},{e:'🏗️',h:'Altura del Edificio',b:"¡El Empire State mide 1,454 pies de altura. Redondeado al 100 más cercano, ¡son 1,500 pies!"},{e:'🌙',h:'Distancia a la Luna',b:"¡La Luna está a ~238,855 millas de distancia. Redondeado al 10,000 más cercano, ¡son 240,000 millas!"},{e:'⚡',h:'¡Relámpago!',b:"¡Los relámpagos calientan el aire a 53,540°F. Redondeado al 10,000 más cercano, ¡son 50,000°F!"},{e:'🦈',h:'Tiburón Blanco',b:"¡Los tiburones blancos pesan hasta 5,000 lbs — ¡ya está redondeado al 1,000 más cercano!"},{e:'🎮',h:'Ventas de Videojuegos',b:"¡Un juego popular puede vender 3,250,000 copias. Redondeado al millón más cercano, ¡son 3,000,000!"}];
+function nextFact(){let i;do{i=Math.floor(Math.random()*FACTS.length);}while(i===lf);lf=i;const f2=FACTS[i];const inn=document.getElementById('dykin');inn.style.animation='none';inn.offsetHeight;inn.style.animation='fadeIn .4s ease';document.getElementById('de').textContent=f2.e;document.getElementById('dh').textContent=f2.h;document.getElementById('db2').textContent=f2.b;}
+
+// ── init ──────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  setupDrag('ht1',false); setupDrag('ht2',false);
+  setupDrag('vi1',true);  setupDrag('vi2',true);
+  nextFact();
+  // Use rAF + setTimeout to guarantee layout is complete before first render
+  requestAnimationFrame(() => setTimeout(render, 50));
+  // Retry render after fonts/layout fully settle (catches slow initial paints)
+  setTimeout(render, 400);
+});
+window.addEventListener('resize',render);
+</script>
+</body>
+</html>
