@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mrs. Nava's Multiplication Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:     #f0f4ff;
+  --card:   #ffffff;
+  --pri:    #5b4fcf;
+  --pri-lt: #ede9ff;
+  --acc1:   #ff6b6b;
+  --acc2:   #ffd93d;
+  --acc3:   #6bcb77;
+  --shadow: 0 3px 16px rgba(91,79,207,0.11);
+  --r:      16px;
+  --fh:     'Fredoka One', cursive;
+  --fb:     'Nunito', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--fb);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.hdr {
+  width: 100%;
+  background: linear-gradient(135deg,#5b4fcf,#7c6fdb 60%,#a089e8);
+  padding: 14px 24px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 3px 14px rgba(91,79,207,0.25);
+  position: relative;
+  overflow: hidden;
+}
+.hdr::before {
+  content:''; position:absolute; top:-20px; right:-30px;
+  width:140px; height:140px; background:rgba(255,255,255,0.06); border-radius:50%;
+  pointer-events:none;
+}
+.hdr-title {
+  font-family: var(--fh);
+  font-size: 1.75rem; color:#fff;
+  letter-spacing:.5px; text-shadow:0 2px 8px rgba(0,0,0,0.15);
+  position:relative;
+}
+.hdr-mode {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.15); border-radius:30px; padding:4px 6px;
+  position:relative;
+}
+.m-btn {
+  font-family:var(--fb); font-weight:800; font-size:0.8rem;
+  padding:6px 14px; border-radius:22px; border:none;
+  background:transparent; color:rgba(255,255,255,0.75);
+  cursor:pointer; transition:all .17s;
+}
+.m-btn.on { background:#fff; color:var(--pri); box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+
+/* ── WORKSPACE ──────────────────────────────────────────── */
+.ws {
+  width:100%; max-width:1100px;
+  padding:14px 14px 24px;
+  display:flex; flex-direction:column; gap:12px;
+}
+
+/* ── NUMBER BUILDER ─────────────────────────────────────── */
+.builder-card {
+  background:var(--card); border-radius:var(--r);
+  box-shadow:var(--shadow); padding:14px 20px 12px;
+}
+.builder-inner { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.num-slot { display:flex; align-items:center; gap:8px; flex:1; min-width:260px; }
+.slot-label { font-family:var(--fh); font-size:.75rem; color:var(--pri); white-space:nowrap; }
+.digit-group { display:flex; gap:4px; align-items:flex-end; }
+.digit-col   { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.digit-name  { font-size:.55rem; font-weight:800; color:#aaa; text-transform:uppercase; letter-spacing:.3px; text-align:center; }
+.digit-box {
+  font-family:var(--fh); font-size:1.55rem; color:var(--pri);
+  background:var(--pri-lt); border:2px solid #cfc8f8; border-radius:10px;
+  width:44px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s; user-select:none;
+}
+.digit-box.zero { color:#c8c2f0; }
+.d-btn-wrap { display:flex; flex-direction:column; gap:2px; }
+.d-btn {
+  font-size:.7rem; font-weight:900; width:22px; height:20px;
+  border-radius:6px; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .1s; user-select:none;
+}
+.d-btn.up { background:#e8e4ff; color:var(--pri); }
+.d-btn.dn { background:#fdeaea; color:#d94040; }
+.d-btn:hover { transform:scale(1.2); }
+.num-big { font-family:var(--fh); font-size:2rem; color:var(--pri); min-width:54px; text-align:center; letter-spacing:1px; }
+.times-sign { font-family:var(--fh); font-size:2rem; color:var(--acc1); padding:0 4px; flex-shrink:0; }
+.load-btn {
+  font-family:var(--fh); font-size:1rem;
+  background:linear-gradient(135deg,var(--pri),#7c6fdb);
+  color:#fff; border:none; padding:10px 24px; border-radius:26px;
+  cursor:pointer; box-shadow:0 3px 12px rgba(91,79,207,0.28);
+  transition:transform .14s,box-shadow .14s; white-space:nowrap; flex-shrink:0;
+}
+.load-btn:hover  { transform:translateY(-2px) scale(1.03); box-shadow:0 6px 18px rgba(91,79,207,0.36); }
+.load-btn:active { transform:scale(0.97); }
+.chips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:8px; }
+.chip-lbl { font-size:.75rem; font-weight:700; color:#bbb; }
+.chip {
+  font-family:var(--fb); font-weight:800; font-size:.75rem;
+  padding:3px 11px; border-radius:16px;
+  border:2px solid #ddd8ff; background:var(--pri-lt); color:var(--pri);
+  cursor:pointer; transition:all .14s;
+}
+.chip:hover { background:var(--pri); color:#fff; border-color:var(--pri); }
+.warn { color:var(--acc1); font-weight:800; font-size:.82rem; margin-top:6px; min-height:1em; }
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.main-body {
+  display:grid; grid-template-columns:1fr 280px;
+  gap:12px; align-items:start;
+}
+@media (max-width:740px) { .main-body { grid-template-columns:1fr; } }
+.left-col  { display:flex; flex-direction:column; gap:10px; }
+.right-col { display:flex; flex-direction:column; gap:10px; }
+
+/* ── AREA MODEL CARD ────────────────────────────────────── */
+.model-card {
+  background:var(--card); border-radius:var(--r);
+  box-shadow:var(--shadow); padding:14px 16px 10px;
+}
+.model-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:8px; flex-wrap:wrap; gap:8px;
+}
+.sec-title {
+  font-family:var(--fh); font-size:1rem; color:var(--pri);
+  display:flex; align-items:center; gap:6px;
+}
+.header-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.reset-btn {
+  font-family:var(--fb); font-weight:800; font-size:.75rem;
+  padding:5px 14px; border-radius:16px;
+  border:2px solid #ffd0d0; background:#fff5f5; color:#d94040;
+  cursor:pointer; transition:all .14s;
+}
+.reset-btn:hover { background:var(--acc1); color:#fff; border-color:var(--acc1); }
+
+/* toggle */
+.toggle-wrap {
+  display:flex; align-items:center; gap:6px;
+  font-family:var(--fb); font-weight:800; font-size:.78rem;
+  color:var(--pri); cursor:pointer; user-select:none;
+}
+.toggle-track {
+  width:36px; height:20px; background:#ddd;
+  border-radius:10px; position:relative;
+  transition:background .2s; flex-shrink:0;
+}
+.toggle-track.on { background:var(--acc3); }
+.toggle-thumb {
+  position:absolute; top:3px; left:3px;
+  width:14px; height:14px; background:#fff;
+  border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.2);
+  transition:left .2s;
+}
+.toggle-track.on .toggle-thumb { left:19px; }
+
+.svg-wrap { overflow-x:auto; }
+#areaModelSvg { display:block; width:100%; height:auto; }
+
+/* ── CELL INPUTS (inside SVG foreignObject) ─────────────── */
+.cell-input-wrap {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; height:100%; gap:3px; padding:4px;
+  position:relative;
+}
+.cell-expr {
+  font-family:'Nunito',sans-serif; font-weight:700; font-size:11px;
+  opacity:.75; text-align:center; line-height:1.1; pointer-events:none;
+}
+.cell-input {
+  font-family:'Fredoka One',cursive; font-size:18px; text-align:center;
+  width:100%; max-width:80px;
+  border:2.5px solid rgba(0,0,0,0.18); border-radius:8px;
+  padding:2px 4px; background:rgba(255,255,255,0.85); color:#333;
+  outline:none; transition:border-color .2s,background .2s,box-shadow .2s;
+  -moz-appearance:textfield;
+}
+.cell-input::-webkit-outer-spin-button,
+.cell-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.cell-input:focus { border-color:rgba(0,0,0,0.45); background:#fff; }
+
+/* ✅ CORRECT */
+.cell-input.correct {
+  border-color:#3db84a !important;
+  background:rgba(214,245,218,0.92) !important;
+  color:#1a6b25;
+  box-shadow:0 0 0 3px rgba(61,184,74,0.18);
+}
+/* 👀 WRONG with feedback ON — warm amber, not red */
+.cell-input.needs-check {
+  border-color:#f0a500 !important;
+  background:rgba(255,243,210,0.92) !important;
+  color:#6b4800;
+  animation:gentlePulse 1.4s ease-in-out 2;
+}
+@keyframes gentlePulse {
+  0%,100% { box-shadow:0 0 0 0   rgba(240,165,0,0.0); }
+  50%      { box-shadow:0 0 0 5px rgba(240,165,0,0.28); }
+}
+/* Feedback OFF — wrong answers get no visual change (input stays default) */
+/* Hint bubble */
+.cell-hint {
+  font-family:'Nunito',sans-serif; font-size:9.5px; font-weight:800;
+  color:#8a6000; background:rgba(255,243,210,0.97);
+  border:1.5px solid #f0a500; border-radius:6px;
+  padding:1px 5px; text-align:center; white-space:nowrap;
+  pointer-events:none; animation:hintFade .25s ease;
+}
+@keyframes hintFade {
+  from { opacity:0; transform:translateY(-3px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+/* Show Answers mode */
+.cell-answer {
+  font-family:'Fredoka One',cursive; font-size:20px; font-weight:900;
+  text-align:center; pointer-events:none;
+}
+/* SVG rect glow classes */
+.ac-correct  { filter:drop-shadow(0 0 5px rgba(61,184,74,0.55)); }
+.ac-checking { filter:drop-shadow(0 0 5px rgba(240,165,0,0.55)); }
+
+.model-hint {
+  text-align:center; margin-top:6px;
+  font-size:.78rem; font-weight:700; color:#bbb;
+}
+
+/* ── PARTIAL PRODUCTS ────────────────────────────────────── */
+.pp-card { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:12px 16px; }
+.pp-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.pp-tile {
+  border-radius:12px; padding:8px 14px;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  cursor:pointer; border:3px solid transparent;
+  transition:transform .15s,border-color .15s,box-shadow .15s;
+  min-width:88px; text-align:center;
+}
+.pp-tile.hi   { transform:scale(1.07); box-shadow:0 4px 14px rgba(0,0,0,0.12); }
+.pp-tile.done { opacity:1; }
+.pp-tile.open { opacity:.65; }
+.pp-expr { font-family:var(--fh); font-size:.82rem; opacity:.75; }
+.pp-val  { font-family:var(--fh); font-size:1.45rem; }
+.pp-val.pending { color:#ccc !important; }
+.pp-total { display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap; }
+.pp-sum {
+  font-family:var(--fh); font-size:1.15rem; color:var(--pri);
+  flex:1; min-width:0; word-break:break-word;
+}
+.reveal-btn {
+  font-family:var(--fh); font-size:.88rem;
+  background:linear-gradient(135deg,var(--acc3),#3db84a);
+  color:#fff; border:none; padding:7px 18px; border-radius:18px;
+  cursor:pointer; box-shadow:0 2px 8px rgba(107,203,119,0.35);
+  transition:transform .13s; white-space:nowrap;
+}
+.reveal-btn:hover { transform:scale(1.05); }
+
+/* ── ALGORITHM ──────────────────────────────────────────── */
+.algo-card { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:12px 16px; }
+.algo-display {
+  font-family:'Courier New',monospace; font-size:1.25rem;
+  line-height:1.7; color:#333; margin-top:10px; overflow-x:auto;
+}
+.algo-row {
+  display:flex; align-items:center;
+  border-radius:6px; padding:1px 2px; gap:0; min-height:1.8em;
+}
+.algo-row.hi { background:#fff4c2; }
+.algo-num {
+  display:flex; justify-content:flex-end; align-items:center;
+  flex:0 0 auto; min-width:90px; gap:1px;
+}
+.a-dig { display:inline-block; min-width:18px; text-align:center; }
+.algo-label {
+  font-family:var(--fb); font-size:.68rem; font-weight:700;
+  opacity:.55; margin-left:6px;
+  white-space:nowrap;
+  flex-shrink:1; line-height:1.35; transition:opacity .2s,color .2s;
+  overflow:hidden; text-overflow:ellipsis;
+}
+.algo-label.hi-label { opacity:1; font-weight:900; }
+.algo-sym {
+  width:22px; text-align:center; flex-shrink:0;
+  font-family:var(--fh); font-weight:900;
+}
+.algo-sym.x-sym    { color:var(--acc1); font-size:1.1rem; opacity:.9; }
+.algo-sym.plus-sym { color:var(--acc3); font-size:1rem;   opacity:.8; }
+.algo-sym.hidden   { visibility:hidden; }
+.algo-divider { border-top:2.5px solid #333; margin:3px 0 3px 22px; }
+.algo-total-num { color:var(--pri); font-weight:900; }
+.algo-dot {
+  display:inline-block; width:8px; height:8px;
+  border-radius:2px; margin-right:4px;
+  flex-shrink:0; vertical-align:middle;
+}
+.algo-pp-row { transition:background .18s; }
+.algo-pp-row.hi { background:#fff4c2; }
+.algo-pp-row.hi .algo-label { opacity:1; font-weight:900; }
+.algo-pp-row.unsolved .algo-num   { color:#ccc; }
+.algo-pp-row.unsolved .algo-label { opacity:.35; }
+
+/* ── ×10 CARD ───────────────────────────────────────────── */
+.pow10-card { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:12px 16px; }
+.pow10-top  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.pow10-input {
+  font-family:var(--fh); font-size:1.4rem; width:84px; text-align:center;
+  border:2.5px solid #cfc8f8; border-radius:10px; padding:4px 6px;
+  color:var(--pri); background:var(--pri-lt); outline:none;
+}
+.pow10-input:focus { border-color:var(--pri); }
+.pow10-x { font-family:var(--fh); font-size:1.2rem; color:var(--acc1); }
+.pow-btns { display:flex; gap:5px; flex-wrap:wrap; }
+.pow-btn {
+  font-family:var(--fh); font-size:.82rem; padding:6px 12px; border-radius:16px;
+  border:2px solid #ddd; background:#f7f7ff; color:#999; cursor:pointer; transition:all .16s;
+}
+.pow-btn.on { background:var(--acc2); border-color:#d4a000; color:#5a4000; font-weight:900; box-shadow:0 2px 8px rgba(255,217,61,.4); }
+.shift-cols { display:flex; gap:4px; margin-top:10px; justify-content:center; flex-wrap:wrap; }
+.sc-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.sc-name { font-size:.52rem; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:.2px; text-align:center; max-width:50px; }
+.sc-box {
+  width:40px; height:40px; border-radius:10px; border:2px solid transparent;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--fh); font-size:1.3rem; background:#f0f0f0; color:#ccc;
+  transition:all .35s cubic-bezier(.36,1.5,.64,1);
+}
+.sc-box.fill  { background:var(--pri-lt); border-color:#c4b8ff; color:var(--pri); }
+.sc-box.moved { background:#d6f5da; border-color:var(--acc3); color:#1a6b25; transform:scale(1.1); }
+.sc-box.zero  { background:#f8f8f8; border-color:#e8e8e8; color:#ccc; font-size:.9rem; }
+.shift-eq  { font-family:var(--fh); font-size:1.1rem; color:var(--pri); text-align:center; margin-top:8px; }
+.shift-eq em { color:var(--acc1); font-style:normal; font-size:1.3rem; }
+.shift-note  { font-size:.73rem; font-weight:700; color:#888; text-align:center; margin-top:5px; line-height:1.4; }
+
+/* ── DID YOU KNOW ───────────────────────────────────────── */
+.dyk-card {
+  background:linear-gradient(135deg,#5b4fcf,#7c6fdb);
+  border-radius:var(--r); box-shadow:0 4px 20px rgba(91,79,207,0.28);
+  padding:16px 22px; color:#fff; cursor:pointer;
+  position:relative; overflow:hidden; user-select:none; transition:transform .15s;
+}
+.dyk-card:hover { transform:scale(1.01); }
+.dyk-card::after {
+  content:''; position:absolute; bottom:-28px; right:-18px;
+  width:110px; height:110px; background:rgba(255,255,255,0.06); border-radius:50%;
+  pointer-events:none;
+}
+.dyk-tap { font-size:.68rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; opacity:.65; margin-bottom:7px; }
+.dyk-content { display:flex; align-items:flex-start; gap:12px; animation:dykFade .35s ease; }
+@keyframes dykFade { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.dyk-emoji    { font-size:2rem; line-height:1; flex-shrink:0; }
+.dyk-headline { font-family:var(--fh); font-size:1rem; margin-bottom:3px; }
+.dyk-body     { font-size:.85rem; font-weight:600; opacity:.9; line-height:1.45; }
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width:540px) {
+  .hdr-title { font-size:1.3rem; }
+  .num-big   { font-size:1.5rem; }
+  .digit-box { width:36px; height:36px; font-size:1.2rem; }
+  .algo-display { font-size:1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-title">🔬 Mrs. Nava's Multiplication Lab</div>
+  <nav class="hdr-mode">
+    <button class="m-btn on" id="mArea" onclick="setMode('area')">Area Model</button>
+    <button class="m-btn"    id="mPow"  onclick="setMode('pow10')">×10 / ×100 / ×1,000</button>
+  </nav>
+</header>
+
+<div class="ws">
+
+  <!-- NUMBER BUILDER -->
+  <div class="builder-card">
+    <div class="builder-inner">
+      <div class="num-slot">
+        <span class="slot-label">A</span>
+        <div class="digit-group" id="dgA"></div>
+        <div class="num-big" id="nbA">23</div>
+      </div>
+      <div class="times-sign">×</div>
+      <div class="num-slot">
+        <span class="slot-label">B</span>
+        <div class="digit-group" id="dgB"></div>
+        <div class="num-big" id="nbB">15</div>
+      </div>
+      <button class="load-btn" onclick="loadModel()">⚡ Calculate</button>
+    </div>
+    <div class="chips">
+      <span class="chip-lbl">Try:</span>
+      <button class="chip" onclick="suggest(24,13)">24×13</button>
+      <button class="chip" onclick="suggest(36,7)">36×7</button>
+      <button class="chip" onclick="suggest(125,4)">125×4</button>
+      <button class="chip" onclick="suggest(42,28)">42×28</button>
+      <button class="chip" onclick="suggest(6,8)">6×8</button>
+      <button class="chip" onclick="suggest(99,9)">99×9</button>
+    </div>
+    <div class="warn" id="warnMsg"></div>
+  </div>
+
+  <!-- MAIN BODY -->
+  <div class="main-body">
+
+    <!-- LEFT: area model + partial products -->
+    <div class="left-col">
+
+      <div class="model-card">
+        <div class="model-header">
+          <div class="sec-title">📐 Area Model</div>
+          <div class="header-actions">
+            <div class="toggle-wrap" onclick="toggleFeedback()">
+              <div class="toggle-track on" id="fbTrack"><div class="toggle-thumb"></div></div>
+              Feedback
+            </div>
+            <div class="toggle-wrap" onclick="toggleShowAnswers()">
+              <div class="toggle-track" id="ansTrack"><div class="toggle-thumb"></div></div>
+              Show Answers
+            </div>
+            <button class="reset-btn" onclick="resetAll()">↺ Reset</button>
+          </div>
+        </div>
+        <div class="svg-wrap">
+          <svg id="areaModelSvg" viewBox="0 0 700 340" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div class="model-hint">Type your answer in each section</div>
+      </div>
+
+      <div class="pp-card">
+        <div class="sec-title">➕ Partial Products</div>
+        <div class="pp-grid" id="ppGrid"></div>
+        <div class="pp-total">
+          <div class="pp-sum" id="ppSum"></div>
+          <button class="reveal-btn" id="revBtn" onclick="revealTotal()">Show Total ✨</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: algorithm / ×10 -->
+    <div class="right-col">
+
+      <div class="algo-card" id="algoSection">
+        <div class="sec-title">📝 Algorithm</div>
+        <div class="algo-display" id="algoDisplay"></div>
+      </div>
+
+      <div class="pow10-card" id="pow10Panel" style="display:none;">
+        <div class="sec-title">🚀 ×10 / ×100 / ×1,000</div>
+        <div class="pow10-top">
+          <input class="pow10-input" id="p10val" type="number" min="1" max="9999" value="34" oninput="updPow10()">
+          <span class="pow10-x">×</span>
+          <div class="pow-btns">
+            <button class="pow-btn on" id="pb10"   onclick="setPow(10)">10</button>
+            <button class="pow-btn"    id="pb100"  onclick="setPow(100)">100</button>
+            <button class="pow-btn"    id="pb1000" onclick="setPow(1000)">1,000</button>
+          </div>
+        </div>
+        <div class="shift-cols" id="shiftCols"></div>
+        <div class="shift-eq"   id="shiftEq"></div>
+        <div class="shift-note" id="shiftNote"></div>
+      </div>
+
+    </div>
+  </div><!-- /main-body -->
+
+  <!-- DID YOU KNOW -->
+  <div class="dyk-card" onclick="nextFact()">
+    <div class="dyk-tap">✨ Tap for a new fact!</div>
+    <div class="dyk-content" id="dykContent">
+      <div class="dyk-emoji"    id="dykEmoji"></div>
+      <div>
+        <div class="dyk-headline" id="dykHeadline"></div>
+        <div class="dyk-body"     id="dykBody"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /ws -->
+
+<script>
+/* =============================================================
+   CONSTANTS
+============================================================= */
+const COLORS = [
+  {fill:'#ffe0e0',stroke:'#ff6b6b',text:'#b30000'},
+  {fill:'#fff9d6',stroke:'#e6b800',text:'#7a5900'},
+  {fill:'#ddeeff',stroke:'#4d96ff',text:'#003fa0'},
+  {fill:'#d6f5da',stroke:'#6bcb77',text:'#1a6b25'},
+  {fill:'#f5e0ff',stroke:'#b86bff',text:'#5a0080'},
+  {fill:'#ffe8d0',stroke:'#ff9e40',text:'#7a3800'},
+  {fill:'#e0f7fa',stroke:'#26c6da',text:'#00606e'},
+  {fill:'#fce4ec',stroke:'#f48fb1',text:'#880042'},
+  {fill:'#f1f8e9',stroke:'#aed581',text:'#2e5c00'},
+];
+const PLACE_NAMES  = ['Ones','Tens','Hundreds','Thousands','Ten-Thous.','Hund-Thous.','Millions','Ten-Mil.'];
+const PLACE_LABELS = ['Thou.','Hund.','Tens','Ones'];
+
+/* =============================================================
+   FACTS
+============================================================= */
+const FACTS = [
+  {emoji:'🍕',headline:'Pizza Slice Math!',        body:'A restaurant makes 23 pizzas with 8 slices each. Break it apart: (20×8)+(3×8)=160+24=184 slices. That\'s the area model!'},
+  {emoji:'🏀',headline:'Basketball Points!',        body:'24 points per game × 13 games: (20×13)+(4×13)=260+52=312 points. Partial products in real life!'},
+  {emoji:'🐝',headline:'Honeycombs & Arrays!',      body:'A honeycomb is a perfect area model! Rows × columns = total cells. Bees use multiplication to build their homes.'},
+  {emoji:'🌽',headline:'Rows of Corn!',             body:'36 rows × 7 plants each: (30×7)+(6×7)=210+42=252 plants. Farmers think in partial products!'},
+  {emoji:'📚',headline:'Library Shelves!',          body:'28 shelves × 42 books: (20×40)+(20×2)+(8×40)+(8×2)=1,176. Four partial products — one rectangle!'},
+  {emoji:'🚌',headline:'Bus Seat Arrays!',          body:'2 seats across × 14 rows = a 2×14 area model = 28 seats. Real rectangles are multiplication problems!'},
+  {emoji:'🌎',headline:'Powers of 10 on Earth!',   body:'Earth is ~1,000× wider than a city block. ×1,000 shifts every digit three places left — no "adding zeros"!'},
+  {emoji:'🎵',headline:'Beat the Clock!',           body:'3 min × 100 songs = 300 min. Multiplying by 100 shifts digits two places left in the place value chart!'},
+  {emoji:'🏗️',headline:'Brick Wall Area Model!',   body:'34 wide × 46 tall: (30×40)+(30×6)+(4×40)+(4×6)=1,200+180+160+24=1,564 bricks!'},
+  {emoji:'🐠',headline:'Multiply by 100!',          body:'100 tanks × 36 fish = 3,600. Every digit slides two columns left on the place value chart!'},
+  {emoji:'🎒',headline:'Partial Products at School!',body:'28 students × 12 items: (20×10)+(20×2)+(8×10)+(8×2)=200+40+80+16=336 items!'},
+  {emoji:'🌊',headline:'Wave Patterns!',            body:'12 waves/min × 60 min: (10×60)+(2×60)=600+120=720 waves. The algorithm uses the same partial products!'},
+  {emoji:'⭐',headline:'Thousands of Stars!',       body:'You can see ~5,000 stars. That\'s 5×1,000 — multiply by 1,000 and the 5 jumps three places left!'},
+  {emoji:'🦕',headline:'Dinosaur Multiplication!', body:'60 teeth × 8 skulls: (6×8)×10=48×10=480 teeth. Multiplying by 10 is just one place value shift!'},
+  {emoji:'🍎',headline:'Apple Orchard Array!',     body:'25 rows × 40 trees: (25×4)×10=100×10=1,000 trees. Rearranging partial products makes it easier!'},
+  {emoji:'🏋️',headline:'Push-Up Products!',        body:'15 push-ups × 28 days: (10×28)+(5×28)=280+140=420. Breaking apart one factor makes any multiplication manageable!'},
+  {emoji:'🎯',headline:'The Area Model Secret!',   body:'Every rectangle\'s area is length × width. Split it into smaller ones and you\'re using partial products!'},
+  {emoji:'🚀',headline:'Place Value Rockets!',     body:'×10 doesn\'t "add a zero" — it launches every digit one column left! 37×10: 3→hundreds, 7→tens. Blast off!'},
+];
+let factIdx = -1;
+
+/* =============================================================
+   STATE
+============================================================= */
+const D = { A:[3,2,0,0], B:[5,1,0,0] }; // [ones,tens,hundreds,thousands]
+let numA=23, numB=15;
+let activeSec   = null;
+let revealed    = false;
+let showAnswers = false;
+let feedbackMode = true;
+let mode        = 'area';
+let pow10       = 10;
+let studentAnswers = {};
+
+/* =============================================================
+   INIT
+============================================================= */
+window.onload = () => {
+  buildDigitControls('A');
+  buildDigitControls('B');
+  syncDigitUI('A');
+  syncDigitUI('B');
+  loadModel();
+  updPow10();
+  showFact();
+};
+
+/* =============================================================
+   FACTS
+============================================================= */
+function showFact() {
+  let next;
+  do { next = Math.floor(Math.random() * FACTS.length); } while (next === factIdx && FACTS.length > 1);
+  factIdx = next;
+  const f = FACTS[factIdx];
+  document.getElementById('dykEmoji').textContent    = f.emoji;
+  document.getElementById('dykHeadline').textContent = f.headline;
+  document.getElementById('dykBody').textContent     = f.body;
+}
+function nextFact() {
+  showFact();
+  const c = document.getElementById('dykContent');
+  c.style.animation = 'none';
+  void c.offsetHeight;
+  c.style.animation = 'dykFade .35s ease';
+}
+
+/* =============================================================
+   DIGIT BUILDER
+============================================================= */
+function buildDigitControls(w) {
+  const container = document.getElementById('dg'+w);
+  container.innerHTML = '';
+  [3,2,1,0].forEach(pos => {
+    const col = document.createElement('div');
+    col.className = 'digit-col';
+    col.innerHTML = `
+      <div class="digit-name">${PLACE_LABELS[3-pos]}</div>
+      <div class="d-btn-wrap">
+        <button class="d-btn up" onclick="chDig('${w}',${pos},1)">▲</button>
+        <div class="digit-box${D[w][pos]===0?' zero':''}" id="db${w}${pos}">${D[w][pos]}</div>
+        <button class="d-btn dn" onclick="chDig('${w}',${pos},-1)">▼</button>
+      </div>`;
+    container.appendChild(col);
+  });
+}
+function chDig(w, pos, delta) {
+  D[w][pos] = Math.max(0, Math.min(9, D[w][pos]+delta));
+  syncDigitUI(w);
+}
+function syncDigitUI(w) {
+  [0,1,2,3].forEach(p => {
+    const el = document.getElementById('db'+w+p);
+    if (!el) return;
+    el.textContent = D[w][p];
+    el.className = 'digit-box'+(D[w][p]===0?' zero':'');
+  });
+  const n = getNum(w);
+  document.getElementById('nb'+w).textContent = n===0 ? '0' : fmt(n);
+  document.getElementById('warnMsg').textContent = '';
+}
+function getNum(w) { return D[w][0]+D[w][1]*10+D[w][2]*100+D[w][3]*1000; }
+function setNum(w, n) {
+  D[w][3]=Math.floor(n/1000)%10; D[w][2]=Math.floor(n/100)%10;
+  D[w][1]=Math.floor(n/10)%10;   D[w][0]=n%10;
+  syncDigitUI(w);
+}
+function suggest(a, b) { setNum('A',a); setNum('B',b); loadModel(); }
+
+/* =============================================================
+   LOAD MODEL
+============================================================= */
+function loadModel() {
+  const a=getNum('A'), b=getNum('B');
+  if (a===0||b===0) {
+    document.getElementById('warnMsg').textContent='⚠️ Both numbers must be at least 1.';
+    return;
+  }
+  document.getElementById('warnMsg').textContent='';
+  numA=a; numB=b;
+  activeSec=null; revealed=false;
+  studentAnswers={};
+  document.getElementById('revBtn').style.display='inline-block';
+  drawAreaModel();
+  renderPP(null);
+  renderAlgo(null);
+}
+function resetAll() { setNum('A',23); setNum('B',15); loadModel(); }
+
+/* =============================================================
+   TOGGLES
+============================================================= */
+function toggleFeedback() {
+  feedbackMode = !feedbackMode;
+  document.getElementById('fbTrack').classList.toggle('on', feedbackMode);
+  drawAreaModel();
+  renderPP(activeSec);
+  renderAlgo(activeSec);
+}
+function toggleShowAnswers() {
+  showAnswers = !showAnswers;
+  document.getElementById('ansTrack').classList.toggle('on', showAnswers);
+  drawAreaModel();
+  renderPP(activeSec);
+  renderAlgo(activeSec);
+}
+
+/* =============================================================
+   MODE SWITCH
+============================================================= */
+function setMode(m) {
+  mode=m;
+  document.getElementById('mArea').classList.toggle('on', m==='area');
+  document.getElementById('mPow').classList.toggle('on',  m==='pow10');
+  document.getElementById('algoSection').style.display = m==='area'  ? '' : 'none';
+  document.getElementById('pow10Panel').style.display  = m==='pow10' ? '' : 'none';
+  if (m==='pow10') updPow10();
+}
+
+/* =============================================================
+   EXPAND NUMBER → [{v}] largest-first, skipping zero parts
+============================================================= */
+function expand(n) {
+  const parts=[];
+  const th=Math.floor(n/1000), hu=Math.floor(n/100)%10,
+        te=Math.floor(n/10)%10, on=n%10;
+  if(th) parts.push({v:th*1000});
+  if(hu) parts.push({v:hu*100});
+  if(te) parts.push({v:te*10});
+  if(on) parts.push({v:on});
+  if(!parts.length) parts.push({v:n});
+  return parts;
+}
+
+/* =============================================================
+   DRAW AREA MODEL
+   Uses SVG <foreignObject> with XHTML-namespaced elements.
+============================================================= */
+function drawAreaModel() {
+  const svg = document.getElementById('areaModelSvg');
+  svg.innerHTML = '';
+
+  const pA = expand(numA); // columns
+  const pB = expand(numB); // rows
+
+  const VW=700, VH=340, L=72, T=52, R=14, Bm=32;
+  const TW=VW-L-R, TH=VH-T-Bm;
+
+  function sizes(parts, total) {
+    const sum = parts.reduce((s,p)=>s+p.v,0)||1;
+    const MIN = Math.max(52,(total*0.15)/parts.length);
+    let sz = parts.map(p=>Math.max((p.v/sum)*total,MIN));
+    const ss = sz.reduce((s,v)=>s+v,0);
+    return sz.map(v=>v*(total/ss));
+  }
+  const cw = sizes(pA,TW);
+  const rh = sizes(pB,TH);
+
+  const cells=[]; let ci=0, ry=T;
+  pB.forEach((pb,ri)=>{
+    let cx=L;
+    pA.forEach((pa,ci2)=>{
+      cells.push({x:cx,y:ry,w:cw[ci2],h:rh[ri],pa,pb,prod:pa.v*pb.v,c:COLORS[ci%COLORS.length],idx:ci});
+      ci++; cx+=cw[ci2];
+    });
+    ry+=rh[ri];
+  });
+
+  cells.forEach(cell => {
+    const idx = cell.idx;
+    const answered = studentAnswers[idx];
+    const isCorrect = (answered === cell.prod);
+
+    // Background rect
+    const rect = svgEl('rect',{
+      x:cell.x, y:cell.y, width:cell.w, height:cell.h,
+      fill:cell.c.fill, stroke:cell.c.stroke, 'stroke-width':'2.5', rx:'5',
+    });
+    rect.classList.add('ac');
+    // Restore rect glow state
+    if (answered !== null && answered !== undefined) {
+      if (isCorrect) rect.classList.add('ac-correct');
+      else if (feedbackMode && !showAnswers) rect.classList.add('ac-checking');
+    }
+    svg.appendChild(rect);
+
+    // foreignObject
+    const fo = svgEl('foreignObject',{x:cell.x+2,y:cell.y+2,width:cell.w-4,height:cell.h-4});
+
+    const NS = 'http://www.w3.org/1999/xhtml';
+    const wrap = document.createElementNS(NS,'div');
+    wrap.className = 'cell-input-wrap';
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:3px;padding:4px;';
+
+    // Expression label
+    const exprDiv = document.createElementNS(NS,'div');
+    exprDiv.className = 'cell-expr';
+    exprDiv.style.color = cell.c.text;
+    exprDiv.style.fontSize = Math.min(12, cell.w/9, cell.h/5.5)+'px';
+    exprDiv.textContent = fmt(cell.pa.v)+' \xD7 '+fmt(cell.pb.v);
+
+    if (showAnswers) {
+      const ansDiv = document.createElementNS(NS,'div');
+      ansDiv.className = 'cell-answer';
+      ansDiv.style.color = cell.c.text;
+      ansDiv.style.fontSize = Math.min(22, cell.w/4, cell.h/3)+'px';
+      ansDiv.textContent = fmt(cell.prod);
+      if (cell.w>50 && cell.h>36) wrap.appendChild(exprDiv);
+      wrap.appendChild(ansDiv);
+    } else {
+      const inp = document.createElementNS(NS,'input');
+      inp.type='number'; inp.className='cell-input'; inp.placeholder='?';
+      inp.style.fontSize = Math.min(18, cell.w/4.5, cell.h/3.2)+'px';
+      inp.style.width    = Math.min(cell.w-18,88)+'px';
+      inp.style.borderColor = cell.c.stroke;
+
+      // Restore prior answer state
+      if (answered !== null && answered !== undefined) {
+        inp.value = answered;
+        if (isCorrect) {
+          inp.classList.add('correct');
+        } else if (feedbackMode) {
+          inp.classList.add('needs-check');
+          const hint = document.createElementNS(NS,'div');
+          hint.className='cell-hint';
+          hint.textContent='Check this part again 👀';
+          wrap.appendChild(hint);
+        }
+        // feedbackMode OFF + wrong: leave neutral (no class)
+      }
+
+      inp.addEventListener('input', () => {
+        const val = inp.value.trim()==='' ? null : parseInt(inp.value);
+        studentAnswers[idx] = val;
+
+        // Reset input classes and rect glow
+        inp.classList.remove('correct', 'needs-check');
+        const rects = svg.querySelectorAll('.ac');
+        const thisRect = rects[idx] || null;
+        if (thisRect) thisRect.classList.remove('ac-correct','ac-checking');
+
+        // Remove existing hint
+        const oldHint = wrap.querySelector('.cell-hint');
+        if (oldHint) oldHint.remove();
+
+        if (val === null) {
+          // Blank — neutral
+        } else if (val === cell.prod) {
+          // ✅ Correct
+          inp.classList.add('correct');
+          if (thisRect) thisRect.classList.add('ac-correct');
+          setActiveCell(idx); // sync algorithm highlight
+        } else if (feedbackMode) {
+          // 👀 Wrong + feedback ON
+          inp.classList.add('needs-check');
+          if (thisRect) thisRect.classList.add('ac-checking');
+          const hint = document.createElementNS(NS,'div');
+          hint.className='cell-hint';
+          hint.textContent='Check this part again 👀';
+          wrap.appendChild(hint);
+          setActiveCell(idx); // draw attention to area model cell
+        }
+        // Wrong + feedback OFF: no classes, no hint
+
+        renderPP(activeSec);
+        renderAlgo(activeSec);
+      });
+
+      inp.addEventListener('mousedown', e=>e.stopPropagation());
+      inp.addEventListener('touchstart', e=>e.stopPropagation());
+
+      if (cell.w>50 && cell.h>36) wrap.appendChild(exprDiv);
+      wrap.appendChild(inp);
+    }
+
+    fo.appendChild(wrap);
+    svg.appendChild(fo);
+  });
+
+  // Column headers
+  let cx3=L;
+  pA.forEach((pa,i)=>{
+    const t=svgEl('text',{x:cx3+cw[i]/2,y:T-14,'text-anchor':'middle','dominant-baseline':'middle',
+      fill:'#5b4fcf','font-family':"'Fredoka One',cursive",'font-size':Math.min(17,cw[i]/3+5),'font-weight':'900'});
+    t.textContent=fmt(pa.v); svg.appendChild(t); cx3+=cw[i];
+  });
+
+  // Row headers
+  let ry2=T;
+  pB.forEach((pb,i)=>{
+    const t=svgEl('text',{x:L-8,y:ry2+rh[i]/2,'text-anchor':'end','dominant-baseline':'middle',
+      fill:'#5b4fcf','font-family':"'Fredoka One',cursive",'font-size':Math.min(17,rh[i]/3+5),'font-weight':'900'});
+    t.textContent=fmt(pb.v); svg.appendChild(t); ry2+=rh[i];
+  });
+
+  // Dimension totals
+  const dBot=svgEl('text',{x:L+TW/2,y:VH-6,'text-anchor':'middle',fill:'#bbb','font-family':'Nunito','font-size':'12','font-weight':'800'});
+  dBot.textContent=fmt(numA); svg.appendChild(dBot);
+  const mY=T+TH/2;
+  const dLeft=svgEl('text',{x:'11',y:mY,'text-anchor':'middle',fill:'#bbb','font-family':'Nunito','font-size':'12','font-weight':'800',transform:`rotate(-90,11,${mY})`});
+  dLeft.textContent=fmt(numB); svg.appendChild(dLeft);
+
+  svg._cells = cells;
+}
+
+/* =============================================================
+   SET ACTIVE CELL (highlight stroke + sync panels)
+============================================================= */
+function setActiveCell(idx) {
+  const svg   = document.getElementById('areaModelSvg');
+  const rects = svg.querySelectorAll('.ac');
+  activeSec = (activeSec===idx) ? null : idx;
+  rects.forEach((r,i)=>{
+    r.setAttribute('stroke-width', i===activeSec?'4.5':'2.5');
+    r.setAttribute('opacity', (activeSec!==null && i!==activeSec)?'0.55':'1');
+  });
+  renderPP(activeSec);
+  renderAlgo(activeSec);
+}
+
+/* =============================================================
+   PARTIAL PRODUCTS PANEL
+============================================================= */
+function renderPP(hiIdx) {
+  const svg   = document.getElementById('areaModelSvg');
+  const cells = svg._cells;
+  if (!cells||!cells.length) return;
+
+  const grid=document.getElementById('ppGrid');
+  grid.innerHTML='';
+  const parts=[], vals=[];
+
+  cells.forEach((cell,i)=>{
+    const c=cell.c;
+    const ans=studentAnswers[i];
+    const isSolved = showAnswers || (ans===cell.prod);
+
+    const tile=document.createElement('div');
+    tile.className='pp-tile'+(hiIdx===i?' hi':'')+(isSolved?' done':' open');
+    tile.style.background  =c.fill;
+    tile.style.borderColor =(hiIdx===i)?c.stroke:'transparent';
+
+    const valText=isSolved?fmt(cell.prod):'?';
+    tile.innerHTML=
+      `<div class="pp-expr" style="color:${c.text}">${fmt(cell.pa.v)} \xD7 ${fmt(cell.pb.v)}</div>`+
+      `<div class="pp-val${isSolved?'':' pending'}" style="color:${isSolved?c.text:'#ccc'}">${valText}</div>`;
+    tile.addEventListener('click',()=>setActiveCell(i));
+    grid.appendChild(tile);
+
+    parts.push(isSolved?fmt(cell.prod):'?');
+    vals.push(isSolved?cell.prod:null);
+  });
+
+  const total=cells.reduce((s,c)=>s+c.prod,0);
+  const sumEl=document.getElementById('ppSum');
+  const allValsKnown=vals.every(v=>v!==null);
+  const shouldReveal=revealed||allValsKnown;
+
+  if (shouldReveal) {
+    const displayParts=cells.map(c=>fmt(c.prod)).join(' + ');
+    sumEl.innerHTML=`<span style="opacity:.6">${displayParts}</span> = <span style="color:var(--acc3)">${fmt(total)}</span>`;
+    document.getElementById('revBtn').style.display='none';
+  } else {
+    sumEl.innerHTML=`${parts.join(' + ')} = <span style="color:#ccc">?</span>`;
+    document.getElementById('revBtn').style.display='inline-block';
+  }
+}
+function revealTotal(){ revealed=true; renderPP(activeSec); }
+
+/* =============================================================
+   STANDARD ALGORITHM — matches the handwritten model:
+   One row per A-digit × each B-part, ones-first order.
+   For 324 × 2:
+       324
+     ×   2
+     ─────
+         8  ← 2 × 4 ones
+        40  ← 2 × 2 tens
+   +   600  ← 2 × 3 hundreds
+     ─────
+       648
+   For two-digit B (e.g. 23 × 15), group by B-part rows.
+============================================================= */
+function renderAlgo(hiIdx) {
+  const svg = document.getElementById('areaModelSvg');
+  if (!svg._cells) return;
+
+  const el = document.getElementById('algoDisplay');
+  el.innerHTML = '';
+
+  const A=numA, B=numB, total=A*B;
+  const cells=svg._cells;
+  const pvNames=['ones','tens','hundreds','thousands','ten-thousands'];
+  const pA=expand(A); // largest-first
+  const pB=expand(B); // largest-first
+
+  // ── Top number & multiplier ──
+  el.appendChild(makeRow('hidden', fmt(A), null, null, false, false));
+  el.appendChild(makeRow('x',      fmt(B), null, null, false, false));
+  el.appendChild(makeDivider());
+
+  // ── Build one line per (A-digit × B-part), grouped correctly ──
+  // The image shows: for single-digit B, one row per A-digit (ones first).
+  // For multi-digit B, repeat the pattern per B-part (standard algorithm order).
+  //
+  // Structure: iterate B-parts LSB→MSB (standard algo order),
+  // and within each B-part, iterate A-digits LSB→MSB (ones first).
+  // Each row = one area-model cell (A-digit × B-digit).
+
+  const allRows = [];
+
+  // pB and pA are largest-first; reverse both to get ones-first
+  const pBrev = pB.slice().reverse(); // ones of B first
+  const pArev = pA.slice().reverse(); // ones of A first
+
+  pBrev.forEach((pb, bIdx) => {
+    const bRowInModel = pB.length - 1 - bIdx; // index in pB[] (largest-first)
+
+    pArev.forEach((pa, aIdx) => {
+      const aColInModel = pA.length - 1 - aIdx; // index in pA[] (largest-first)
+      const cellIdx = bRowInModel * pA.length + aColInModel;
+      const cell = cells[cellIdx];
+      if (!cell) return;
+
+      const ppVal = pa.v * pb.v;
+
+      // Face digits for the label
+      const bFace = pb.v>=1000 ? Math.round(pb.v/1000)
+                  : pb.v>=100  ? Math.round(pb.v/100)
+                  : pb.v>=10   ? Math.round(pb.v/10)
+                  : pb.v;
+      const aFace = pa.v>=1000 ? Math.round(pa.v/1000)
+                  : pa.v>=100  ? Math.round(pa.v/100)
+                  : pa.v>=10   ? Math.round(pa.v/10)
+                  : pa.v;
+      const aPlace = pvNames[aIdx] || 'place';
+      const bPlace = pvNames[bIdx] || 'place';
+
+      // Label format: "B × A ones" (single B-part) or "Bdigit Bplace × A ones" (multi)
+      let labelStr;
+      if (pB.length === 1) {
+        labelStr = `\u2190 ${bFace} \xD7 ${aFace} ${aPlace}`;
+      } else {
+        labelStr = `\u2190 ${bFace} ${bPlace} \xD7 ${aFace} ${aPlace}`;
+      }
+
+      // Is this cell's value solved?
+      const ans = studentAnswers[cellIdx];
+      const isSolved = showAnswers || (ans === ppVal);
+
+      // Is this cell highlighted?
+      const isHi = (hiIdx !== null) && (hiIdx === cellIdx);
+
+      allRows.push({ ppVal, labelStr, cellColor: cell.c, isHi, isSolved, cellIdx, bIdx, aIdx });
+    });
+
+    // Between B-groups (for multi-digit B), add a small gap row
+    if (pBrev.length > 1 && bIdx < pBrev.length - 1) {
+      allRows.push({ separator: true });
+    }
+  });
+
+  // ── Render rows ──
+  let rowCount = 0;
+  const nonSepRows = allRows.filter(r => !r.separator);
+
+  allRows.forEach((row) => {
+    if (row.separator) {
+      const sp = document.createElement('div');
+      sp.style.cssText = 'height:6px;';
+      el.appendChild(sp);
+      return;
+    }
+
+    rowCount++;
+    const isLast = (rowCount === nonSepRows.length);
+
+    // + sign only on the last partial-product row (matches handwritten image)
+    const symType = (isLast && nonSepRows.length > 1) ? 'plus' : 'hidden';
+
+    const algRow = makeRow(
+      symType,
+      row.isSolved ? fmt(row.ppVal) : '?',
+      row.labelStr,
+      row.cellColor,
+      row.isHi,
+      !row.isSolved
+    );
+    algRow.classList.add('algo-pp-row');
+    if (row.isHi)       algRow.classList.add('hi');
+    if (!row.isSolved)  algRow.classList.add('unsolved');
+    el.appendChild(algRow);
+  });
+
+  // ── Total — only needed when there are multiple partial products ──
+  if (nonSepRows.length > 1) {
+    el.appendChild(makeDivider());
+    const totRow = makeRow('hidden', fmt(total), null, null, false, false);
+    totRow.querySelector('.algo-num').classList.add('algo-total-num');
+    el.appendChild(totRow);
+  }
+}
+
+/* Build one algorithm row: [sym] [right-aligned number] [label] */
+function makeRow(sym, numStr, label, dotColor, isHi, isUnsolved) {
+  const row=document.createElement('div');
+  row.className='algo-row';
+
+  const symSpan=document.createElement('span');
+  symSpan.className='algo-sym'+(sym==='x'?' x-sym':sym==='plus'?' plus-sym':' hidden');
+  symSpan.textContent=sym==='x'?'\xD7':sym==='plus'?'+':'\u00A0';
+  row.appendChild(symSpan);
+
+  const numBlock=document.createElement('span');
+  numBlock.className = 'algo-num';
+  numBlock.innerHTML = dSpans(numStr);
+  if (isUnsolved) numBlock.style.color = '#ccc';
+  row.appendChild(numBlock);
+
+  if (label) {
+    const lbl=document.createElement('span');
+    lbl.className='algo-label'+(isHi?' hi-label':'');
+    if (dotColor) {
+      const dot=document.createElement('span');
+      dot.className='algo-dot';
+      dot.style.background=dotColor.stroke;
+      lbl.appendChild(dot);
+    }
+    lbl.appendChild(document.createTextNode(label));
+    row.appendChild(lbl);
+  }
+  return row;
+}
+function makeDivider() {
+  const d=document.createElement('div'); d.className='algo-divider'; return d;
+}
+function dSpans(str) {
+  return str.split('').map(ch=>`<span class="a-dig">${ch}</span>`).join('');
+}
+
+/* =============================================================
+   POWERS OF 10
+============================================================= */
+function setPow(p){
+  pow10=p;
+  ['pb10','pb100','pb1000'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById('pb'+p).classList.add('on');
+  updPow10();
+}
+function updPow10(){
+  const inputEl=document.getElementById('p10val');
+  let val=parseInt(inputEl.value)||1;
+  val=Math.max(1,Math.min(9999,val));
+  inputEl.value=val;
+
+  const result=val*pow10;
+  const shifts=Math.log10(pow10);
+  const shiftTxt=shifts===1?'1 place':shifts===2?'2 places':'3 places';
+
+  const rStr=String(result);
+  const nCols=Math.min(Math.max(rStr.length+1,6),PLACE_NAMES.length);
+  const rPad=rStr.padStart(nCols,'0');
+  const oPad=String(val).padStart(nCols,'0');
+
+  const container=document.getElementById('shiftCols');
+  container.innerHTML='';
+  const boxes=[];
+
+  for(let i=0;i<nCols;i++){
+    const oD=parseInt(oPad[i]), rD=parseInt(rPad[i]);
+    const placeI=nCols-1-i;
+    const wrap=document.createElement('div'); wrap.className='sc-wrap';
+    const nm=document.createElement('div');   nm.className='sc-name';
+    nm.textContent=PLACE_NAMES[placeI]||('10^'+placeI);
+    const box=document.createElement('div');  box.className='sc-box';
+    if(rD>0){ box.classList.add('fill'); box.textContent=rD; }
+    else if(oD>0){ box.classList.add('zero'); box.textContent='0'; }
+    wrap.appendChild(nm); wrap.appendChild(box);
+    container.appendChild(wrap); boxes.push({box,oD,rD});
+  }
+  setTimeout(()=>{
+    boxes.forEach(({box,oD,rD})=>{
+      if(rD>0&&rD!==oD){ box.classList.add('moved'); setTimeout(()=>box.classList.remove('moved'),700); }
+    });
+  },60);
+
+  document.getElementById('shiftEq').innerHTML=`${fmt(val)} \xD7 ${fmt(pow10)} = <em>${fmt(result)}</em>`;
+  document.getElementById('shiftNote').textContent=`Digits shift ${shiftTxt} left — place value grows, not "adding zeros."`;
+}
+
+/* =============================================================
+   HELPERS
+============================================================= */
+function svgEl(tag,attrs){
+  const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
+  return el;
+}
+function fmt(n){ return Number(n).toLocaleString(); }
+</script>
+</body>
+</html>
