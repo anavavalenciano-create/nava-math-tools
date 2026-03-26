@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mrs. Nava's Division Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────── */
+:root{
+  --bg:#f0f4ff; --card:#ffffff;
+  --pri:#5b6af7; --pri-lt:#e8eaff;
+  --H:#ff8fab; --H-lt:#ffe0e9;
+  --T:#ffb347; --T-lt:#fff2dc;
+  --O:#4ecdc4; --O-lt:#d8f5f3;
+  --rem:#b0b8e8;
+  --tx:#1a1f5e; --mu:#8892c8;
+  --sh:0 4px 20px rgba(91,106,247,.10);
+  --r:18px;
+  --ok:#43d17a; --ok-lt:#d4f7e4;
+  --err:#ff6b6b; --err-lt:#ffe0e0;
+  --gold:#ffd166;
+  --step-inactive:#d0d6f0;
+  /* algorithm step colours */
+  --ac-D:#5b6af7; --ac-D-lt:#e8eaff;  /* Divide   */
+  --ac-M:#ff8fab; --ac-M-lt:#ffe0e9;  /* Multiply */
+  --ac-S:#ffb347; --ac-S-lt:#fff2dc;  /* Subtract */
+  --ac-B:#4ecdc4; --ac-B-lt:#d8f5f3;  /* Bring    */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:0 0 60px}
+
+/* ═══════════════════════════════════════════════════
+   FULL-WIDTH GRADIENT HEADER  (matches Mrs. Nava Lab system)
+═══════════════════════════════════════════════════ */
+.lab-header{
+  width:100%;
+  min-height:120px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  padding:28px 32px;
+  margin-bottom:20px;
+  background:linear-gradient(135deg,#6C63FF 0%,#8E7CFF 60%,#a78bfa 100%);
+}
+/* dot-grid texture overlay */
+.lab-header::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:24px 24px;
+  pointer-events:none;
+}
+/* glow orbs */
+.lab-header-orb1,.lab-header-orb2{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:rgba(255,255,255,.10);
+}
+.lab-header-orb1{width:320px;height:320px;top:-130px;left:-80px;}
+.lab-header-orb2{width:240px;height:240px;bottom:-110px;right:-60px;}
+
+.lab-header-inner{
+  display:flex;align-items:center;gap:18px;
+  width:100%;max-width:980px;
+  position:relative;z-index:1;
+}
+
+.lab-icon{
+  font-size:2.6rem;line-height:1;flex-shrink:0;
+  background:rgba(255,255,255,.18);
+  border-radius:16px;padding:10px 13px;
+  border:2px solid rgba(255,255,255,.26);
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.15));
+}
+.lab-header-text{display:flex;flex-direction:column;gap:5px;}
+.lab-header-title{
+  font-family:'Baloo 2',cursive;
+  font-size:clamp(1.55rem,4vw,2.1rem);
+  font-weight:800;color:#fff;
+  letter-spacing:-.3px;line-height:1.1;
+  text-shadow:0 2px 10px rgba(0,0,0,.18);
+}
+.lab-header-sub{
+  font-size:clamp(.78rem,2vw,.9rem);
+  font-weight:700;
+  color:rgba(255,255,255,.85);
+  letter-spacing:.01em;
+  text-shadow:0 1px 4px rgba(0,0,0,.10);
+}
+
+/* wrapper for all content below header */
+.page-content{
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;padding:0 10px;
+}
+
+/* ─── STEP BAR ──────────────────────────── */
+.steps-bar{display:flex;align-items:center;justify-content:center;
+  background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:10px 16px;margin-bottom:12px;width:100%;max-width:980px;flex-wrap:wrap;gap:4px}
+.step-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:50px;
+  font-size:.72rem;font-weight:800;background:#f0f4ff;color:var(--mu);
+  transition:background .3s,color .3s;white-space:nowrap}
+.step-pill .sn{width:18px;height:18px;border-radius:50%;background:var(--step-inactive);
+  display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;
+  color:#fff;flex-shrink:0;transition:background .3s}
+.step-pill.active{background:var(--pri-lt);color:var(--pri)}
+.step-pill.active .sn{background:var(--pri)}
+.step-pill.done{background:var(--ok-lt);color:#1a6b3a}
+.step-pill.done .sn{background:var(--ok)}
+
+/* ─── MODE TOGGLE ───────────────────────── */
+.mode-toggle{display:flex;gap:8px;background:var(--card);border-radius:var(--r);
+  box-shadow:var(--sh);padding:8px 16px;margin-bottom:12px;width:100%;max-width:980px;
+  align-items:center;flex-wrap:wrap}
+.mode-lbl{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-right:4px}
+.mode-btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;
+  padding:6px 16px;border-radius:50px;border:2.5px solid transparent;cursor:pointer;
+  transition:background .2s,color .2s,border-color .2s;background:#f0f4ff;color:var(--mu)}
+.mode-btn.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+.mode-btn:hover:not(.active){background:var(--pri-lt);color:var(--pri);border-color:var(--pri-lt)}
+.connection-note{font-size:.68rem;font-weight:700;color:var(--pri);
+  background:var(--pri-lt);border-radius:50px;padding:4px 12px;margin-left:auto}
+
+/* ─── SETUP BAR ─────────────────────────── */
+.setup-bar{display:flex;align-items:center;justify-content:center;
+  gap:10px;flex-wrap:wrap;background:var(--card);border-radius:var(--r);
+  padding:10px 20px;box-shadow:var(--sh);margin-bottom:12px;width:100%;max-width:980px}
+.setup-lbl{font-size:.74rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
+.num-in{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--tx);
+  background:var(--pri-lt);border:2.5px solid transparent;border-radius:12px;
+  padding:3px 10px;width:84px;text-align:center;outline:none;transition:border-color .2s}
+.num-in:focus{border-color:var(--pri)}
+.div-sym{font-family:'Baloo 2',cursive;font-size:1.9rem;font-weight:900;color:var(--pri)}
+.btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;
+  padding:7px 16px;border-radius:50px;border:none;cursor:pointer;
+  transition:transform .15s,box-shadow .15s}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 14px rgba(91,106,247,.22)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-gold{background:var(--gold);color:var(--tx)}
+.btn-ghost{background:#f0f4ff;color:var(--mu);border:2px solid #d0d6f0}
+.btn-ok{background:var(--ok);color:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ─── MAIN 3-COLUMN GRID ────────────────── */
+.workspace{display:grid;grid-template-columns:200px 1fr 180px;
+  gap:12px;width:100%;max-width:980px;align-items:start}
+
+/* ═══════════════════════════════════════
+   PLACE VALUE PANEL
+═══════════════════════════════════════ */
+.pv-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 10px}
+.pv-title{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);text-align:center;margin-bottom:8px}
+.pv-instruction{font-size:.6rem;color:var(--pri);font-weight:700;text-align:center;margin-bottom:6px;min-height:14px}
+.pv-cols{display:flex;gap:5px}
+.pv-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.pv-col-hdr{font-size:.59rem;font-weight:800;text-align:center;padding:3px 2px;border-radius:7px;width:100%;line-height:1.3}
+.pv-col.H .pv-col-hdr{background:var(--H-lt);color:#c73060}
+.pv-col.T .pv-col-hdr{background:var(--T-lt);color:#c07a00}
+.pv-col.O .pv-col-hdr{background:var(--O-lt);color:#1a8a85}
+.pv-blocks-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;width:100%;padding-top:2px}
+.pv-block{width:36px;height:22px;border-radius:6px;display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:.68rem;user-select:none;cursor:pointer;
+  transition:transform .2s,opacity .3s,box-shadow .15s;position:relative}
+.pv-block:hover{transform:scale(1.12);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.pv-block:active{transform:scale(.95)}
+.pv-block.entering{animation:bkIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bkIn{from{opacity:0;transform:scale(.4) translateY(-8px)}to{opacity:1;transform:scale(1)}}
+.pv-col.H .pv-block{background:var(--H);color:#fff}
+.pv-col.T .pv-block{background:var(--T);color:#fff}
+.pv-col.O .pv-block{background:var(--O);color:#fff}
+.pv-block .decomp-hint{display:none;position:absolute;bottom:-18px;left:50%;
+  transform:translateX(-50%);font-size:.48rem;font-weight:800;white-space:nowrap;
+  background:var(--pri);color:#fff;padding:1px 5px;border-radius:4px;pointer-events:none}
+.pv-block:hover .decomp-hint{display:block}
+.pv-empty{color:var(--mu);font-size:.64rem;font-weight:600;margin:auto}
+.pv-decomp-badge{font-size:.52rem;font-weight:800;color:var(--pri);background:var(--pri-lt);
+  border-radius:5px;padding:2px 4px;text-align:center;width:100%;
+  animation:bkIn .4s cubic-bezier(.34,1.56,.64,1);margin-top:2px}
+.pv-remaining{margin-top:10px;background:var(--pri-lt);border-radius:10px;padding:5px 8px;text-align:center}
+.pv-rem-lbl{font-size:.57rem;font-weight:700;color:var(--mu);text-transform:uppercase}
+.pv-rem-num{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--pri);line-height:1;transition:color .3s}
+.pv-rem-num.flash{animation:numFlash .5s ease}
+@keyframes numFlash{0%,100%{color:var(--pri)}50%{color:var(--ok)}}
+
+/* ═══════════════════════════════════════
+   AREA MODEL PANEL
+═══════════════════════════════════════ */
+.area-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.area-hdr-row{display:flex;justify-content:space-between;align-items:center;width:100%}
+.area-title-lbl{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mu)}
+.area-hint-txt{font-size:.6rem;color:var(--pri);font-weight:700;min-height:14px}
+.area-eq-display{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--tx);letter-spacing:1px}
+.area-eq-display .ediv{color:var(--pri)}
+.area-top-row{display:flex;width:100%;min-height:24px;align-items:flex-end}
+.chunk-qlabel{display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;color:var(--tx);
+  transition:flex .4s ease,opacity .4s ease;overflow:hidden;white-space:nowrap;min-width:0}
+.chunk-qlabel.hidden-q{color:var(--mu);font-style:italic}
+.chunk-qlabel.solved-q{color:var(--ok)}
+/* highlight when algorithm step matches this chunk */
+.chunk-qlabel.algo-highlight{background:var(--gold);border-radius:6px;padding:0 4px;
+  animation:hlPop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes hlPop{from{transform:scale(.7)}to{transform:scale(1)}}
+.area-wrap{width:100%;position:relative;padding-left:26px}
+.div-side-label{position:absolute;left:0;top:50%;transform:translateY(-50%);
+  font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;color:var(--pri)}
+.area-rect{width:100%;height:100px;border-radius:13px;border:3px solid #d0d6f0;display:flex;overflow:hidden}
+.a-chunk{flex-shrink:1;flex-basis:0;min-width:0;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;transition:flex-grow .4s ease,opacity .4s ease,filter .2s}
+.a-chunk.clickable{cursor:pointer}
+.a-chunk.clickable:hover{filter:brightness(1.12)}
+.a-chunk.clickable::after{content:'👆 tap';position:absolute;bottom:5px;font-size:.52rem;
+  font-weight:700;opacity:0;transition:opacity .15s;color:rgba(255,255,255,.9);pointer-events:none}
+.a-chunk.clickable:hover::after{opacity:1}
+.a-chunk.active-chunk{outline:3px dashed rgba(255,255,255,.7);cursor:default}
+.a-chunk.solved{opacity:.5;cursor:default}
+.a-chunk.rem-chunk{cursor:default}
+/* gold outline when algorithm is referencing this chunk */
+.a-chunk.algo-focus{outline:3px solid var(--gold);filter:brightness(1.15)}
+.ck-val{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.25);line-height:1}
+.ck-sub{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.85);margin-top:2px}
+.ck-div{position:absolute;top:0;right:0;width:2px;height:100%;background:rgba(255,255,255,.28)}
+
+/* Chunk builder */
+.chunk-builder{width:100%;background:var(--pri-lt);border-radius:14px;
+  padding:12px 14px;display:none;flex-direction:column;gap:9px;border:2.5px solid var(--pri)}
+.chunk-builder.open{display:flex;animation:czIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes czIn{from{opacity:0;transform:scale(.96) translateY(-5px)}to{opacity:1;transform:scale(1)}}
+.cb-step{display:flex;flex-direction:column;gap:6px}
+.cb-label{font-size:.72rem;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.05em}
+.cb-groups-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cb-groups-input{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;
+  width:76px;text-align:center;border:3px solid var(--pri);border-radius:10px;
+  padding:3px 6px;outline:none;background:#fff;color:var(--tx);transition:border-color .2s,background .2s}
+.cb-groups-input.ok{border-color:var(--ok);background:var(--ok-lt)}
+.cb-groups-input.bad{border-color:var(--err);background:var(--err-lt);animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.cb-eq-part{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;color:var(--tx)}
+.cb-eq-part.dim{color:var(--mu)}
+.cb-product-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cb-prod-input{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;
+  width:90px;text-align:center;border:3px solid var(--pri);border-radius:10px;
+  padding:3px 6px;outline:none;background:#fff;color:var(--tx);transition:border-color .2s,background .2s}
+.cb-prod-input.ok{border-color:var(--ok);background:var(--ok-lt)}
+.cb-prod-input.bad{border-color:var(--err);background:var(--err-lt);animation:shake .4s ease}
+.cb-groups-frozen{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;color:var(--tx)}
+.cb-sub-preview{display:none;background:#fff;border-radius:10px;padding:7px 12px;
+  flex-direction:column;align-items:flex-end;gap:2px;border:2px solid var(--ok-lt)}
+.cb-sub-preview.show{display:flex;animation:czIn .3s ease}
+.cb-sub-row{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;color:var(--tx);
+  display:flex;align-items:center;gap:5px}
+.cb-minus{color:var(--err)}
+.cb-result{color:var(--ok)}
+.cb-sub-line{width:100%;height:2px;background:#d0d6f0;border-radius:2px;margin:2px 0}
+.cb-feedback{font-size:.78rem;font-weight:700;text-align:center;min-height:16px}
+.cb-feedback.ok{color:#1a6b3a}
+.cb-feedback.err{color:var(--err)}
+.cb-btn-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.cb-confirm-btn{display:none}
+.cb-confirm-btn.show{display:block}
+
+/* ═══════════════════════════════════════
+   ALGORITHM RIGHT PANEL (PASSTHROUGH)
+═══════════════════════════════════════ */
+.algo-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:12px 11px;display:flex;flex-direction:column;gap:8px}
+.algo-title{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);text-align:center}
+.algo-body{display:flex;gap:14px;justify-content:center;align-items:flex-start}
+.algo-pq{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:54px}
+.algo-pq-hdr{font-size:.55rem;font-weight:700;color:var(--mu);text-align:right;line-height:1.2;margin-bottom:2px}
+.algo-pq-row{font-family:'Baloo 2',cursive;font-size:.92rem;font-weight:800;color:var(--tx)}
+.algo-pq-row.in{animation:stepIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes stepIn{from{transform:scale(.5) translateY(14px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.algo-pq-row.algo-highlight{background:var(--gold);border-radius:4px;padding:0 3px}
+.algo-pq-line{width:100%;height:2px;background:var(--tx);border-radius:2px;margin:3px 0 2px}
+.algo-pq-tot{font-family:'Baloo 2',cursive;font-size:1.05rem;font-weight:900;color:var(--ok);align-self:flex-end}
+.algo-long{display:flex;flex-direction:column;align-items:flex-start;min-width:78px}
+.algo-quot{font-family:'Baloo 2',cursive;font-size:.85rem;font-weight:800;color:var(--ok);
+  min-height:20px;padding-left:22px;letter-spacing:2px;border-bottom:2px solid var(--tx);width:100%}
+.algo-bracket{display:flex;align-items:stretch}
+.algo-dvsr{font-family:'Baloo 2',cursive;font-size:.88rem;font-weight:800;color:var(--tx);
+  display:flex;align-items:center;padding-right:2px}
+.algo-dvnd{font-family:'Baloo 2',cursive;font-size:.88rem;font-weight:800;color:var(--tx);
+  border-left:2px solid var(--tx);border-top:2px solid var(--tx);padding:2px 7px}
+.algo-steps{padding-left:3px;display:flex;flex-direction:column;gap:1px;margin-top:3px}
+.algo-step{display:flex;flex-direction:column}
+.algo-step.in{animation:stepIn .4s cubic-bezier(.34,1.56,.64,1)}
+.algo-sub{font-family:'Baloo 2',cursive;font-size:.75rem;font-weight:700;color:var(--mu);
+  display:flex;align-items:center;gap:3px;padding-left:4px}
+.algo-sub::before{content:'−';color:var(--err);font-size:.85rem}
+.algo-rem{font-family:'Baloo 2',cursive;font-size:.75rem;font-weight:700;color:var(--tx);
+  border-top:1.5px solid #d0d6f0;padding:1px 0 1px 8px;margin-left:3px}
+.algo-note{font-size:.57rem;font-weight:700;color:var(--mu);text-align:center}
+
+/* ═══════════════════════════════════════
+   TRACKER / PARTIAL QUOTIENTS
+═══════════════════════════════════════ */
+.tracker-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:12px 18px;width:100%;max-width:980px;display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.tracker-title{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mu)}
+.tracker-steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:48px}
+.t-step{display:flex;flex-direction:column;align-items:center}
+.t-step.animate{animation:stepIn .4s cubic-bezier(.34,1.56,.64,1)}
+.t-step.algo-highlight .t-chip{outline:3px solid var(--gold);outline-offset:2px}
+.t-chip{font-family:'Baloo 2',cursive;font-weight:800;font-size:.93rem;
+  padding:4px 12px;border-radius:8px;color:#fff;transition:outline .2s}
+.t-lbl{font-size:.58rem;font-weight:700;color:var(--mu);margin-top:2px}
+.t-arrow{font-size:.93rem;color:var(--mu)}
+.t-badge{font-family:'Baloo 2',cursive;font-size:.93rem;font-weight:800;
+  background:var(--pri-lt);color:var(--pri);padding:3px 12px;border-radius:50px}
+.tracker-ph{color:var(--mu);font-size:.8rem;font-weight:600}
+.qb-row{display:none;align-items:center;gap:7px;flex-wrap:wrap;
+  padding-top:8px;border-top:1.5px solid #eef0ff;margin-top:2px}
+.qb-row.show{display:flex}
+.qb-lbl{font-size:.74rem;font-weight:700;color:var(--mu)}
+.qb-parts{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.qb-n{font-family:'Baloo 2',cursive;font-size:.93rem;font-weight:800;color:var(--tx)}
+.qb-plus{color:var(--mu);font-weight:700}
+.qb-eq{color:var(--mu);font-size:1rem;font-weight:700}
+.final-zone{display:none;background:var(--gold);border-radius:12px;
+  padding:10px 16px;align-items:center;gap:10px;flex-wrap:wrap;
+  animation:czIn .4s cubic-bezier(.34,1.56,.64,1)}
+.final-zone.show{display:flex}
+.fi-prompt{font-family:'Baloo 2',cursive;font-size:.96rem;font-weight:800;color:var(--tx)}
+.fi-eq{font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:800;color:var(--tx)}
+.fi-in{font-family:'Baloo 2',cursive;font-size:1.25rem;font-weight:800;
+  width:86px;text-align:center;border:3px solid rgba(0,0,0,.15);border-radius:10px;
+  padding:3px 7px;outline:none;background:#fff;color:var(--tx);transition:border-color .2s,background .2s}
+.fi-in.ok{border-color:var(--ok);background:var(--ok-lt)}
+.fi-in.bad{border-color:var(--err);background:var(--err-lt);animation:shake .4s ease}
+#fiFeedback{font-weight:800;font-size:.88rem}
+
+/* ═══════════════════════════════════════
+   ALGORITHM MODE PANEL
+═══════════════════════════════════════ */
+.alg-mode-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:16px 20px;width:100%;max-width:980px;display:none;flex-direction:column;gap:14px;margin-top:12px}
+.alg-mode-card.show{display:flex;animation:czIn .4s cubic-bezier(.34,1.56,.64,1)}
+
+/* Layout: left = visual long-division, right = step-by-step prompt */
+.alg-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+
+/* ── Long Division Visual ─────────────── */
+.ld-visual{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.ld-title{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:8px}
+
+/* Classes used by the JS absolute-position renderer */
+.ld-quot-digit{display:inline-block}
+.ld-quot-digit.pending{color:var(--mu);opacity:.5}
+.ld-quot-digit.new-in{animation:stepIn .5s cubic-bezier(.34,1.56,.64,1)}
+.ld-digit.current-group{background:var(--pri-lt);color:var(--pri);border-radius:4px}
+.ld-digit.brought-down{animation:bringDown .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bringDown{from{transform:translateY(-14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.bd-char{color:var(--ok)}
+.rem-char{color:var(--pri)}
+
+/* Final remainder display */
+.ld-final-rem{
+  margin-top:6px;
+  font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;
+  color:var(--pri);background:var(--pri-lt);
+  border-radius:8px;padding:4px 10px;display:inline-block;
+}
+
+/* ── Step Prompt Panel ────────────────── */
+.alg-prompt-panel{background:#f8f9ff;border-radius:14px;padding:14px;
+  display:flex;flex-direction:column;gap:10px;border:2px solid #d0d6f0}
+.alg-step-badge{display:inline-flex;align-items:center;gap:6px;border-radius:50px;
+  padding:4px 12px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.alg-step-badge.D{background:var(--ac-D-lt);color:var(--ac-D)}
+.alg-step-badge.M{background:var(--ac-M-lt);color:#c73060}
+.alg-step-badge.S{background:var(--ac-S-lt);color:#c07a00}
+.alg-step-badge.B{background:var(--ac-B-lt);color:#1a8a85}
+
+.alg-prompt-text{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;color:var(--tx);line-height:1.4}
+.alg-connection{font-size:.72rem;font-weight:700;color:var(--pri);
+  background:var(--pri-lt);border-radius:8px;padding:5px 10px;line-height:1.4}
+
+.alg-input-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.alg-eq-ctx{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;color:var(--tx)}
+.alg-answer-input{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;
+  width:90px;text-align:center;border:3px solid var(--pri);border-radius:10px;
+  padding:3px 8px;outline:none;background:#fff;color:var(--tx);transition:border-color .2s,background .2s}
+.alg-answer-input:focus{border-color:var(--pri)}
+.alg-answer-input.ok{border-color:var(--ok);background:var(--ok-lt);color:#1a6b3a}
+.alg-answer-input.bad{border-color:var(--err);background:var(--err-lt);animation:shake .4s ease}
+
+.alg-feedback{font-size:.8rem;font-weight:700;text-align:center;min-height:18px}
+.alg-feedback.ok{color:#1a6b3a}
+.alg-feedback.err{color:var(--err)}
+
+/* progress dots */
+.alg-progress{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.alg-dot{width:10px;height:10px;border-radius:50%;background:var(--step-inactive);transition:background .3s}
+.alg-dot.done{background:var(--ok)}
+.alg-dot.active{background:var(--pri);animation:dotPulse 1s ease infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* bring-down animation highlight */
+.bd-arrow{font-size:1.4rem;color:var(--ok);animation:bdBounce .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bdBounce{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* completion */
+.alg-complete{display:flex;align-items:center;gap:10px;background:var(--ok-lt);
+  border-radius:12px;padding:10px 14px;flex-wrap:wrap}
+.alg-complete-msg{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#1a6b3a}
+
+/* ═══════════════════════════════════════
+   COMPLETION + FACT + TOAST
+═══════════════════════════════════════ */
+.done-banner{display:none;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,#43d17a,#2bb564);color:#fff;border-radius:14px;
+  padding:12px 22px;font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:800;
+  width:100%;max-width:980px;box-shadow:0 4px 20px rgba(67,209,122,.3);margin-top:12px}
+.done-banner.show{display:flex;animation:czIn .5s cubic-bezier(.34,1.56,.64,1)}
+.fact-card{background:linear-gradient(135deg,#5b6af7,#8b5cf6);border-radius:var(--r);
+  box-shadow:0 6px 24px rgba(91,106,247,.22);padding:14px 18px;color:#fff;
+  width:100%;max-width:980px;cursor:pointer;transition:transform .2s,box-shadow .2s;
+  user-select:none;min-height:80px;display:flex;flex-direction:column;
+  justify-content:center;margin-top:12px}
+.fact-card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,106,247,.3)}
+.fact-emoji{font-size:1.55rem;line-height:1}
+.fact-hl{font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;margin:3px 0 2px}
+.fact-body{font-size:.76rem;font-weight:600;opacity:.9;line-height:1.4}
+.fact-tap{font-size:.6rem;font-weight:700;opacity:.6;margin-top:5px;align-self:flex-end}
+.fact-inner{animation:factFade .4s ease}
+@keyframes factFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);
+  background:#fff;border-radius:50px;padding:9px 22px;
+  box-shadow:0 8px 28px rgba(91,106,247,.18);font-weight:700;font-size:.87rem;color:var(--tx);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:740px){
+  .workspace{grid-template-columns:1fr}
+  .area-rect{height:68px}
+  .div-side-label{display:none}
+  .area-wrap{padding-left:0}
+  .alg-layout{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     FULL-WIDTH GRADIENT HEADER
+═══════════════════════════════════════════ -->
+<div class="lab-header">
+  <div class="lab-header-orb1"></div>
+  <div class="lab-header-orb2"></div>
+  <div class="lab-header-inner">
+    <div class="lab-icon">🔬</div>
+    <div class="lab-header-text">
+      <div class="lab-header-title">Mrs. Nava's Division Lab</div>
+      <div class="lab-header-sub">Break it apart • Build groups • Understand division</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE CONTENT WRAPPER -->
+<div class="page-content">
+
+<!-- STEP INDICATOR -->
+<div class="steps-bar" id="stepsBar">
+  <div class="step-pill active" id="sp1"><span class="sn">1</span>Build</div>
+  <div class="step-pill" id="sp2"><span class="sn">2</span>Decompose</div>
+  <div class="step-pill" id="sp3"><span class="sn">3</span>Choose Chunk</div>
+  <div class="step-pill" id="sp4"><span class="sn">4</span>Solve Chunk</div>
+  <div class="step-pill" id="sp5"><span class="sn">5</span>Remove</div>
+  <div class="step-pill" id="sp6"><span class="sn">6</span>Track</div>
+  <div class="step-pill" id="sp7"><span class="sn">7</span>Algorithm</div>
+</div>
+
+<!-- MODE TOGGLE -->
+<div class="mode-toggle">
+  <span class="mode-lbl">Mode:</span>
+  <button class="mode-btn active" id="modeArea" onclick="switchMode('area')">Area Model</button>
+  <button class="mode-btn" id="modeAlgo" onclick="switchMode('algo')">Long Division</button>
+  <span class="connection-note" id="connectionNote">💡 Same problem — two ways to see it</span>
+</div>
+
+<!-- SETUP BAR -->
+<div class="setup-bar">
+  <span class="setup-lbl">Dividend</span>
+  <input class="num-in" id="dividendInput" type="number" min="1" max="999" value="432">
+  <span class="div-sym">÷</span>
+  <input class="num-in" id="divisorInput" type="number" min="1" max="9" value="3" style="width:66px">
+  <button class="btn btn-pri" onclick="initProblem()">Go! 🚀</button>
+  <button class="btn btn-gold" id="undoBtn" onclick="undoStep()" disabled>↩ Undo</button>
+  <button class="btn btn-ghost" onclick="resetProblem()">Reset</button>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div class="workspace" id="areaWorkspace">
+
+  <!-- LEFT: PLACE VALUE -->
+  <div class="pv-card">
+    <div class="pv-title">Place Value</div>
+    <div class="pv-instruction" id="pvInstruction">Click a block to decompose it</div>
+    <div class="pv-cols" id="pvCols"></div>
+    <div class="pv-remaining">
+      <div class="pv-rem-lbl">Remaining</div>
+      <div class="pv-rem-num" id="pvRemaining">432</div>
+    </div>
+  </div>
+
+  <!-- CENTER: AREA MODEL -->
+  <div class="area-card">
+    <div class="area-hdr-row">
+      <div class="area-title-lbl">Area Model</div>
+      <div class="area-hint-txt" id="areaHint">← tap a chunk to start solving</div>
+    </div>
+    <div class="area-eq-display" id="areaEq">432 ÷ <span class="ediv">3</span></div>
+    <div class="area-top-row" id="areaTopRow"></div>
+    <div class="area-wrap">
+      <div class="div-side-label" id="divSideLabel">3</div>
+      <div class="area-rect" id="areaRect"></div>
+    </div>
+    <!-- Chunk Builder -->
+    <div class="chunk-builder" id="chunkBuilder">
+      <div class="cb-step" id="cbStepA">
+        <div class="cb-label">Step A — How many groups fit?</div>
+        <div class="cb-groups-row">
+          <input class="cb-groups-input" id="cbGroupsInput" type="number" min="1" placeholder="?" autocomplete="off">
+          <span class="cb-eq-part dim">groups of</span>
+          <span class="cb-eq-part" id="cbDivisorA">3</span>
+          <button class="btn btn-pri" style="padding:6px 14px;font-size:.8rem" onclick="checkGroups()">Check ✓</button>
+        </div>
+        <div class="cb-feedback" id="cbGroupsFeedback"></div>
+      </div>
+      <div class="cb-step" id="cbStepB" style="display:none">
+        <div class="cb-label">Step B — What is the total?</div>
+        <div class="cb-product-row">
+          <span class="cb-groups-frozen" id="cbGroupsFrozen">100</span>
+          <span class="cb-eq-part dim">×</span>
+          <span class="cb-eq-part" id="cbDivisorB">3</span>
+          <span class="cb-eq-part dim">=</span>
+          <input class="cb-prod-input" id="cbProdInput" type="number" min="1" placeholder="?" autocomplete="off">
+          <button class="btn btn-pri" style="padding:6px 14px;font-size:.8rem" onclick="checkProduct()">Check ✓</button>
+        </div>
+        <div class="cb-feedback" id="cbProdFeedback"></div>
+      </div>
+      <div class="cb-sub-preview" id="cbSubPreview">
+        <div class="cb-sub-row" id="cbSubTop"></div>
+        <div class="cb-sub-line"></div>
+        <div class="cb-sub-row" id="cbSubBot"></div>
+      </div>
+      <div class="cb-btn-row">
+        <button class="btn btn-ghost" style="font-size:.8rem" onclick="cancelChunk()">✕ Cancel</button>
+        <button class="btn btn-ok cb-confirm-btn" id="cbConfirmBtn" onclick="confirmChunk()">✓ Remove this chunk</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: ALGORITHM SUMMARY -->
+  <div class="algo-card">
+    <div class="algo-title">Algorithm</div>
+    <div class="algo-body">
+      <div class="algo-pq" id="algoPQ">
+        <div class="algo-pq-hdr">partial<br>quotients</div>
+      </div>
+      <div class="algo-long">
+        <div class="algo-quot" id="algoQuot">&nbsp;</div>
+        <div class="algo-bracket">
+          <div class="algo-dvsr" id="algoDiv">3</div>
+          <div class="algo-dvnd" id="algoDvnd">432</div>
+        </div>
+        <div class="algo-steps" id="algoSteps"></div>
+      </div>
+    </div>
+    <div class="algo-note">← same steps, different look</div>
+  </div>
+
+</div><!-- /areaWorkspace -->
+
+<!-- TRACKER -->
+<div class="tracker-card">
+  <div class="tracker-title">Partial Quotients Tracker</div>
+  <div class="tracker-steps" id="trackerSteps">
+    <span class="tracker-ph">Solve your first chunk to begin tracking…</span>
+  </div>
+  <div class="qb-row" id="qbRow">
+    <span class="qb-lbl">Quotient so far:</span>
+    <div class="qb-parts" id="qbParts"></div>
+  </div>
+  <div class="final-zone" id="finalZone">
+    <span class="fi-prompt">All groups found! 🎉 Now write the full quotient:</span>
+    <span class="fi-eq" id="fiEq">432 ÷ 3 =</span>
+    <input class="fi-in" id="fiInput" type="number" placeholder="?" autocomplete="off">
+    <button class="btn btn-pri" onclick="checkFinalAnswer()">Check ✓</button>
+    <span id="fiFeedback"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ALGORITHM MODE PANEL
+═══════════════════════════════════════════ -->
+<div class="alg-mode-card" id="algModeCard">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:var(--tx)">
+      Long Division — step by step
+    </div>
+    <div style="font-size:.72rem;font-weight:700;color:var(--pri);background:var(--pri-lt);border-radius:50px;padding:4px 12px">
+      Divide → Multiply → Subtract → Bring Down → Repeat
+    </div>
+  </div>
+
+  <div class="alg-layout">
+
+    <!-- LEFT: visual long-division structure -->
+    <div class="ld-visual">
+      <div class="ld-title">Standard Form</div>
+      <div id="ldContainer"><!-- rendered by JS --></div>
+      <div id="ldRemainderFinal" style="display:none;margin-top:8px">
+        <div class="ld-final-rem">Remainder: <span id="ldRemVal">0</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: active step prompt -->
+    <div class="alg-prompt-panel" id="algPromptPanel">
+      <div class="alg-step-badge D" id="algStepBadge">① Divide</div>
+      <div class="alg-prompt-text" id="algPromptText">Ready to start!</div>
+      <div class="alg-connection" id="algConnection" style="display:none"></div>
+      <div class="alg-input-row" id="algInputRow" style="display:none">
+        <div class="alg-eq-ctx" id="algEqCtx"></div>
+        <input class="alg-answer-input" id="algAnswerInput" type="number" placeholder="?" autocomplete="off">
+        <button class="btn btn-pri" style="padding:7px 16px" onclick="checkAlgoStep()">Check ✓</button>
+      </div>
+      <div class="alg-feedback" id="algFeedback"></div>
+      <div class="alg-progress" id="algProgress"></div>
+      <div class="alg-complete" id="algComplete" style="display:none">
+        <span style="font-size:1.6rem">🎉</span>
+        <div class="alg-complete-msg" id="algCompleteMsg"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COMPLETION -->
+<div class="done-banner" id="doneBanner">🎉 <span id="doneMsg"></span></div>
+
+<!-- FACT CARD -->
+<div class="fact-card" onclick="nextFact()">
+  <div class="fact-inner" id="factInner">
+    <div class="fact-emoji">🍕</div>
+    <div class="fact-hl">Division is everywhere!</div>
+    <div class="fact-body">Sharing 432 pizza slices equally among 3 tables = the same math you're doing right now!</div>
+  </div>
+  <div class="fact-tap">Tap for a new fact! →</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+</div><!-- /page-content -->
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   SHARED STATE
+══════════════════════════════════════════════════════════════ */
+let dividend = 432, divisor = 3;
+let pvH = 0, pvT = 0, pvO = 0;
+let solvedChunks = [];
+let history = [];
+let activeChunkIdx = null;
+let cbGroupsVerified = false, cbGroupsValue = 0, cbProdVerified = false;
+let chunkSlots = [];
+let currentStep = 1;
+let currentMode = 'area'; // 'area' | 'algo'
+
+/* ── Algorithm Mode State ──────────────────────────────────── */
+// ldSteps = array of completed work rows
+// ldPhase: 'D'|'M'|'S'|'B' current DMSBR sub-step
+// ldIteration: which digit group we're working on
+// ldCurrent: the number being divided right now
+// ldDigits: array of dividend digits
+// ldPos: position in digit array (0-based)
+// ldGroupDigits: digit positions that form current working group
+let ldSteps = [];         // rendered work rows
+let ldPhase = 'D';        // D M S B
+let ldIteration = 0;      // which quotient digit we're building
+let ldCurrent = 0;        // current number being worked on
+let ldDigits = [];        // ['4','3','2']
+let ldPos = 0;            // how many dividend digits consumed
+let ldGroupLen = 0;       // how many digits in current group
+let ldQuotientDigits = [];// confirmed quotient digits so far
+let ldDone = false;
+
+/* ══════════════════════════════════════════════════════════════
+   FACTS
+══════════════════════════════════════════════════════════════ */
+const ALL_FACTS=[
+  {e:"🍕",h:"Pizza Party Math!",     b:"Sharing 432 slices among 3 tables = the same division you're doing right now!"},
+  {e:"🏀",h:"Shooting Drills",        b:"96 basketballs ÷ 4 teams = 24 each. Division organises every practice!"},
+  {e:"🐜",h:"Ant Armies",             b:"900 ants split into 3 groups of 300 — division happens in nature!"},
+  {e:"📦",h:"Warehouse Sorting",      b:"Warehouses divide boxes into equal rows so every item has a spot."},
+  {e:"🎟️",h:"Movie Seats",            b:"504 seats in 6 rows = 84 per row. Division fills every theater!"},
+  {e:"🌧️",h:"Rainfall Records",       b:"Yearly rainfall ÷ 12 months = monthly average. Division tracks weather!"},
+  {e:"🧁",h:"Bakery Math",            b:"288 cupcakes into boxes of 6 = exactly 48 boxes. Division plans every batch!"},
+  {e:"🏊",h:"Swim Heats",             b:"240 swimmers ÷ 8 lanes = 30 heats. Division schedules every race!"},
+  {e:"🐝",h:"Honeybee Cells",         b:"720 cells ÷ 9 sections = 80 each. Bees know their division!"},
+  {e:"🚌",h:"School Bus Loads",       b:"315 students ÷ 7 buses = 45 per bus. Division plans every route!"},
+  {e:"🎮",h:"Game Leaderboards",      b:"Total points ÷ games played = average score. Division powers leaderboards!"},
+  {e:"💧",h:"Water for All",          b:"8,000 gallons ÷ 4 neighborhoods = 2,000 each. Division distributes fairly!"},
+  {e:"🌳",h:"Forest Rows",            b:"560 trees ÷ 8 rows = 70 per row. Farmers plan forests with division!"},
+  {e:"🎵",h:"Music Math",             b:"Every 4-beat measure divides time equally. Division is in every song!"},
+  {e:"⚽",h:"Soccer Leagues",         b:"72 teams ÷ 9 divisions = 8 per division. Sports leagues need division!"},
+  {e:"🍎",h:"Fruit Market",           b:"384 apples ÷ 6 shelves = 64 per shelf. Stores use division to stock!"},
+  {e:"🔭",h:"Space Distances",        b:"Divide distance by speed to get travel time. Division reaches the stars!"},
+  {e:"🧩",h:"Puzzle Sections",        b:"750 pieces ÷ 6 sections = 125 each. Division helps design every puzzle!"},
+];
+let factIdx=0,factList=[];
+function shuffleFacts(){factList=[...ALL_FACTS].sort(()=>Math.random()-.5);factIdx=0;syncFact();}
+function syncFact(){const f=factList[factIdx];const el=document.getElementById('factInner');
+  if(el)el.innerHTML=`<div class="fact-emoji">${f.e}</div><div class="fact-hl">${f.h}</div><div class="fact-body">${f.b}</div>`;}
+function nextFact(){factIdx=(factIdx+1)%factList.length;const el=document.getElementById('factInner');
+  el.style.animation='none';void el.offsetWidth;syncFact();el.style.animation='factFade .4s ease';}
+
+/* ══════════════════════════════════════════════════════════════
+   CHUNK GENERATION
+══════════════════════════════════════════════════════════════ */
+function generateSlots(dvd,dvs){
+  const colors=['var(--H)','var(--T)','var(--O)'];
+  const slots=[];let rem=dvd;
+  [100,10,1].forEach((place,pi)=>{
+    const unit=dvs*place,n=Math.floor(rem/unit),cv=n*unit;
+    if(cv<=0)return;
+    slots.push({value:cv,groups:cv/dvs,color:colors[pi],solved:false,idx:slots.length});
+    rem-=cv;
+  });
+  if(rem>0)slots.push({value:rem,groups:null,color:'var(--rem)',solved:false,isRem:true,idx:slots.length});
+  return slots;
+}
+function initPV(dvd){pvH=Math.floor(dvd/100);pvT=Math.floor((dvd%100)/10);pvO=dvd%10;}
+
+/* ══════════════════════════════════════════════════════════════
+   INIT / RESET
+══════════════════════════════════════════════════════════════ */
+function initProblem(){
+  const dvd=parseInt(document.getElementById('dividendInput').value);
+  const dvs=parseInt(document.getElementById('divisorInput').value);
+  if(!dvd||!dvs||dvd<1||dvd>999||dvs<1||dvs>9){showToast('Try dividend 1–999 and divisor 1–9 😊');return;}
+  dividend=dvd;divisor=dvs;
+  chunkSlots=generateSlots(dividend,divisor);
+  solvedChunks=[];history=[];
+  activeChunkIdx=null;cbGroupsVerified=false;cbGroupsValue=0;cbProdVerified=false;
+  document.getElementById('undoBtn').disabled=true;
+  document.getElementById('doneBanner').classList.remove('show');
+  document.getElementById('finalZone').classList.remove('show');
+  closeBuilder();
+  initPV(dividend);
+  setStep(1);
+  resetAlgoMode();
+  shuffleFacts();
+  renderAll();
+}
+function resetProblem(){
+  solvedChunks=[];history=[];
+  activeChunkIdx=null;cbGroupsVerified=false;cbGroupsValue=0;cbProdVerified=false;
+  chunkSlots.forEach(s=>{s.solved=false;});
+  document.getElementById('undoBtn').disabled=true;
+  document.getElementById('doneBanner').classList.remove('show');
+  document.getElementById('finalZone').classList.remove('show');
+  closeBuilder();
+  initPV(dividend);
+  setStep(1);
+  resetAlgoMode();
+  renderAll();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODE TOGGLE
+══════════════════════════════════════════════════════════════ */
+function switchMode(mode){
+  currentMode=mode;
+  document.getElementById('modeArea').classList.toggle('active',mode==='area');
+  document.getElementById('modeAlgo').classList.toggle('active',mode==='algo');
+  document.getElementById('areaWorkspace').style.display=mode==='area'?'grid':'none';
+  const amc=document.getElementById('algModeCard');
+  if(mode==='algo'){
+    amc.classList.add('show');
+    if(!ldDone&&ldIteration===0&&ldPhase==='D') startAlgoMode();
+    else renderAlgoMode();
+  } else {
+    amc.classList.remove('show');
+  }
+  // Update connection note
+  const cn=document.getElementById('connectionNote');
+  if(mode==='algo'){
+    const solved=solvedChunks.length;
+    cn.textContent=solved>0
+      ?`🔗 ${solved} chunk${solved>1?'s':''} from area model = ${solved} step${solved>1?'s':''} in long division`
+      :'💡 Same problem — two ways to see it';
+  } else {
+    cn.textContent='💡 Same problem — two ways to see it';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STEP INDICATOR
+══════════════════════════════════════════════════════════════ */
+function setStep(n){
+  currentStep=n;
+  for(let i=1;i<=7;i++){
+    const el=document.getElementById(`sp${i}`);
+    if(!el)continue;
+    el.classList.remove('active','done');
+    if(i<n)el.classList.add('done');
+    else if(i===n)el.classList.add('active');
+  }
+}
+function advanceStep(n){if(n>currentStep)setStep(n);}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER ALL (area mode)
+══════════════════════════════════════════════════════════════ */
+function renderAll(){
+  renderEquation();
+  renderPV();
+  renderAreaModel();
+  renderTracker();
+  renderAlgorithm();
+  if(currentMode==='algo')renderAlgoMode();
+}
+function renderEquation(){
+  document.getElementById('areaEq').innerHTML=`${dividend} ÷ <span class="ediv">${divisor}</span>`;
+  document.getElementById('divSideLabel').textContent=divisor;
+  document.getElementById('algoDiv').textContent=divisor;
+  document.getElementById('algoDvnd').textContent=dividend;
+}
+
+/* ── Place Value ────────────────────────────────────────────── */
+function getRemainingValue(){return solvedChunks.reduce((s,c)=>s-c.value,dividend);}
+function renderPV(animCols){
+  const rem=getRemainingValue();
+  const pvNum=document.getElementById('pvRemaining');
+  pvNum.textContent=rem;
+  pvNum.classList.remove('flash');void pvNum.offsetWidth;pvNum.classList.add('flash');
+  const container=document.getElementById('pvCols');
+  container.innerHTML='';
+  const colDef=[
+    {cls:'H',name:'Hundreds',val:100,lbl:'100',count:pvH,decompLabel:'→10 tens',decompFn:'decompH()'},
+    {cls:'T',name:'Tens',    val:10, lbl:'10', count:pvT,decompLabel:'→10 ones',decompFn:'decompT()'},
+    {cls:'O',name:'Ones',    val:1,  lbl:'1',  count:pvO,decompLabel:'',         decompFn:null},
+  ];
+  colDef.forEach(p=>{
+    const col=document.createElement('div');
+    col.className=`pv-col ${p.cls}`;
+    let html=`<div class="pv-col-hdr">${p.name}<br><span style="font-size:.76em;font-weight:900">${p.val}</span></div>
+      <div class="pv-blocks-wrap">`;
+    const show=Math.min(p.count,9);
+    if(show===0){html+=`<div class="pv-empty">—</div>`;}
+    else{
+      for(let i=0;i<show;i++){
+        const entering=animCols&&animCols.includes(p.cls)?' entering':'';
+        const hint=p.decompFn?`<span class="decomp-hint">${p.decompLabel}</span>`:'';
+        const clickable=p.decompFn?`onclick="${p.decompFn}" title="${p.decompLabel}"`:'';
+        html+=`<div class="pv-block${entering}" ${clickable}>${p.lbl}${hint}</div>`;
+      }
+      if(p.count>9)html+=`<div class="pv-empty" style="font-size:.55rem">+${p.count-9}</div>`;
+    }
+    html+=`</div>`;
+    if(animCols&&animCols.includes(p.cls))html+=`<div class="pv-decomp-badge">↓ regrouped!</div>`;
+    col.innerHTML=html;container.appendChild(col);
+  });
+  const instr=document.getElementById('pvInstruction');
+  if(pvH>0)instr.textContent='Click a 100-block to regroup → 10 tens';
+  else if(pvT>0)instr.textContent='Click a 10-block to regroup → 10 ones';
+  else instr.textContent='All decomposed';
+}
+function decompH(){
+  if(pvH<=0){showToast('No hundreds left to decompose!');return;}
+  saveHistory();pvH--;pvT+=10;renderPV('T');advanceStep(2);showToast('1 hundred → 10 tens ✓');
+}
+function decompT(){
+  if(pvT<=0){showToast('No tens left to decompose!');return;}
+  saveHistory();pvT--;pvO+=10;renderPV('O');advanceStep(2);showToast('1 ten → 10 ones ✓');
+}
+
+/* ── Area Model ─────────────────────────────────────────────── */
+function renderAreaModel(){
+  const rect=document.getElementById('areaRect');
+  const topRow=document.getElementById('areaTopRow');
+  rect.innerHTML=topRow.innerHTML='';
+  chunkSlots.forEach((slot,idx)=>{
+    const lbl=document.createElement('div');
+    lbl.className='chunk-qlabel'
+      +(slot.solved&&!slot.isRem?' solved-q':'')
+      +(!slot.solved&&!slot.isRem?' hidden-q':'');
+    lbl.style.flex=`${slot.value} 1 0px`;
+    if(slot.isRem)lbl.textContent='';
+    else if(slot.solved){const sc=solvedChunks.find(s=>s.idx===idx);lbl.textContent=sc?sc.groups:'?';}
+    else lbl.textContent='?';
+    topRow.appendChild(lbl);
+    const ch=document.createElement('div');
+    ch.id=`chunk_${idx}`;ch.style.flexGrow=String(slot.value);ch.style.background=slot.color;
+    if(slot.isRem){
+      ch.className='a-chunk rem-chunk';
+      ch.innerHTML=`<div class="ck-val" style="font-size:.78rem">R</div><div class="ck-sub">leftover</div>`;
+    } else if(slot.solved){
+      ch.className='a-chunk solved';
+      const sc=solvedChunks.find(s=>s.idx===idx);
+      ch.innerHTML=`<div class="ck-val">${sc?sc.value:''}</div><div class="ck-sub">${sc?sc.groups+' groups':''}</div><div class="ck-div"></div>`;
+    } else if(activeChunkIdx===idx){
+      ch.className='a-chunk active-chunk';
+      ch.innerHTML=`<div class="ck-val" style="font-size:.78rem">✏️</div><div class="ck-sub">solving…</div>`;
+    } else {
+      const isNext=(idx===nextUnsolved());
+      ch.className='a-chunk'+(isNext?' clickable':'');
+      ch.innerHTML=`<div class="ck-val" style="font-size:.82rem;opacity:.7">?</div>
+        <div class="ck-sub">${isNext?'tap to solve':'solve in order'}</div><div class="ck-div"></div>`;
+      if(isNext)ch.onclick=()=>openBuilder(idx);
+    }
+    rect.appendChild(ch);
+  });
+  const hint=document.getElementById('areaHint');
+  const next=nextUnsolved();
+  if(activeChunkIdx!==null)hint.textContent='✏️ fill in the chunk below';
+  else if(next!==null)hint.textContent='← tap the first "?" chunk';
+  else hint.textContent='✅ all chunks solved!';
+}
+function nextUnsolved(){
+  for(let i=0;i<chunkSlots.length;i++){if(!chunkSlots[i].isRem&&!chunkSlots[i].solved)return i;}
+  return null;
+}
+
+/* ── Chunk Builder ──────────────────────────────────────────── */
+function openBuilder(idx){
+  if(activeChunkIdx!==null&&activeChunkIdx!==idx){showToast('Finish the current chunk first ✏️');return;}
+  if(idx!==nextUnsolved()){showToast('Solve chunks in order, largest first! 👆');return;}
+  activeChunkIdx=idx;cbGroupsVerified=false;cbGroupsValue=0;cbProdVerified=false;
+  const gi=document.getElementById('cbGroupsInput');
+  const pi=document.getElementById('cbProdInput');
+  gi.value='';gi.className='cb-groups-input';
+  pi.value='';pi.className='cb-prod-input';
+  document.getElementById('cbGroupsFeedback').textContent='';
+  document.getElementById('cbGroupsFeedback').className='cb-feedback';
+  document.getElementById('cbProdFeedback').textContent='';
+  document.getElementById('cbProdFeedback').className='cb-feedback';
+  document.getElementById('cbDivisorA').textContent=divisor;
+  document.getElementById('cbDivisorB').textContent=divisor;
+  document.getElementById('cbStepB').style.display='none';
+  document.getElementById('cbSubPreview').classList.remove('show');
+  document.getElementById('cbConfirmBtn').classList.remove('show');
+  const cb=document.getElementById('chunkBuilder');
+  cb.classList.remove('open');void cb.offsetWidth;cb.classList.add('open');
+  advanceStep(3);renderAreaModel();setTimeout(()=>gi.focus(),120);
+}
+function cancelChunk(){
+  activeChunkIdx=null;cbGroupsVerified=false;cbGroupsValue=0;cbProdVerified=false;
+  closeBuilder();renderAreaModel();
+}
+function closeBuilder(){
+  document.getElementById('chunkBuilder').classList.remove('open');
+  activeChunkIdx=null;
+}
+function checkGroups(){
+  if(activeChunkIdx===null)return;
+  const slot=chunkSlots[activeChunkIdx];
+  const inp=document.getElementById('cbGroupsInput');
+  const fb=document.getElementById('cbGroupsFeedback');
+  const entered=parseInt(inp.value);
+  if(isNaN(entered)){fb.textContent='Enter a number 🔢';fb.className='cb-feedback err';return;}
+  if(entered===slot.groups){
+    inp.className='cb-groups-input ok';
+    fb.textContent=`✅ Yes! ${entered} groups of ${divisor} fit perfectly.`;fb.className='cb-feedback ok';
+    cbGroupsVerified=true;cbGroupsValue=entered;
+    document.getElementById('cbGroupsFrozen').textContent=entered;
+    document.getElementById('cbStepB').style.display='flex';
+    advanceStep(4);setTimeout(()=>document.getElementById('cbProdInput').focus(),80);
+  } else {
+    inp.className='cb-groups-input bad';void inp.offsetWidth;inp.className='cb-groups-input bad';
+    fb.textContent=`❌ Not quite — ${entered<slot.groups?'try more groups':'too many groups'}. Think about how many fit.`;
+    fb.className='cb-feedback err';inp.value='';setTimeout(()=>inp.focus(),60);
+  }
+}
+function checkProduct(){
+  if(!cbGroupsVerified||activeChunkIdx===null)return;
+  const slot=chunkSlots[activeChunkIdx];
+  const inp=document.getElementById('cbProdInput');
+  const fb=document.getElementById('cbProdFeedback');
+  const entered=parseInt(inp.value);
+  if(isNaN(entered)){fb.textContent='Enter a number 🔢';fb.className='cb-feedback err';return;}
+  if(entered===slot.value){
+    inp.className='cb-prod-input ok';
+    fb.textContent=`✅ ${cbGroupsValue} × ${divisor} = ${slot.value}`;fb.className='cb-feedback ok';
+    cbProdVerified=true;
+    const before=getRemainingValue(),after=before-slot.value;
+    document.getElementById('cbSubTop').innerHTML=`<span>${before}</span><span class="cb-minus"> − ${slot.value}</span>`;
+    document.getElementById('cbSubBot').innerHTML=`<span class="cb-result">= ${Math.max(0,after)}</span>`;
+    document.getElementById('cbSubPreview').classList.add('show');
+    document.getElementById('cbConfirmBtn').classList.add('show');
+    advanceStep(4);
+  } else {
+    inp.className='cb-prod-input bad';void inp.offsetWidth;inp.className='cb-prod-input bad';
+    fb.textContent=`❌ Not quite — ${entered<slot.value?'think bigger':'think smaller'}. What is ${cbGroupsValue} × ${divisor}?`;
+    fb.className='cb-feedback err';inp.value='';setTimeout(()=>inp.focus(),60);
+  }
+}
+function confirmChunk(){
+  if(!cbGroupsVerified||!cbProdVerified||activeChunkIdx===null)return;
+  const idx=activeChunkIdx,slot=chunkSlots[idx];
+  saveHistory();
+  const remainingAfter=getRemainingValue()-slot.value;
+  slot.solved=true;
+  solvedChunks.push({value:slot.value,groups:slot.groups,color:slot.color,idx});
+  pvH=Math.floor(Math.max(0,remainingAfter)/100);
+  pvT=Math.floor((Math.max(0,remainingAfter)%100)/10);
+  pvO=Math.max(0,remainingAfter)%10;
+  activeChunkIdx=null;cbGroupsVerified=false;cbGroupsValue=0;cbProdVerified=false;
+  document.getElementById('undoBtn').disabled=false;
+  closeBuilder();advanceStep(5);renderAll();advanceStep(6);
+  checkDone();
+}
+function checkDone(){
+  const solvable=chunkSlots.filter(s=>!s.isRem);
+  if(solvable.length===0||!solvable.every(s=>s.solved))return;
+  advanceStep(7);
+  document.getElementById('fiEq').textContent=`${dividend} ÷ ${divisor} =`;
+  const fz=document.getElementById('finalZone');
+  fz.classList.remove('show');void fz.offsetWidth;fz.classList.add('show');
+  document.getElementById('fiInput').value='';
+  document.getElementById('fiInput').className='fi-in';
+  document.getElementById('fiFeedback').textContent='';
+  setTimeout(()=>document.getElementById('fiInput').focus(),150);
+}
+function checkFinalAnswer(){
+  const inp=document.getElementById('fiInput');
+  const entered=parseInt(inp.value);
+  const correct=Math.floor(dividend/divisor);
+  const remChunk=chunkSlots.find(s=>s.isRem);
+  const remVal=remChunk?remChunk.value:0;
+  const fb=document.getElementById('fiFeedback');
+  if(isNaN(entered)){fb.textContent='🔢 Enter a number!';fb.style.color='var(--err)';return;}
+  if(entered===correct){
+    inp.className='fi-in ok';fb.style.color='#1a6b3a';fb.textContent='🎉 Correct!';
+    const msg=remVal>0?`${dividend} ÷ ${divisor} = ${correct} remainder ${remVal}`:`${dividend} ÷ ${divisor} = ${correct}`;
+    document.getElementById('doneMsg').textContent=msg+' 🎉';
+    document.getElementById('doneBanner').classList.add('show');
+    document.getElementById('doneBanner').scrollIntoView({behavior:'smooth',block:'nearest'});
+  } else {
+    inp.className='fi-in bad';void inp.offsetWidth;inp.className='fi-in bad';
+    fb.style.color='var(--err)';
+    fb.textContent=entered<correct?'❌ Too small — add up all your groups!':'❌ Too big — recount!';
+    inp.value='';setTimeout(()=>inp.focus(),60);
+  }
+}
+
+/* ── Tracker ────────────────────────────────────────────────── */
+function renderTracker(){
+  const stepsEl=document.getElementById('trackerSteps');
+  const qbRow=document.getElementById('qbRow');
+  const qbParts=document.getElementById('qbParts');
+  if(solvedChunks.length===0){
+    stepsEl.innerHTML=`<span class="tracker-ph">Solve your first chunk to begin tracking…</span>`;
+    qbRow.classList.remove('show');return;
+  }
+  let html='',running=dividend;
+  solvedChunks.forEach((sc,i)=>{
+    running-=sc.value;
+    const newest=i===solvedChunks.length-1;
+    html+=`<div class="t-step${newest?' animate':''}">
+      <div class="t-chip" style="background:${sc.color}">−${sc.value}</div>
+      <div class="t-lbl">${sc.groups} group${sc.groups!==1?'s':''}</div>
+    </div>
+    <div class="t-arrow">→ <span class="t-badge">${running}</span></div>`;
+  });
+  stepsEl.innerHTML=html;
+  qbRow.classList.add('show');
+  const partials=solvedChunks.filter(s=>s.groups!==null);
+  let parHtml='';
+  partials.forEach((s,i)=>{
+    if(i>0)parHtml+=`<span class="qb-plus">+</span>`;
+    parHtml+=`<span class="qb-n">${s.groups}</span>`;
+  });
+  if(partials.length>1){
+    const sum=partials.reduce((a,b)=>a+b.groups,0);
+    parHtml+=`<span class="qb-eq">=</span><span class="qb-n" style="color:var(--pri)">${sum}</span>`;
+  }
+  qbParts.innerHTML=parHtml;
+}
+
+/* ── Algorithm summary panel (right col) ───────────────────── */
+function renderAlgorithm(){
+  const pqEl=document.getElementById('algoPQ');
+  let pqHtml=`<div class="algo-pq-hdr">partial<br>quotients</div>`;
+  const partials=solvedChunks.filter(s=>s.groups!==null);
+  partials.forEach(sc=>{pqHtml+=`<div class="algo-pq-row">${sc.groups}</div>`;});
+  if(partials.length>0){
+    const tot=partials.reduce((a,b)=>a+b.groups,0);
+    pqHtml+=`<div class="algo-pq-line"></div><div class="algo-pq-tot">${tot}</div>`;
+  }
+  pqEl.innerHTML=pqHtml;
+  const rows=pqEl.querySelectorAll('.algo-pq-row');
+  if(rows.length>0)rows[rows.length-1].classList.add('in');
+  const qNum=partials.reduce((a,b)=>a+b.groups,0);
+  document.getElementById('algoQuot').textContent=qNum>0?qNum:'\u00A0';
+  const stDiv=document.getElementById('algoSteps');
+  stDiv.innerHTML='';
+  let running=dividend;
+  solvedChunks.forEach((sc,i)=>{
+    running-=sc.value;
+    const d=document.createElement('div');
+    d.className='algo-step'+(i===solvedChunks.length-1?' in':'');
+    d.innerHTML=`<div class="algo-sub">${sc.value}</div><div class="algo-rem">${running}</div>`;
+    stDiv.appendChild(d);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ALGORITHM MODE — LONG DIVISION (DMSBR)
+   State: track ldCurrent as the running working number (not a digit slice)
+══════════════════════════════════════════════════════════════ */
+
+/* State reset */
+function resetAlgoMode(){
+  ldSteps=[];ldPhase='D';ldIteration=0;ldCurrent=0;
+  ldDigits=String(dividend).split('').map(Number);
+  ldPos=0;ldGroupLen=0;ldQuotientDigits=[];ldDone=false;
+  // Bootstrap: advance digits until ldCurrent >= divisor (or exhaust digits)
+  while(ldPos<ldDigits.length && ldCurrent<divisor){
+    ldCurrent=ldCurrent*10+ldDigits[ldPos];
+    ldPos++;ldGroupLen++;
+  }
+}
+
+function startAlgoMode(){ resetAlgoMode(); renderAlgoMode(); }
+
+/* ── RENDER ─────────────────────────────────────────────── */
+function renderAlgoMode(){ renderLDVisual(); renderAlgPrompt(); }
+
+function renderLDVisual(){
+  const container=document.getElementById('ldContainer');
+  if(!container)return;
+
+  /*
+   * REFERENCE IMAGE ANALYSIS (3)380 = 126 r2:
+   *
+   *   col:  0   1   2
+   *         1   2   6      ← quotient, each digit above its dividend column
+   *     3 ⌐ 3   8   0      ← divisor + bracket + dividend
+   *        -3              ← product right-aligned to col 0
+   *        ───             ← rule under col 0
+   *         0   8          ← remainder 0 in col 0, brought-down 8 in col 1
+   *        - 6             ← product right-aligned to col 1
+   *        ────            ← rule spans cols 0-1
+   *         2   0          ← remainder 2 in col 1, brought-down 0 in col 2
+   *        -1   8          ← product right-aligned to col 2
+   *        ─────           ← rule spans all 3 cols (product 18 is 2 digits ending at col 2)
+   *             2          ← remainder 2 in col 2
+   *
+   * KEY RULES:
+   * 1. Every digit occupies exactly CELL px.
+   * 2. Work area left edge = divisor area left edge (they share the same x-origin).
+   * 3. Each number is right-aligned: rightmost digit at column `rightCol`.
+   * 4. `rightCol` for each step = (digits consumed so far) - 1.
+   * 5. Minus sign floats just left of the product's leftmost digit.
+   *
+   * We achieve perfect alignment by making the quotient row, bracket row, and
+   * ALL work rows share a single coordinate space. The divisor label sits to the
+   * LEFT of this space. We use a single outer flex row and nested absolute
+   * positioning within a shared column-grid container.
+   */
+
+  const FONT = "'Baloo 2',cursive";
+  const FS   = '1.35rem';
+  const FW   = '800';
+  const CELL = 30;   // px per digit column
+  const dvndStr = String(dividend);
+  const nCols   = dvndStr.length;
+  const divStr  = String(divisor);
+
+  // ── Replay stepMeta: find rightCol for each step ───────────────────────
+  // rightCol = index of rightmost dividend column for the current working group
+  const stepMeta = [];
+  {
+    let p = 0;
+    // bootstrap: consume digits until number >= divisor
+    let cur = 0;
+    while(p < nCols && cur < divisor){ cur = cur*10 + parseInt(dvndStr[p]); p++; }
+    let rc = p - 1; // rightCol for first group
+
+    for(const step of ldSteps){
+      if(step.type === 'MS'){
+        stepMeta.push(rc);
+        cur = (step.remainder === '?') ? 0 : Number(step.remainder);
+      } else { // BD
+        p++;
+        rc = p - 1;
+        stepMeta.push(rc);
+        cur = step.rem * 10 + step.digit;
+      }
+    }
+  }
+
+  // ── Helper: place a number right-aligned to column `rc` ───────────────
+  // Returns an absolutely-positioned div within the shared column grid
+  function numAt(val, rc, color='inherit', animClass=''){
+    const s = String(val);
+    const leftPx = (rc - s.length + 1) * CELL;
+    let inner = '';
+    for(const c of s){
+      inner += `<span style="display:inline-block;width:${CELL}px;text-align:center;line-height:${CELL}px">${c}</span>`;
+    }
+    return `<div class="${animClass}" style="position:absolute;left:${leftPx}px;top:0;display:flex;font-family:${FONT};font-size:${FS};font-weight:${FW};color:${color}">${inner}</div>`;
+  }
+
+  // ── Helper: minus sign just left of product's leftmost digit ──────────
+  function minusAt(rc, prodLen){
+    const productLeft = (rc - prodLen + 1) * CELL;
+    const minusLeft   = productLeft - CELL; // one cell to the left
+    return `<span style="position:absolute;left:${Math.max(0, minusLeft)}px;top:0;width:${CELL}px;text-align:center;line-height:${CELL}px;font-family:${FONT};font-size:${FS};font-weight:${FW};color:var(--err)">−</span>`;
+  }
+
+  // ── Helper: horizontal rule ────────────────────────────────────────────
+  function ruleAt(rc, len){
+    const left  = (rc - len + 1) * CELL;
+    const width = len * CELL;
+    return `<div style="position:absolute;left:${left}px;right:auto;width:${width}px;height:3px;background:var(--tx);border-radius:2px;top:1px"></div>`;
+  }
+
+  // ── Grid width ─────────────────────────────────────────────────────────
+  // The grid must be wide enough for the dividend PLUS one extra cell to the
+  // left for minus signs (they sit outside the dividend columns).
+  const gridW = (nCols + 1) * CELL; // +1 for minus sign overhang
+
+  // ── Build quotient html ────────────────────────────────────────────────
+  // Quotient digit i aligns above the dividend column of its MS step.
+  const msStepi = ldSteps.map((s,i)=>s.type==='MS'?i:-1).filter(i=>i>=0);
+
+  let quotContent = '';
+  ldQuotientDigits.forEach((d, qi) => {
+    const si  = msStepi[qi];
+    const rc  = (si !== undefined && stepMeta[si] !== undefined) ? stepMeta[si] : qi;
+    const cls = (qi === ldQuotientDigits.length-1 && !ldDone) ? 'new-in' : '';
+    // Shift right by 1 cell to account for the minus-sign overhang offset
+    const left = (rc + 1) * CELL; // +1 because grid has a 1-cell left pad for minus signs
+    quotContent += `<span class="${cls}" style="position:absolute;left:${left}px;width:${CELL}px;text-align:center;bottom:3px;font-family:${FONT};font-size:${FS};font-weight:${FW};color:var(--ok)">${d}</span>`;
+  });
+  if(!ldDone){
+    const pendRC = Math.min(ldPos > 0 ? ldPos : 0, nCols - 1); // clamp to last column
+    const left   = (pendRC + 1) * CELL;
+    quotContent += `<span class="ld-quot-digit pending" style="position:absolute;left:${left}px;width:${CELL}px;text-align:center;bottom:3px">_</span>`;
+  }
+
+  // ── Build work rows html ───────────────────────────────────────────────
+  let workContent = '';
+  let yOffset = 0;
+  const ROW = CELL;    // height per number row
+  const RULE = 8;      // height for rule row
+
+  ldSteps.forEach((step, si) => {
+    const rc     = stepMeta[si] !== undefined ? stepMeta[si] : nCols-1;
+    const newest = si === ldSteps.length - 1;
+    const anim   = newest ? 'new-in' : '';
+
+    if(step.type === 'MS'){
+      const prodStr = String(step.product);
+      const remStr  = step.remainder === '?' ? '?' : String(step.remainder);
+      const ruleLen = Math.max(prodStr.length, remStr === '?' ? 1 : remStr.length);
+
+      // Subtract (product) row — shift right by 1 cell for the minus-overhang
+      workContent += `<div class="${anim}" style="position:absolute;top:${yOffset}px;left:0;right:0;height:${ROW}px">`;
+      workContent += minusAt(rc + 1, prodStr.length); // rc+1 for the 1-cell shift
+      workContent += numAt(step.product, rc + 1, 'var(--tx)'); // rc+1 for shift
+      workContent += `</div>`;
+      yOffset += ROW;
+
+      // Rule
+      workContent += `<div style="position:absolute;top:${yOffset}px;left:0;right:0;height:${RULE}px">`;
+      workContent += ruleAt(rc + 1, ruleLen); // rc+1 for shift
+      workContent += `</div>`;
+      yOffset += RULE;
+
+      // Remainder row — only render for the LAST MS (final remainder with no bring-down after)
+      // For intermediate MS steps, the BD step renders the combined remainder+digit row instead.
+      const isLastStep = si === ldSteps.length - 1;
+      const nextStep   = ldSteps[si + 1];
+      const nextIsBD   = nextStep && nextStep.type === 'BD';
+
+      if(!nextIsBD){
+        // Final remainder (no bring-down follows) — show remainder alone
+        workContent += `<div style="position:absolute;top:${yOffset}px;left:0;right:0;height:${ROW}px">`;
+        if(step.remainder === '?'){
+          workContent += `<span style="position:absolute;left:${(rc+1)*CELL}px;width:${CELL}px;text-align:center;line-height:${ROW}px;font-family:${FONT};font-size:${FS};font-weight:${FW};color:var(--mu)">?</span>`;
+        } else {
+          workContent += numAt(step.remainder, rc + 1, 'var(--pri)');
+        }
+        workContent += `</div>`;
+        yOffset += ROW;
+      }
+      // If nextIsBD, DO NOT render remainder here — the BD step will render the combined row
+
+    } else { // BD
+      // The BD row visually replaces the remainder line above by adding a brought-down digit.
+      // So we render it at the SAME y as the previous MS's remainder, then advance.
+      // First go back up to remainder row y (undo the remainder row height):
+      // Actually we DO want a fresh row — the BD row shows the combined working number.
+      // In the reference image the "08" appears below the rule, as a new row.
+      // yOffset is already pointing at the remainder slot. Use it.
+
+      const remStr = step.rem === 0 ? '' : String(step.rem);
+      const bdCol  = rc + 1; // right column (shifted)
+
+      // Remainder digits (grey-ish)
+      workContent += `<div class="${anim}" style="position:absolute;top:${yOffset}px;left:0;right:0;height:${ROW}px">`;
+      for(let ci = 0; ci < remStr.length; ci++){
+        const col = bdCol - remStr.length + ci; // each char's column
+        workContent += `<span style="position:absolute;left:${col*CELL}px;width:${CELL}px;text-align:center;line-height:${ROW}px;font-family:${FONT};font-size:${FS};font-weight:${FW};color:var(--tx)">${remStr[ci]}</span>`;
+      }
+      // Brought-down digit (green, animated)
+      workContent += `<span class="bd-char${newest?' new-in':''}" style="position:absolute;left:${bdCol*CELL}px;width:${CELL}px;text-align:center;line-height:${ROW}px;font-family:${FONT};font-size:${FS};font-weight:${FW}">${step.digit}</span>`;
+      workContent += `</div>`;
+      yOffset += ROW;
+    }
+  });
+
+  const totalWorkH = yOffset;
+
+  // ── Assemble everything into one outer flex container ─────────────────
+  // Structure:
+  //   [divisor label] [column-grid]
+  //
+  // The column-grid holds:
+  //   Row A: quotient (border-bottom = the overbar)
+  //   Row B: bracket-top (border-left + border-top of dividend)
+  //   Row C: work area (absolutely positioned rows)
+  //
+  // The dividend digits and the work rows all share the same x-grid,
+  // shifted by 1 CELL to make room for minus signs on the left.
+
+  const bracketPad = 6; // px padding inside bracket (left+right)
+  const bracketBorder = 3; // px
+  // dividend-cell left edge within grid = 1*CELL (the minus-sign cell)
+  const dvndLeft = CELL; // px from grid left where dividend digit columns start
+
+  // Divisor label — we'll size it to know how wide it is, but we use flex so it auto-sizes
+  const html = `
+<div style="display:inline-flex;flex-direction:row;align-items:flex-start;font-family:${FONT};font-size:${FS};font-weight:${FW}">
+
+  <!-- Divisor label -->
+  <div style="color:var(--pri);display:flex;align-items:center;padding-right:4px;padding-top:${CELL+bracketPad+bracketBorder}px;white-space:nowrap;align-self:flex-start">
+    ${divisor}
+  </div>
+
+  <!-- Column grid: quotient + bracket + dividend + work -->
+  <div style="display:flex;flex-direction:column;align-items:flex-start">
+
+    <!-- ROW A: Quotient above the overbar -->
+    <div style="position:relative;height:${CELL+4}px;width:${gridW}px;border-bottom:3px solid var(--tx)">
+      ${quotContent}
+    </div>
+
+    <!-- ROW B: Bracket (left+top border) + dividend digits -->
+    <div style="border-left:${bracketBorder}px solid var(--tx);border-top:${bracketBorder}px solid var(--tx);
+         padding:${bracketPad}px ${bracketPad}px ${bracketPad}px ${dvndLeft + bracketPad}px;
+         display:flex;align-items:center;margin-top:0">
+      ${ldDigits.map((d,i)=>{
+        const used = i < ldPos;
+        return `<span class="${used?'current-group':''}" style="display:inline-block;width:${CELL}px;text-align:center;line-height:${CELL}px">${d}</span>`;
+      }).join('')}
+    </div>
+
+    <!-- ROW C: Work area (absolutely positioned rows inside) -->
+    <div style="position:relative;width:${gridW}px;height:${Math.max(totalWorkH, ROW)}px;margin-top:4px">
+      ${workContent}
+    </div>
+
+  </div>
+</div>`;
+
+  container.innerHTML = html;
+
+  // Final remainder badge
+  const remFinal = document.getElementById('ldRemainderFinal');
+  if(ldDone && ldCurrent > 0){
+    document.getElementById('ldRemVal').textContent = ldCurrent;
+    remFinal.style.display = 'block';
+  } else {
+    remFinal.style.display = 'none';
+  }
+}
+
+const PHASE_LABELS={D:'① Divide',M:'② Multiply',S:'③ Subtract',B:'④ Bring Down'};
+const PHASE_CSS   ={D:'D',       M:'M',           S:'S',          B:'B'};
+
+function renderAlgPrompt(){
+  if(ldDone){showAlgoComplete();return;}
+
+  const badge=document.getElementById('algStepBadge');
+  badge.textContent=PHASE_LABELS[ldPhase];
+  badge.className=`alg-step-badge ${PHASE_CSS[ldPhase]}`;
+
+  const promptEl=document.getElementById('algPromptText');
+  const connEl  =document.getElementById('algConnection');
+  const inputRow=document.getElementById('algInputRow');
+  const eqCtx   =document.getElementById('algEqCtx');
+  const inp      =document.getElementById('algAnswerInput');
+  const fb       =document.getElementById('algFeedback');
+
+  inp.value='';inp.className='alg-answer-input';fb.textContent='';
+  inputRow.style.display='flex';connEl.style.display='none';
+  document.getElementById('algComplete').style.display='none';
+
+  if(ldPhase==='D'){
+    promptEl.innerHTML=`How many times does <strong>${divisor}</strong> go into <strong>${ldCurrent}</strong>?`;
+    eqCtx.textContent=`${ldCurrent} ÷ ${divisor} =`;
+    /* connection to area model */
+    const matchingChunk=solvedChunks[ldIteration];
+    if(matchingChunk){
+      connEl.style.display='block';
+      connEl.textContent=`🔗 This matches the "${matchingChunk.value}" chunk in your area model — ${matchingChunk.groups} groups of ${divisor}`;
+      highlightChunkAndPQ(ldIteration);
+    } else { clearHighlights(); }
+
+  } else if(ldPhase==='M'){
+    const qd=ldQuotientDigits[ldQuotientDigits.length-1];
+    promptEl.innerHTML=`<strong>${qd}</strong> × <strong>${divisor}</strong> = ?`;
+    eqCtx.textContent=`${qd} × ${divisor} =`;
+    const mc=solvedChunks[ldIteration-1];
+    if(mc){connEl.style.display='block';connEl.textContent=`🔗 This equals the chunk value ${mc.value} you removed in the area model`;}
+
+  } else if(ldPhase==='S'){
+    const lastStep=ldSteps[ldSteps.length-1];
+    const prod=lastStep?lastStep.product:0;
+    promptEl.innerHTML=`<strong>${ldCurrent}</strong> − <strong>${prod}</strong> = ?`;
+    eqCtx.textContent=`${ldCurrent} − ${prod} =`;
+    const mc=solvedChunks[ldIteration-1];
+    if(mc){connEl.style.display='block';connEl.textContent=`🔗 This remainder shows what's left after removing the ${mc.value} chunk`;}
+
+  } else if(ldPhase==='B'){
+    inputRow.style.display='none';
+    const nextDigit=ldDigits[ldPos];
+    const prevRem=ldSteps[ldSteps.length-1]?.remainder??0;
+    promptEl.innerHTML=`Bring down the next digit <strong>${nextDigit}</strong><br>New working number: <strong>${prevRem===0?'':prevRem}${nextDigit}</strong>`;
+    connEl.style.display='none';
+    clearHighlights();
+    setTimeout(()=>executeBringDown(),900);
+  }
+
+  renderAlgoProgress();
+  setTimeout(()=>{if(ldPhase!=='B')inp.focus();},100);
+}
+
+/* ── HIGHLIGHT connections ───────────────────────────────── */
+function highlightChunkAndPQ(chunkIdx){
+  clearHighlights();
+  const chunkEl=document.getElementById(`chunk_${chunkIdx}`);
+  if(chunkEl)chunkEl.classList.add('algo-focus');
+  const labels=document.getElementById('areaTopRow').children;
+  if(labels[chunkIdx])labels[chunkIdx].classList.add('algo-highlight');
+  const pqRows=document.querySelectorAll('.algo-pq-row');
+  if(pqRows[chunkIdx])pqRows[chunkIdx].classList.add('algo-highlight');
+  const tSteps=document.querySelectorAll('.t-step');
+  if(tSteps[chunkIdx])tSteps[chunkIdx].classList.add('algo-highlight');
+}
+function clearHighlights(){
+  document.querySelectorAll('.a-chunk,.chunk-qlabel,.algo-pq-row,.t-step')
+    .forEach(el=>el.classList.remove('algo-focus','algo-highlight'));
+}
+
+/* ── PROGRESS DOTS ───────────────────────────────────────── */
+function renderAlgoProgress(){
+  const prog=document.getElementById('algProgress');
+  const phases=['D','M','S'];
+  const totalIt=Math.max(ldQuotientDigits.length+(ldDone?0:1),1);
+  let html='';
+  for(let it=0;it<totalIt;it++){
+    phases.forEach(ph=>{
+      const done=(it<ldIteration)||(it===ldIteration&&((ldPhase==='M'&&ph==='D')||(ldPhase==='S'&&(ph==='D'||ph==='M'))||(ldPhase==='B'&&ph!=='B')));
+      const active=(it===ldIteration&&ldPhase===ph);
+      html+=`<div class="alg-dot${done?' done':active?' active':''}"></div>`;
+    });
+    if(it<totalIt-1)html+=`<span style="color:var(--mu);font-size:.7rem">→</span>`;
+  }
+  prog.innerHTML=html;
+}
+
+/* ── CHECK ANSWER (student input for each phase) ─────────── */
+function checkAlgoStep(){
+  const inp=document.getElementById('algAnswerInput');
+  const fb =document.getElementById('algFeedback');
+  const entered=parseInt(inp.value);
+  if(isNaN(entered)){fb.textContent='Enter a number 🔢';fb.className='alg-feedback err';return;}
+
+  if(ldPhase==='D'){
+    const correct=Math.floor(ldCurrent/divisor);
+    if(entered===correct){
+      inp.className='alg-answer-input ok';
+      fb.textContent=`✅ Yes! ${divisor} goes into ${ldCurrent} exactly ${correct} time${correct!==1?'s':''}`;
+      fb.className='alg-feedback ok';
+      ldQuotientDigits.push(correct);
+      ldIteration++;
+      setTimeout(()=>{ldPhase='M';renderAlgoMode();},700);
+    } else {
+      inp.className='alg-answer-input bad';void inp.offsetWidth;inp.className='alg-answer-input bad';
+      fb.textContent=`❌ How many whole times does ${divisor} go into ${ldCurrent}?`;
+      fb.className='alg-feedback err';inp.value='';setTimeout(()=>inp.focus(),60);
+    }
+
+  } else if(ldPhase==='M'){
+    const qd=ldQuotientDigits[ldQuotientDigits.length-1];
+    const correct=qd*divisor;
+    if(entered===correct){
+      inp.className='alg-answer-input ok';
+      fb.textContent=`✅ ${qd} × ${divisor} = ${correct}`;
+      fb.className='alg-feedback ok';
+      ldSteps.push({type:'MS',product:correct,remainder:'?'});
+      setTimeout(()=>{ldPhase='S';renderAlgoMode();},700);
+    } else {
+      inp.className='alg-answer-input bad';void inp.offsetWidth;inp.className='alg-answer-input bad';
+      fb.textContent=`❌ What is ${qd} × ${divisor}?`;
+      fb.className='alg-feedback err';inp.value='';setTimeout(()=>inp.focus(),60);
+    }
+
+  } else if(ldPhase==='S'){
+    const lastStep=ldSteps[ldSteps.length-1];
+    const correct=ldCurrent-lastStep.product;
+    if(entered===correct){
+      inp.className='alg-answer-input ok';
+      fb.textContent=`✅ ${ldCurrent} − ${lastStep.product} = ${correct}`;
+      fb.className='alg-feedback ok';
+      lastStep.remainder=correct;
+      ldCurrent=correct;                       // ← update working number to remainder
+      if(ldPos>=ldDigits.length){
+        ldDone=true;clearHighlights();
+        setTimeout(()=>{renderAlgoMode();showAlgoComplete();},600);
+      } else {
+        setTimeout(()=>{ldPhase='B';renderAlgoMode();},700);
+      }
+    } else {
+      inp.className='alg-answer-input bad';void inp.offsetWidth;inp.className='alg-answer-input bad';
+      fb.textContent=`❌ What is ${ldCurrent} − ${lastStep.product}?`;
+      fb.className='alg-feedback err';inp.value='';setTimeout(()=>inp.focus(),60);
+    }
+  }
+}
+
+/* ── BRING DOWN ──────────────────────────────────────────── */
+function executeBringDown(){
+  // ldCurrent is the current remainder after subtract
+  const prevRem=ldCurrent;
+  if(ldPos>=ldDigits.length){ldDone=true;renderAlgoMode();showAlgoComplete();return;}
+  const nextDigit=ldDigits[ldPos];
+  ldPos++;
+  ldCurrent=prevRem*10+nextDigit;              // ← combine remainder + brought digit
+  ldSteps.push({type:'BD',rem:prevRem,digit:nextDigit});
+
+  // If still < divisor after bring-down, auto-add 0 quotient digits and keep going
+  while(ldCurrent<divisor&&ldPos<ldDigits.length){
+    ldQuotientDigits.push(0);
+    ldIteration++;
+    ldSteps.push({type:'MS',product:0,remainder:ldCurrent});
+    const nd=ldDigits[ldPos];
+    ldPos++;
+    ldSteps.push({type:'BD',rem:ldCurrent,digit:nd});
+    ldCurrent=ldCurrent*10+nd;
+  }
+  // If exhausted and still < divisor, quotient digit is 0 and we're done
+  if(ldCurrent<divisor&&ldPos>=ldDigits.length){
+    ldQuotientDigits.push(0);ldIteration++;
+    ldSteps.push({type:'MS',product:0,remainder:ldCurrent});
+    ldDone=true;renderAlgoMode();showAlgoComplete();return;
+  }
+  ldPhase='D';
+  renderAlgoMode();
+}
+
+/* ── COMPLETE ────────────────────────────────────────────── */
+function showAlgoComplete(){
+  document.getElementById('algComplete').style.display='flex';
+  const q=ldQuotientDigits.join('');
+  const rem=ldCurrent;
+  const msg=rem>0?`${dividend} ÷ ${divisor} = ${q} remainder ${rem}`:`${dividend} ÷ ${divisor} = ${q}`;
+  document.getElementById('algCompleteMsg').textContent=msg+' 🎉';
+  document.getElementById('algPromptText').textContent='You completed long division! ✅';
+  document.getElementById('algInputRow').style.display='none';
+  document.getElementById('algConnection').style.display='none';
+  const badge=document.getElementById('algStepBadge');
+  badge.textContent='✅ Done!';badge.className='alg-step-badge D';
+  clearHighlights();advanceStep(7);renderLDVisual();
+}
+
+/* ── INIT FROM AREA MODEL STATE ──────────────────────────── */
+/* When student switches to algo mode mid-problem, replay the correct
+   long-division state digit-by-digit, synced to how many area model
+   chunks have been solved (each chunk = one LD D-M-S-B cycle). */
+function initAlgoFromState(){
+  ldSteps=[];ldPhase='D';ldIteration=0;ldDone=false;
+  ldDigits=String(dividend).split('').map(Number);
+  ldPos=0;ldGroupLen=0;ldQuotientDigits=[];
+
+  // Bootstrap first group: consume digits until ldCurrent >= divisor
+  ldCurrent=0;
+  while(ldPos<ldDigits.length&&ldCurrent<divisor){
+    ldCurrent=ldCurrent*10+ldDigits[ldPos];
+    ldPos++;ldGroupLen++;
+  }
+
+  // Replay one full D-M-S-B cycle per solved chunk, using correct LD quotient digits
+  for(let i=0;i<solvedChunks.length;i++){
+    // D: correct quotient digit = Math.floor(ldCurrent / divisor)
+    const qd=Math.floor(ldCurrent/divisor);
+    ldQuotientDigits.push(qd);
+    ldIteration++;
+
+    // M: product of quotient digit × divisor
+    const prod=qd*divisor;
+
+    // S: remainder = ldCurrent − product
+    const rem=ldCurrent-prod;
+    ldSteps.push({type:'MS',product:prod,remainder:rem});
+    ldCurrent=rem;
+
+    // B: bring down next digit (if not on last chunk)
+    if(i<solvedChunks.length-1&&ldPos<ldDigits.length){
+      const nd=ldDigits[ldPos];
+      ldSteps.push({type:'BD',rem:rem,digit:nd});
+      ldPos++;ldGroupLen++;
+      ldCurrent=rem*10+nd;
+      // Handle case where new number < divisor (insert 0 quotient digits)
+      while(ldCurrent<divisor&&ldPos<ldDigits.length){
+        ldQuotientDigits.push(0);ldIteration++;
+        ldSteps.push({type:'MS',product:0,remainder:ldCurrent});
+        const nd2=ldDigits[ldPos];
+        ldSteps.push({type:'BD',rem:ldCurrent,digit:nd2});
+        ldPos++;ldGroupLen++;
+        ldCurrent=ldCurrent*10+nd2;
+      }
+    }
+  }
+
+  // Determine if all area model chunks are solved → LD is complete too
+  const solvable=chunkSlots.filter(s=>!s.isRem);
+  if(solvable.length>0&&solvable.every(s=>s.solved)){
+    ldDone=true;
+  } else {
+    ldPhase='D';
+  }
+}
+
+/* ── History / Undo ─────────────────────────────────────── */
+function saveHistory(){
+  history.push({
+    pvH,pvT,pvO,
+    solvedChunks:solvedChunks.map(s=>({...s})),
+    slots:chunkSlots.map(s=>({...s})),
+  });
+}
+function undoStep(){
+  if(history.length===0)return;
+  const snap=history.pop();
+  pvH=snap.pvH;pvT=snap.pvT;pvO=snap.pvO;
+  solvedChunks=snap.solvedChunks;chunkSlots=snap.slots;
+  activeChunkIdx=null;cbGroupsVerified=false;cbGroupsValue=0;cbProdVerified=false;
+  if(history.length===0)document.getElementById('undoBtn').disabled=true;
+  document.getElementById('doneBanner').classList.remove('show');
+  document.getElementById('finalZone').classList.remove('show');
+  closeBuilder();
+  resetAlgoMode();
+  renderAll();
+}
+
+/* ── Keyboard ───────────────────────────────────────────── */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const active=document.activeElement;
+  if(active.id==='cbGroupsInput'){checkGroups();return;}
+  if(active.id==='cbProdInput'){checkProduct();return;}
+  if(active.id==='fiInput'){checkFinalAnswer();return;}
+  if(active.id==='algAnswerInput'){checkAlgoStep();return;}
+  if(cbProdVerified&&activeChunkIdx!==null){confirmChunk();return;}
+});
+
+/* ── Toast ──────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════════════ */
+
+// Patch switchMode to init algo state when switching to algo tab
+const _switchModeOrig=switchMode;
+window.switchMode=function(mode){
+  if(mode==='algo'){
+    initAlgoFromState();
+  }
+  _switchModeOrig(mode);
+};
+
+shuffleFacts();
+initProblem();
+</script>
+</body>
+</html>
