@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mrs. Nava's Conversion Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4ff; --card:#fff; --shadow:0 4px 24px rgba(80,80,160,.10);
+  --radius:20px; --text:#1e293b; --muted:#64748b;
+  --cat-length:#3b82f6; --cat-weight:#f59e0b; --cat-capacity:#10b981; --cat-time:#8b5cf6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text)}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#ec4899 100%);padding:18px 24px 16px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(255,255,255,.15) 0%,transparent 60%),radial-gradient(circle at 80% 50%,rgba(255,255,255,.10) 0%,transparent 60%)}
+.header h1{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,4vw,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);position:relative}
+.header p{color:rgba(255,255,255,.85);font-size:.95rem;font-weight:700;margin-top:2px;position:relative}
+
+/* TABS */
+.category-bar{display:flex;justify-content:center;gap:10px;padding:18px 16px 0;flex-wrap:wrap}
+.cat-btn{padding:10px 22px;border-radius:50px;border:3px solid transparent;font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;transition:all .2s;background:var(--card);color:var(--muted);box-shadow:var(--shadow)}
+.cat-btn.active,.cat-btn:hover{color:#fff;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.cat-btn[data-cat="length"].active,.cat-btn[data-cat="length"]:hover{background:var(--cat-length);border-color:var(--cat-length)}
+.cat-btn[data-cat="weight"].active,.cat-btn[data-cat="weight"]:hover{background:var(--cat-weight);border-color:var(--cat-weight)}
+.cat-btn[data-cat="capacity"].active,.cat-btn[data-cat="capacity"]:hover{background:var(--cat-capacity);border-color:var(--cat-capacity)}
+.cat-btn[data-cat="time"].active,.cat-btn[data-cat="time"]:hover{background:var(--cat-time);border-color:var(--cat-time)}
+
+/* PAIR BAR */
+.pair-bar{display:flex;justify-content:center;gap:10px;padding:12px 16px 0;flex-wrap:wrap}
+.pair-btn{padding:8px 18px;border-radius:50px;border:2.5px solid currentColor;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;background:transparent}
+.pair-btn.active{background:currentColor}
+.pair-btn.active span{color:#fff!important}
+.pair-btn span{color:currentColor}
+
+/* GRID */
+.main-wrap{max-width:960px;margin:0 auto;padding:16px 16px 32px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.main-wrap{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;position:relative;overflow:hidden}
+.card-title{font-family:'Fredoka One',cursive;font-size:1.15rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+
+/* TABLE */
+.table-card{grid-column:1}
+.base-rel{text-align:center;font-size:1.4rem;font-weight:900;padding:10px 16px;border-radius:12px;margin-bottom:14px}
+.conv-table{width:100%;border-collapse:collapse}
+.conv-table th{font-family:'Fredoka One',cursive;font-size:1rem;padding:8px 12px;text-align:center}
+.conv-table td{padding:7px 12px;text-align:center;font-weight:800;font-size:1.05rem}
+.conv-table tr:hover td{filter:brightness(.94)}
+.conv-table tr.highlight td{animation:rowPop .35s ease}
+@keyframes rowPop{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+.mult-badge{display:inline-block;font-size:.75rem;font-weight:900;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle;opacity:.85}
+.table-controls{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px}
+.ctrl-btn{width:40px;height:40px;border-radius:50%;border:none;font-size:1.4rem;font-weight:900;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center;color:#fff}
+.ctrl-btn:hover{transform:scale(1.12);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.ctrl-btn:active{transform:scale(.96)}
+.ctrl-val{font-family:'Fredoka One',cursive;font-size:2rem;min-width:48px;text-align:center}
+.extend-btn{margin-top:10px;width:100%;padding:9px;border-radius:12px;border:none;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s;color:#fff}
+.extend-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.reset-btn{display:block;margin:6px auto 0;padding:8px 28px;border-radius:50px;border:none;background:#e2e8f0;color:var(--muted);font-family:'Fredoka One',cursive;font-size:.95rem;cursor:pointer;transition:all .2s}
+.reset-btn:hover{background:#cbd5e1;color:var(--text)}
+
+/* VISUAL */
+.visual-card{grid-column:2}
+#visual-area{width:100%;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+
+/* ── LENGTH ── */
+.len-label{font-family:'Fredoka One',cursive;font-size:.95rem;text-align:center}
+.len-track{width:calc(100% - 8px);height:52px;background:#f1f5f9;border-radius:10px;position:relative;overflow:hidden;border:2px solid #e2e8f0;margin-top:18px;display:flex;align-items:stretch}
+.len-bar{position:relative;left:0;top:0;height:100%;border-radius:8px;transition:width .55s cubic-bezier(.34,1.3,.64,1);display:flex;overflow:hidden}
+.len-seg{flex:1;transition:background .3s}
+.len-legend{display:flex;gap:14px;font-weight:800;font-size:.8rem;margin-top:6px;flex-wrap:wrap;justify-content:center}
+.len-group-labels{position:absolute;inset:0;display:flex;pointer-events:none}
+.len-glbl{flex:1;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:.68rem;color:#fff;overflow:hidden;border-right:2.5px solid rgba(255,255,255,.8)}
+.len-glbl:last-child{border-right:none}
+
+/* ── WEIGHT ── */
+.scale-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.scale-lbl{font-family:'Fredoka One',cursive;font-size:.92rem;text-align:center}
+.oz-controls{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:4px}
+.oz-btn{width:36px;height:36px;border-radius:50%;border:none;font-size:1.25rem;font-weight:900;cursor:pointer;transition:transform .15s;color:#fff}
+.oz-btn:hover{transform:scale(1.12)}
+.oz-btn:active{transform:scale(.94)}
+.oz-display{font-family:'Fredoka One',cursive;font-size:1rem;min-width:100px;text-align:center}
+.scale-status{font-weight:800;font-size:.85rem;text-align:center;padding:5px 12px;border-radius:10px;margin-top:2px}
+
+/* ── CAPACITY ── */
+
+/* ── TIME ── */
+.clock-scene{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.clock-lbl{font-family:'Fredoka One',cursive;font-size:.92rem;text-align:center}
+#clockArc{transition:stroke-dasharray .5s ease}
+.clock-readout{font-family:'Fredoka One',cursive;font-size:1.5rem}
+.clock-hint{font-size:.78rem;font-weight:800;text-align:center}
+
+/* GROUPS */
+.groups-card{grid-column:1/-1;min-height:90px}
+.groups-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;min-height:60px}
+.group-box{display:flex;flex-wrap:wrap;gap:3px;padding:8px;border-radius:12px;border:2.5px solid;animation:groupIn .3s ease;max-width:200px}
+@keyframes groupIn{from{opacity:0;transform:scaleX(.7)}to{opacity:1;transform:scaleX(1)}}
+.unit-dot{border-radius:50%}
+.times-sign{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--muted)}
+.mult-statement{font-family:'Fredoka One',cursive;font-size:1.1rem;text-align:center;margin-top:10px;padding:8px 16px;border-radius:12px;display:inline-block}
+
+/* PROMPTS */
+.prompts-card{grid-column:1/-1;background:linear-gradient(135deg,#fdf4ff,#eff6ff);border:2px dashed #c4b5fd}
+.prompt-box{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.7);margin-top:8px;font-weight:700;font-size:.95rem;color:#4c1d95}
+.prompt-emoji{font-size:1.3rem;flex-shrink:0}
+
+/* DYK */
+.dyk-card{grid-column:1/-1;background:linear-gradient(135deg,#fff7ed,#fef3c7);border:2px solid #fcd34d;cursor:pointer;user-select:none;transition:transform .15s,box-shadow .15s}
+.dyk-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.2)}
+.dyk-inner{display:flex;gap:14px;align-items:flex-start}
+.dyk-emoji{font-size:2rem;flex-shrink:0}
+.dyk-headline{font-family:'Fredoka One',cursive;font-size:1.1rem;color:#92400e;margin-bottom:3px}
+.dyk-body{font-size:.9rem;font-weight:700;color:#78350f;line-height:1.4}
+.dyk-tap{text-align:right;font-size:.78rem;font-weight:800;color:#b45309;margin-top:8px;opacity:.7}
+.dyk-fade{animation:dykFade .45s ease}
+@keyframes dykFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════
+   DRAG MANIPULATIVE PANEL
+═══════════════════════════════ */
+.manip-panel{max-width:960px;margin:12px auto 0;padding:0 16px}
+.manip-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.manip-title{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--muted)}
+.manip-input-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.manip-num{width:74px;padding:7px 10px;border-radius:10px;border:2.5px solid #e2e8f0;font-family:'Fredoka One',cursive;font-size:1.25rem;text-align:center;color:var(--text);outline:none;transition:border-color .2s}
+.manip-sel{padding:7px 12px;border-radius:10px;border:2.5px solid #e2e8f0;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--text);background:#fff;outline:none;cursor:pointer}
+.manip-build-btn{padding:8px 18px;border-radius:50px;border:none;font-family:'Fredoka One',cursive;font-size:.95rem;color:#fff;cursor:pointer;background:#6366f1;transition:all .2s;box-shadow:0 3px 10px rgba(99,102,241,.25)}
+.manip-build-btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.manip-clear-btn{padding:8px 14px;border-radius:50px;border:2px solid #e2e8f0;font-family:'Fredoka One',cursive;font-size:.85rem;color:var(--muted);background:transparent;cursor:pointer;transition:all .2s}
+.manip-clear-btn:hover{background:#f1f5f9;color:var(--text)}
+.manip-hint{font-size:.78rem;font-weight:800;opacity:.55}
+.manip-workspace{display:grid;grid-template-columns:1fr 36px 1fr;gap:10px;align-items:start}
+@media(max-width:560px){.manip-workspace{grid-template-columns:1fr}}
+.manip-zone{border-radius:14px;border:2.5px dashed #cbd5e1;padding:10px 12px;min-height:110px;transition:border-color .2s,background .2s}
+.manip-zone.drag-over{background:rgba(0,0,0,.03)}
+.manip-zone-lbl{font-family:'Fredoka One',cursive;font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.manip-tiles{display:flex;flex-wrap:wrap;gap:7px;min-height:64px;align-content:flex-start}
+.manip-arrow{display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#cbd5e1;padding-top:30px}
+.mtile{width:52px;height:68px;border-radius:9px;border:2.5px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:grab;user-select:none;font-family:'Fredoka One',cursive;font-size:.7rem;text-align:center;transition:transform .15s,box-shadow .15s;touch-action:none}
+.mtile:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.13)}
+.mtile.is-large{width:64px;height:84px;font-size:.75rem}
+.mtile.dragging{opacity:.3;transform:scale(.9)}
+.mtile-icon{font-size:1.35rem;line-height:1}
+@keyframes groupFlash{0%{transform:scale(1)}35%{transform:scale(1.22);filter:brightness(1.35)}70%{transform:scale(.96)}100%{transform:scale(1)}}
+.mtile.flash{animation:groupFlash .5s ease}
+.manip-result{display:none;padding:9px 16px;border-radius:12px;font-family:'Fredoka One',cursive;font-size:1rem;text-align:center}
+.manip-result.show{display:block;animation:dykFade .35s ease}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔬 Mrs. Nava's Conversion Lab</h1>
+  <p>Explore how units grow, shrink, and relate!</p>
+</div>
+
+<div class="category-bar" id="catBar">
+  <button class="cat-btn active" data-cat="length">📏 Length</button>
+  <button class="cat-btn" data-cat="weight">⚖️ Weight</button>
+  <button class="cat-btn" data-cat="capacity">🫙 Capacity</button>
+  <button class="cat-btn" data-cat="time">⏰ Time</button>
+</div>
+<div class="pair-bar" id="pairBar"></div>
+
+<!-- DRAG MANIPULATIVE PANEL -->
+<div class="manip-panel" id="manipPanel">
+  <div class="manip-card">
+    <div class="manip-title">🧩 Build it — drag the units to convert!</div>
+    <div class="manip-input-row">
+      <input type="number" id="manipNum" class="manip-num" min="1" max="20" value="3" placeholder="?">
+      <select id="manipUnit" class="manip-sel"></select>
+      <button id="manipBuildBtn" class="manip-build-btn">▶ Build</button>
+      <button id="manipClearBtn" class="manip-clear-btn">✕ Clear</button>
+      <span id="manipHint" class="manip-hint"></span>
+    </div>
+    <div class="manip-workspace">
+      <div class="manip-zone" id="buildZone">
+        <div class="manip-zone-lbl" id="buildZoneLbl">Your units — drag to the zone →</div>
+        <div class="manip-tiles" id="buildTiles"></div>
+      </div>
+      <div class="manip-arrow">→</div>
+      <div class="manip-zone" id="convertZone">
+        <div class="manip-zone-lbl" id="convertZoneLbl">Conversion zone — drop here!</div>
+        <div class="manip-tiles" id="convertTiles"></div>
+      </div>
+    </div>
+    <div class="manip-result" id="manipResult"></div>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div class="card table-card">
+    <div class="card-title"><span class="dot" id="tableDot"></span><span id="tableTitle">Conversion Table</span></div>
+    <div class="base-rel" id="baseRel"></div>
+    <table class="conv-table"><thead><tr id="tableHead"></tr></thead><tbody id="tableBody"></tbody></table>
+    <div class="table-controls">
+      <button class="ctrl-btn" id="btnMinus">−</button>
+      <div class="ctrl-val" id="ctrlVal">1</div>
+      <button class="ctrl-btn" id="btnPlus">+</button>
+    </div>
+    <button class="extend-btn" id="extendBtn">＋ Extend Table</button>
+    <button class="reset-btn"  id="resetBtn">↺ Reset</button>
+  </div>
+
+  <div class="card visual-card">
+    <div class="card-title"><span class="dot" id="visualDot"></span><span id="visualTitle">Visual Model</span></div>
+    <div id="visual-area"></div>
+  </div>
+
+  <div class="card groups-card">
+    <div class="card-title"><span class="dot" id="groupDot" style="background:#f43f5e"></span><span>Groups &amp; Multiplication</span></div>
+    <div class="groups-row" id="groupsRow"></div>
+    <div style="text-align:center"><span class="mult-statement" id="multStatement"></span></div>
+  </div>
+
+  <div class="card prompts-card">
+    <div class="card-title" style="color:#7c3aed"><span>💭</span> Think About It…</div>
+    <div id="promptsList"></div>
+  </div>
+
+  <div class="card dyk-card" id="dykCard" onclick="nextFact()">
+    <div class="dyk-inner" id="dykInner">
+      <div class="dyk-emoji" id="dykEmoji">⭐</div>
+      <div><div class="dyk-headline" id="dykHeadline"></div><div class="dyk-body" id="dykBody"></div></div>
+    </div>
+    <div class="dyk-tap">Tap for a new fact! →</div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   DATA
+════════════════════════════════════════ */
+const UNITS = {
+  length:{color:'#3b82f6',colorLight:'#eff6ff',pairs:[
+    {label:'Feet → Inches', a:'Feet',  b:'Inches',aSing:'Foot', bSing:'Inch',  factor:12,aIcon:'🦶',bIcon:'📐'},
+    {label:'Yards → Feet',  a:'Yards', b:'Feet',  aSing:'Yard', bSing:'Foot',  factor:3, aIcon:'📏',bIcon:'🦶'},
+  ]},
+  weight:{color:'#f59e0b',colorLight:'#fffbeb',pairs:[
+    {label:'Pounds → Ounces',a:'Pounds',b:'Ounces',aSing:'Pound',bSing:'Ounce',factor:16,aIcon:'⚖️',bIcon:'🪨'},
+  ]},
+  capacity:{color:'#10b981',colorLight:'#ecfdf5',pairs:[
+    {label:'Pints → Cups',     a:'Pints',  b:'Cups',  aSing:'Pint',  bSing:'Cup',   factor:2,aIcon:'🥛',bIcon:'☕'},
+    {label:'Quarts → Pints',   a:'Quarts', b:'Pints', aSing:'Quart', bSing:'Pint',  factor:2,aIcon:'🫙',bIcon:'🥛'},
+    {label:'Gallons → Quarts', a:'Gallons',b:'Quarts',aSing:'Gallon',bSing:'Quart', factor:4,aIcon:'🪣',bIcon:'🫙'},
+  ]},
+  time:{color:'#8b5cf6',colorLight:'#f5f3ff',pairs:[
+    {label:'Hours → Minutes',a:'Hours',b:'Minutes',aSing:'Hour',  bSing:'Minute',factor:60,aIcon:'🕐',bIcon:'⏱️'},
+    {label:'Days → Hours',   a:'Days', b:'Hours',  aSing:'Day',   bSing:'Hour',  factor:24,aIcon:'📅',bIcon:'🕐'},
+  ]},
+};
+
+const FACTS={
+  length:[
+    {e:'📏',h:'Subway Sandwich!',b:"A foot-long sub is exactly 12 inches long — now you can measure lunch!"},
+    {e:'🏀',h:'NBA Court!',b:"A basketball court is 94 feet long — that's 1,128 inches of hardwood!"},
+    {e:'🦒',h:'Giraffe Neck!',b:"A giraffe's neck is about 6 feet — 72 inches of neck!"},
+    {e:'🚌',h:'School Bus!',b:"Most school buses are 35 feet long — almost 12 yards!"},
+    {e:'👟',h:'Your Foot!',b:"Most 4th-grade feet are 7–8 inches. An adult foot is about 12 inches — 1 full foot!"},
+    {e:'🌊',h:'Deep Ocean!',b:"The deepest ocean point is 36,000 feet — over 12,000 yards straight down!"},
+    {e:'🐘',h:'Elephant Trunk!',b:"An elephant trunk can reach 6–8 feet — up to 96 inches!"},
+    {e:'📚',h:'Book Stack!',b:"12 books each 1 inch thick stack up to exactly 1 foot!"},
+    {e:'⚽',h:'Soccer Field!',b:"A soccer field is 100–110 yards — up to 3,960 inches of grass!"},
+    {e:'🦕',h:'T-Rex Size!',b:"A T-Rex was about 40 feet long — over 13 yards of dinosaur!"},
+    {e:'🏠',h:'Ceiling Height!',b:"Classroom ceilings are 9–10 feet high — 108–120 inches above your head!"},
+    {e:'🌳',h:'Giant Sequoia!',b:"A giant sequoia grows over 300 feet tall — 100 yards straight up!"},
+    {e:'✏️',h:'Pencil Length!',b:"A new pencil is 7.5 inches — almost 2/3 of a foot!"},
+    {e:'🐍',h:'Python Snake!',b:"A large python can be 20 feet long — 240 inches of snake!"},
+    {e:'🎸',h:'Guitar Length!',b:"A standard guitar is about 3 feet long — exactly 1 yard!"},
+  ],
+  weight:[
+    {e:'🍫',h:'Candy Bar!',b:"A candy bar is about 1.5 oz. You'd need nearly 11 to make a pound!"},
+    {e:'🍎',h:'Apple Weight!',b:"A medium apple is about 6 oz. Almost 3 apples make a pound!"},
+    {e:'👶',h:'Baby Weight!',b:"Newborns weigh 7–8 pounds — that's 112–128 ounces!"},
+    {e:'🥤',h:'Water Bottle!',b:"A 16 oz water bottle weighs exactly 1 pound — that's where the name comes from!"},
+    {e:'🐱',h:'House Cat!',b:"A cat weighs about 10 pounds — that's 160 ounces of fluffy fur!"},
+    {e:'🍞',h:'Bread Loaf!',b:"A loaf of bread is about 20 oz — 1 pound and 4 ounces!"},
+    {e:'📱',h:'Smartphone!',b:"A phone weighs 6–7 oz — less than half a pound in your pocket!"},
+    {e:'🦃',h:'Turkey!',b:"A Thanksgiving turkey is 15–20 pounds — up to 320 ounces!"},
+    {e:'🐶',h:'Puppy!',b:"A Golden Retriever puppy weighs about 1 pound at birth — only 16 ounces!"},
+    {e:'🏈',h:'Football!',b:"An NFL football weighs 14–15 oz — almost exactly 1 pound!"},
+    {e:'🥛',h:'Milk Gallon!',b:"A gallon of milk weighs about 8.6 pounds — 137 ounces!"},
+    {e:'💻',h:'Laptop!',b:"Most laptops weigh 3–4 pounds — 48–64 ounces in your backpack!"},
+    {e:'🍕',h:'Pizza Slice!',b:"A pizza slice is 4–6 oz. A whole pizza can weigh nearly 2 pounds!"},
+    {e:'🐠',h:'Goldfish!',b:"A goldfish weighs less than 1 oz — you'd need 16 to equal 1 pound!"},
+    {e:'🎒',h:'Your Backpack!',b:"A loaded backpack weighs 6–12 pounds — up to 192 ounces!"},
+  ],
+  capacity:[
+    {e:'🥛',h:'Milk Jug!',b:"A gallon of milk contains 16 cups — that's a lot of cereal bowls!"},
+    {e:'☕',h:'Coffee Maker!',b:"A coffee pot holds about 12 cups — that's 6 pints!"},
+    {e:'🍵',h:'Soup Bowl!',b:"A bowl of soup is about 1–2 cups. A big pot holds 4–6 quarts!"},
+    {e:'🐠',h:'Fish Tank!',b:"A 10-gallon fish tank holds 40 quarts — a big home for fish!"},
+    {e:'🛁',h:'Bathtub!',b:"A bathtub holds about 40 gallons — that's 160 quarts!"},
+    {e:'🍦',h:'Ice Cream Tub!',b:"A half-gallon tub holds 8 cups — about 8 scoops!"},
+    {e:'🚿',h:'Shower Water!',b:"A 5-minute shower uses 10–15 gallons — up to 60 quarts!"},
+    {e:'🫐',h:'Berry Basket!',b:"A pint of blueberries holds 2 cups — a perfect snack size!"},
+    {e:'🧃',h:'Juice Box!',b:"A juice box is 6 oz — 3/4 of a cup. You'd need 21 to fill a gallon!"},
+    {e:'🥤',h:'Large Drink!',b:"A large fast food drink is 32 oz — 4 cups, or exactly 1 quart!"},
+    {e:'🏊',h:'Olympic Pool!',b:"An Olympic pool holds 660,000 gallons — 2,640,000 quarts!"},
+    {e:'🧋',h:'Boba Tea!',b:"A large bubble tea is about 24 oz — 3 cups!"},
+    {e:'🐋',h:'Blue Whale!',b:"A blue whale swallows 500 gallons at once to filter krill!"},
+    {e:'🍲',h:'Soup Can!',b:"A can of soup holds 1.75 cups — almost a full pint!"},
+    {e:'🌧️',h:'Rainy Day!',b:"1 inch of rain on 1 acre drops about 27,000 gallons of water!"},
+  ],
+  time:[
+    {e:'🎬',h:'Movie Time!',b:"Most movies are 90–120 minutes — 1.5 to 2 hours!"},
+    {e:'🛌',h:'Sleep Time!',b:"Kids your age need 9–10 hours — 540–600 minutes every night!"},
+    {e:'🏫',h:'School Day!',b:"A school day is 6–7 hours — up to 420 minutes of learning!"},
+    {e:'💓',h:'Heartbeat!',b:"Your heart beats 70 times per minute — 4,200 beats per hour!"},
+    {e:'🌍',h:"Earth's Spin!",b:"Earth spins once in 24 hours — exactly 1,440 minutes per day!"},
+    {e:'🎮',h:'Game Time!',b:"30 minutes = half an hour = 1,800 seconds of gaming!"},
+    {e:'🍳',h:'Scrambled Eggs!',b:"Scrambled eggs cook in about 3 minutes — 180 seconds!"},
+    {e:'🚀',h:'Space Station!',b:"The ISS orbits Earth every 90 minutes — 16 laps per day!"},
+    {e:'🦋',h:'Butterfly Life!',b:"Some butterflies only live 24 hours as adults — 1,440 minutes!"},
+    {e:'🎵',h:'Pop Songs!',b:"Songs are 3–4 minutes. You could hear 15–20 songs per hour!"},
+    {e:'🏃',h:'Marathon!',b:"Elite runners finish a marathon in about 2 hours — 120 minutes!"},
+    {e:'🌞',h:'Summer Sun!',b:"Summer days can have 15 hours of daylight — 900 minutes of sunshine!"},
+    {e:'🎂',h:'Your Age!',b:"If you're 9 years old, you've lived about 4,730 days — 113,520 hours!"},
+    {e:'🍕',h:'Pizza Delivery!',b:"Pizza takes 30–45 minutes — 1,800–2,700 seconds of waiting!"},
+    {e:'🐢',h:'Tortoise Speed!',b:"A tortoise walks 0.17 mph — in 24 hours it walks about 4 miles!"},
+  ],
+};
+
+const PROMPTS={
+  length:[
+    {e:'🤔',t:'How many inches are in 5 feet? What pattern do you notice?'},
+    {e:'📐',t:'If you keep doubling the feet, what happens to the inches?'},
+    {e:'🔎',t:'How do both sides of the table stay equal?'},
+  ],
+  weight:[
+    {e:'🤔',t:'How many ounces are in 3 pounds? How do you know?'},
+    {e:'⚖️',t:'Use the oz controls: what happens at exactly 16 oz?'},
+    {e:'🔎',t:'If 16 oz = 1 lb, what is 32 oz in pounds?'},
+  ],
+  capacity:[
+    {e:'🤔',t:'How many cups fill one gallon? Can you build the table?'},
+    {e:'💧',t:'What happens to the containers as the value grows?'},
+    {e:'🔎',t:'How many pints equal 1 quart? How can you tell?'},
+  ],
+  time:[
+    {e:'🤔',t:'How many minutes are in 4 hours?'},
+    {e:'⏰',t:'Watch the clock hand move. When does it complete one full circle?'},
+    {e:'🔎',t:'What pattern do you notice in the table?'},
+  ],
+};
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let currentCat='length', currentPairIdx=0, currentVal=1, tableRows=5;
+let factIdx={length:0,weight:0,capacity:0,time:0};
+let _ozVal=0; // weight oz-builder state
+
+const $=id=>document.getElementById(id);
+const pair=()=>UNITS[currentCat].pairs[currentPairIdx];
+const col=()=>UNITS[currentCat].color;
+const colLight=()=>UNITS[currentCat].colorLight;
+
+function lighten(hex,pct){
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.round(r+(255-r)*pct/100)},${Math.round(g+(255-g)*pct/100)},${Math.round(b+(255-b)*pct/100)})`;
+}
+
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+function init(){
+  $('catBar').querySelectorAll('.cat-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      $('catBar').querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCat=btn.dataset.cat; currentPairIdx=0; currentVal=1; tableRows=5; _ozVal=0;
+      buildPairBar(); buildVisual(); renderAll(); renderFact();
+      buildManipPanel();
+    });
+  });
+  buildPairBar(); buildVisual(); renderAll(); renderFact();
+  initManip();
+}
+
+function buildPairBar(){
+  const bar=$('pairBar'); bar.innerHTML='';
+  UNITS[currentCat].pairs.forEach((p,i)=>{
+    const btn=document.createElement('button');
+    btn.className='pair-btn'+(i===currentPairIdx?' active':'');
+    btn.style.color=col();
+    btn.innerHTML=`<span>${p.aIcon} ${p.label}</span>`;
+    btn.addEventListener('click',()=>{
+      currentPairIdx=i; currentVal=1; tableRows=5; _ozVal=0;
+      bar.querySelectorAll('.pair-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      buildVisual(); renderAll();
+      buildManipPanel();
+    });
+    bar.appendChild(btn);
+  });
+}
+
+/* ════════════════════════════════════════
+   RENDER ALL
+════════════════════════════════════════ */
+function renderAll(){
+  renderMeta(); renderTable(); updateVisual(); renderGroups(); renderPrompts();
+}
+
+function renderMeta(){
+  const p=pair(),c=col(),cl=colLight();
+  $('tableDot').style.background=c; $('visualDot').style.background=c;
+  $('tableTitle').textContent=`${p.aIcon} Conversion Table`;
+  $('visualTitle').textContent=`${p.aIcon} Visual Model`;
+  $('baseRel').style.background=cl; $('baseRel').style.color=c;
+  $('baseRel').innerHTML=`1 ${p.a} = ${p.factor} ${p.b}`;
+  $('btnMinus').style.background=c; $('btnPlus').style.background=c;
+  $('ctrlVal').style.color=c; $('extendBtn').style.background=c;
+}
+
+/* TABLE */
+function renderTable(){
+  const p=pair(),c=col(),cl=colLight();
+  $('tableHead').innerHTML=`<th style="background:${c};color:#fff;border-radius:8px 0 0 0;padding:10px 12px">${p.a}</th><th style="background:${c};color:#fff;border-radius:0 8px 0 0;padding:10px 12px">${p.b}</th>`;
+  const body=$('tableBody'); body.innerHTML='';
+  for(let r=1;r<=tableRows;r++){
+    const tr=document.createElement('tr');
+    tr.style.background=r%2===0?cl:'#fff';
+    if(r===currentVal)tr.classList.add('highlight');
+    tr.innerHTML=`<td style="color:${c};font-size:1.15rem">${r}</td><td style="color:${c};font-size:1.15rem">${r*p.factor}<span class="mult-badge" style="background:${cl};color:${c}">× ${p.factor}</span></td>`;
+    body.appendChild(tr);
+  }
+  $('ctrlVal').textContent=currentVal;
+}
+
+$('btnPlus').addEventListener('click',()=>{
+  if(currentVal<tableRows)currentVal++;
+  else if(tableRows<20){tableRows++;currentVal=tableRows;}
+  renderAll();
+});
+$('btnMinus').addEventListener('click',()=>{if(currentVal>1){currentVal--;renderAll();}});
+$('extendBtn').addEventListener('click',()=>{tableRows=Math.min(tableRows+3,20);renderAll();});
+$('resetBtn').addEventListener('click',()=>{currentVal=1;tableRows=5;renderAll();});
+
+/* ════════════════════════════════════════
+   VISUAL — build (once) + update (on every value change)
+════════════════════════════════════════ */
+function buildVisual(){
+  // Stop any running capacity simulation when switching away
+  if(_capRAF){ cancelAnimationFrame(_capRAF); _capRAF=null; }
+  _capState=null;
+  $('visual-area').innerHTML='';
+  if(currentCat==='length')   buildLength();
+  else if(currentCat==='weight')   buildWeight();
+  else if(currentCat==='capacity') buildCapacity();
+  else if(currentCat==='time')     buildTime();
+}
+function updateVisual(){
+  if(currentCat==='length')   updateLength();
+  else if(currentCat==='weight')   updateWeight();
+  else if(currentCat==='capacity') updateCapacity();
+  else if(currentCat==='time')     updateTime();
+}
+
+/* ════════════════════════════════════════
+   LENGTH — growing bar with segment + group dividers
+════════════════════════════════════════ */
+function buildLength(){
+  const p=pair(),c=col(),cl=colLight();
+  const area=$('visual-area');
+  area.innerHTML=`
+    <div class="len-label" id="lenLabel" style="color:${c}"></div>
+    <div class="len-track">
+      <div class="len-bar" id="lenBar">
+        <div id="lenSegs" style="display:flex;width:100%;height:100%"></div>
+        <div id="lenGlbls" class="len-group-labels"></div>
+      </div>
+    </div>
+    <div class="len-legend" id="lenLegend">
+      <span style="color:${c}">■ = 1 ${p.b}</span>
+      <span style="color:${c}">[ ] = 1 ${p.a}</span>
+    </div>`;
+}
+
+function updateLength(){
+  const p=pair(),c=col(),cl=colLight();
+  const MAX_A=10; // bar is 100% at MAX_A units
+  const totalB=currentVal*p.factor;
+  const pct=Math.min((currentVal/MAX_A)*100,100);
+
+  $('lenLabel').textContent=`${currentVal} ${p.a} = ${totalB} ${p.b}`;
+  $('lenLabel').style.color=c;
+
+  const bar=$('lenBar');
+  bar.style.width=pct+'%';
+  bar.style.background=c;
+
+  // Segments (small units — alternate shade)
+  const segs=$('lenSegs'); segs.innerHTML='';
+  for(let i=0;i<totalB;i++){
+    const s=document.createElement('div');
+    s.className='len-seg';
+    s.style.background=i%2===0?c:lighten(c,30);
+    // Thicker divider at group boundaries
+    if((i+1)%p.factor===0&&i!==totalB-1)
+      s.style.borderRight='3px solid rgba(255,255,255,.95)';
+    else
+      s.style.borderRight='1px solid rgba(255,255,255,.4)';
+    segs.appendChild(s);
+  }
+
+  // Group labels (large units)
+  const glbls=$('lenGlbls'); glbls.innerHTML='';
+  glbls.style.display='flex'; glbls.style.position='absolute'; glbls.style.inset='0';
+  for(let g=0;g<currentVal;g++){
+    const lbl=document.createElement('div');
+    lbl.className='len-glbl';
+    lbl.textContent=`${p.a[0]}${g+1}`;
+    lbl.style.fontSize=p.factor>6?'.6rem':'.75rem';
+    glbls.appendChild(lbl);
+  }
+
+  // Update legend
+  const leg=$('lenLegend');
+  leg.innerHTML=`<span style="color:${c}">■ = 1 ${p.b}</span><span style="color:${c}">[ ] = 1 ${p.a}</span>`;
+  if(currentVal>MAX_A){
+    const extra=document.createElement('span');
+    extra.style.color=c; extra.style.opacity='.7';
+    extra.textContent=`(showing ${MAX_A} of ${currentVal})`;
+    leg.appendChild(extra);
+  }
+}
+
+/* ════════════════════════════════════════
+   WEIGHT — tipping balance scale
+   Left pan = 1 lb (fixed reference)
+   Right pan = oz controlled by oz-builder buttons (0 → 32)
+   Beam tilts based on difference; fills show amount
+   Also syncs label to main table state
+════════════════════════════════════════ */
+function buildWeight(){
+  const c=col(),cl=colLight();
+  const area=$('visual-area');
+  _ozVal=0;
+
+  area.innerHTML=`
+  <div class="scale-wrap">
+    <div class="scale-lbl" id="scaleLbl" style="color:${c}">Add ounces to the right pan!</div>
+    <svg viewBox="0 0 260 195" style="width:100%;max-width:280px" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stand -->
+      <rect x="126" y="95" width="8" height="78" rx="4" fill="${c}"/>
+      <rect x="94" y="166" width="72" height="12" rx="6" fill="${c}"/>
+      <!-- Pivot -->
+      <circle cx="130" cy="93" r="9" fill="${c}"/>
+      <!-- Beam — rotates around pivot (130,93) -->
+      <g id="scaleBeam" style="transform-origin:130px 93px;transition:transform .65s cubic-bezier(.34,1.3,.64,1)">
+        <rect x="24" y="88" width="212" height="8" rx="4" fill="${c}"/>
+        <!-- LEFT strings -->
+        <line x1="48"  y1="96" x2="34"  y2="134" stroke="${c}" stroke-width="2.5"/>
+        <line x1="48"  y1="96" x2="82"  y2="134" stroke="${c}" stroke-width="2.5"/>
+        <!-- LEFT pan dish -->
+        <ellipse cx="58" cy="136" rx="32" ry="10" fill="${cl}" stroke="${c}" stroke-width="2.5" id="lPanDish"/>
+        <!-- LEFT liquid fill — y=127 matches top of clip ellipse (cy=136, ry=9) -->
+        <rect id="lPanFill" x="28" y="127" width="60" height="0" rx="3" fill="${c}" opacity=".7" clip-path="url(#lClip)" style="transition:height .45s ease"/>
+        <clipPath id="lClip"><ellipse cx="58" cy="136" rx="30" ry="9"/></clipPath>
+        <text id="lPanLbl" x="58" y="155" text-anchor="middle" font-family="Fredoka One,cursive" font-size="12" fill="${c}">1 lb</text>
+        <!-- RIGHT strings -->
+        <line x1="212" y1="96" x2="198" y2="134" stroke="${c}" stroke-width="2.5"/>
+        <line x1="212" y1="96" x2="246" y2="134" stroke="${c}" stroke-width="2.5"/>
+        <!-- RIGHT pan dish -->
+        <ellipse cx="222" cy="136" rx="32" ry="10" fill="${cl}" stroke="${c}" stroke-width="2.5" id="rPanDish"/>
+        <!-- RIGHT liquid fill — y=127 matches top of clip ellipse (cy=136, ry=9) -->
+        <rect id="rPanFill" x="194" y="127" width="56" height="0" rx="3" fill="${c}" opacity=".7" clip-path="url(#rClip)" style="transition:height .45s ease"/>
+        <clipPath id="rClip"><ellipse cx="222" cy="136" rx="30" ry="9"/></clipPath>
+        <text id="rPanLbl" x="222" y="155" text-anchor="middle" font-family="Fredoka One,cursive" font-size="12" fill="${c}">0 oz</text>
+      </g>
+    </svg>
+    <div class="oz-controls">
+      <button class="oz-btn" id="ozMinus" style="background:${c}">−</button>
+      <div class="oz-display" id="ozDisplay" style="color:${c}">0 oz on right pan</div>
+      <button class="oz-btn" id="ozPlus"  style="background:${c}">+</button>
+    </div>
+    <div class="scale-status" id="scaleStatus" style="color:${c};background:${cl}"></div>
+  </div>`;
+
+  $('ozPlus').addEventListener('click',()=>{if(_ozVal<32){_ozVal++;applyScale();}});
+  $('ozMinus').addEventListener('click',()=>{if(_ozVal>0){_ozVal--;applyScale();}});
+  applyScale();
+}
+
+function applyScale(){
+  const c=col(),cl=colLight();
+  const MAX_H=18; // full clip ellipse height = ry*2 = 9*2, fills entire pan
+
+  // Left = 1 lb (fixed full)
+  $('lPanFill').setAttribute('height', MAX_H);
+  $('lPanLbl').textContent='1 lb';
+
+  // Right = oz fill (0–32, reference is 16)
+  const rH=Math.min(Math.round((_ozVal/16)*MAX_H), MAX_H);
+  $('rPanFill').setAttribute('height', rH);
+  $('rPanLbl').textContent=`${_ozVal} oz`;
+  $('ozDisplay').textContent=`${_ozVal} oz on right pan`;
+
+  // Tilt: diff from balance point (16 oz = 1 lb)
+  const diff=_ozVal-16;
+  const tilt=Math.max(-22,Math.min(22,diff*1.4));
+  $('scaleBeam').style.transform=`rotate(${tilt}deg)`;
+
+  let status='';
+  if(_ozVal===0)       status='Add ounces ➕ to see the scale tip!';
+  else if(_ozVal<16)   status=`⬅️ 1 lb is heavier — add ${16-_ozVal} more oz to balance!`;
+  else if(_ozVal===16) status='⚖️ Balanced! 16 oz = 1 lb exactly!';
+  else                 status=`➡️ ${_ozVal} oz is heavier than 1 lb!`;
+  $('scaleStatus').textContent=status;
+  $('scaleStatus').style.color=c;
+  $('scaleStatus').style.background=cl;
+}
+
+function updateWeight(){
+  // Sync label to current table row when table value changes
+  const p=pair(),c=col();
+  if($('scaleLbl')){
+    $('scaleLbl').textContent=`Table row: ${currentVal} lb = ${currentVal*p.factor} oz`;
+    $('scaleLbl').style.color=c;
+  }
+}
+
+/* ════════════════════════════════════════
+   CAPACITY — clean pouring simulation
+════════════════════════════════════════ */
+const VESSEL={
+  Cup:    {h:68,  w:46,  wallT:3, rx:4},
+  Pint:   {h:88,  w:56,  wallT:3, rx:4},
+  Quart:  {h:106, w:66,  wallT:3, rx:4},
+  Gallon: {h:124, w:80,  wallT:3, rx:4},
+};
+
+function vesselKey(name){ return name.replace(/s$/,''); }
+
+let _capState = null;
+let _capRAF   = null;
+let _capSlow  = true; // slow mode on by default
+
+// Timing constants (ms)
+const CAP_T = {
+  fillDur:  ()=> _capSlow ? 900  : 400,   // cup fills
+  pauseDur: ()=> _capSlow ? 300  : 150,   // pause before pour
+  pourDur:  ()=> _capSlow ? 1300 : 600,   // pour stream + large fills
+};
+
+function buildCapacity(){
+  if(_capRAF){ cancelAnimationFrame(_capRAF); _capRAF=null; }
+  _capState = null;
+
+  const p = pair(), c = col(), cl = colLight();
+  const area = $('visual-area');
+
+  area.innerHTML=`
+  <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:6px">
+    <div id="capLabel" style="font-family:'Fredoka One',cursive;font-size:.92rem;color:${c}"></div>
+    <canvas id="capCanvas" style="width:100%;max-width:420px;display:block"></canvas>
+    <div id="capRelLabel" style="
+      font-family:'Fredoka One',cursive;
+      font-size:1.05rem;
+      color:${c};
+      margin-top:8px;
+      letter-spacing:0.02em;
+      text-align:center;
+    "></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+      <span style="font-size:.75rem;font-weight:800;color:${c};opacity:.6">Watch the pour! 💧</span>
+      <button id="capSlowBtn" style="
+        padding:3px 10px;border-radius:20px;border:2px solid ${c};
+        background:${_capSlow?c:'transparent'};color:${_capSlow?'#fff':c};
+        font-family:'Fredoka One',cursive;font-size:.7rem;cursor:pointer;
+        transition:all .2s;
+      ">${_capSlow?'🐢 Slow':'⚡ Fast'}</button>
+    </div>
+  </div>`;
+
+  $('capSlowBtn').addEventListener('click',()=>{
+    _capSlow=!_capSlow;
+    const btn=$('capSlowBtn');
+    btn.style.background=_capSlow?c:'transparent';
+    btn.style.color=_capSlow?'#fff':c;
+    btn.textContent=_capSlow?'🐢 Slow':'⚡ Fast';
+  });
+
+  const canvas=$('capCanvas');
+  const CW=Math.max(canvas.parentElement.offsetWidth||canvas.parentElement.clientWidth||340,100);
+  const CH=240;
+  canvas.width=CW; canvas.height=CH;
+
+  _capState={
+    p,c,cl,CW,CH,
+    // Per small container: fill 0-1, or -1=hidden
+    smallFills: new Array(8).fill(-1),
+    // Per large container: fill 0-1
+    largeFills: new Array(4).fill(0),
+    // Animation sequence queue [{type,idx,startT,done}]
+    queue: [],
+    running: false,
+    prevVal: 0,
+    showSmall:0, showLarge:0, totalSmall:0,
+    // Pour stream state
+    pourActive:false, pourSrcIdx:-1, pourProgress:0,
+  };
+
+  updateCapacity();
+}
+
+function updateCapacity(){
+  if(!_capState) return;
+  const st=_capState;
+  const p=st.p,c=st.c;
+  const totalSmall=currentVal*p.factor;
+  const smallName=p.bSing;   // singular e.g. "Cup"
+  const largeName=p.aSing;   // singular e.g. "Pint"
+
+  const lrgLabel=`${currentVal} ${currentVal!==1?p.a:largeName}`;
+  const smlLabel=`${totalSmall} ${totalSmall!==1?p.b:smallName}`;
+  if($('capLabel')) $('capLabel').textContent=`${lrgLabel} = ${smlLabel}`;
+  if($('capRelLabel')) $('capRelLabel').textContent=`${p.factor} ${p.b} = 1 ${largeName}`;
+
+  const showLarge=Math.min(currentVal,4);
+  const prevSmall=st.prevVal*p.factor;
+  if(currentVal>st.prevVal){
+    // Show new small containers as empty
+    for(let i=Math.min(prevSmall,8);i<Math.min(totalSmall,8);i++) st.smallFills[i]=0;
+    // Hide extras
+    for(let i=Math.min(totalSmall,8);i<8;i++) st.smallFills[i]=-1;
+
+    // Queue: for each new small container: fill → pause → pour (sequential)
+    for(let i=Math.min(prevSmall,8);i<Math.min(totalSmall,8);i++){
+      st.queue.push({type:'fill',  idx:i});
+      st.queue.push({type:'pause', idx:i});
+      st.queue.push({type:'pour',  idx:i, largeIdx: Math.min(Math.floor(i/p.factor), showLarge-1)});
+    }
+    if(!st.running) processQueue(st);
+
+  } else if(currentVal<st.prevVal){
+    // Going down: immediately reset to correct fill levels
+    st.queue=[];
+    st.pourActive=false;
+    for(let i=totalSmall;i<8;i++) st.smallFills[i]=-1;
+    // Each large container holds p.factor small units
+    for(let i=0;i<4;i++){
+      if(i>=showLarge){ st.largeFills[i]=0; }
+      else {
+        // How many small units have been "assigned" to this large container
+        const assigned=Math.min(totalSmall - i*p.factor, p.factor);
+        st.largeFills[i]=Math.max(0,Math.min(1, assigned/p.factor));
+      }
+    }
+  }
+
+  st.prevVal=currentVal;
+  st.showSmall=Math.min(totalSmall,8);
+  st.showLarge=showLarge;
+  st.totalSmall=totalSmall;
+
+  if(!_capRAF) _capRAF=requestAnimationFrame(tickCapacity);
+}
+
+// Process the animation queue sequentially
+function processQueue(st){
+  if(!st||st.queue.length===0){ st&&(st.running=false); return; }
+  st.running=true;
+  const step=st.queue.shift();
+  const now=performance.now();
+
+  if(step.type==='fill'){
+    const dur=CAP_T.fillDur();
+    st.smallFills[step.idx]=0;
+    const doFill=()=>{
+      if(!_capState||_capState!==st){return;}
+      const elapsed=performance.now()-now;
+      const pct=Math.min(elapsed/dur,1);
+      const ease=pct<0.5?2*pct*pct:1-Math.pow(-2*pct+2,2)/2;
+      st.smallFills[step.idx]=ease;
+      if(pct<1){ requestAnimationFrame(doFill); }
+      else{ st.smallFills[step.idx]=1; processQueue(st); }
+    };
+    requestAnimationFrame(doFill);
+
+  } else if(step.type==='pause'){
+    setTimeout(()=>{ if(_capState===st) processQueue(st); }, CAP_T.pauseDur());
+
+  } else if(step.type==='pour'){
+    const dur=CAP_T.pourDur();
+    const startFill=st.largeFills[step.largeIdx]||0;
+    const targetFill=Math.min(1, startFill + 1/st.p.factor);
+    st.pourActive=true;
+    st.pourSrcIdx=step.idx;
+    const doPour=()=>{
+      if(!_capState||_capState!==st){return;}
+      const elapsed=performance.now()-now;
+      const pct=Math.min(elapsed/dur,1);
+      const ease=pct<0.5?2*pct*pct:1-Math.pow(-2*pct+2,2)/2;
+      st.smallFills[step.idx]=Math.max(0,1-ease);
+      if(pct>0.3){
+        const arrivalPct=Math.min((pct-0.3)/0.7,1);
+        const arrivalEase=arrivalPct<0.5?2*arrivalPct*arrivalPct:1-Math.pow(-2*arrivalPct+2,2)/2;
+        st.largeFills[step.largeIdx]=Math.min(1,startFill+arrivalEase*(targetFill-startFill));
+      }
+      st.pourProgress=pct;
+      if(pct<1){
+        requestAnimationFrame(doPour);
+      } else {
+        st.smallFills[step.idx]=0;
+        st.largeFills[step.largeIdx]=targetFill;
+        st.pourActive=false;
+        st.pourSrcIdx=-1;
+        processQueue(st);
+      }
+    };
+    requestAnimationFrame(doPour);
+  }
+}
+
+function tickCapacity(){
+  if(!_capState){ _capRAF=null; return; }
+  const st=_capState;
+  const {CW,CH,c,cl,p}=st;
+  const canvas=$('capCanvas');
+  if(!canvas){ _capRAF=null; return; }
+  const ctx=canvas.getContext('2d');
+
+  ctx.clearRect(0,0,CW,CH);
+
+  const smallKey=p.bSing;  // "Cup", "Pint" etc
+  const largeKey=p.aSing;
+  const sv=VESSEL[smallKey]||VESSEL[vesselKey(p.b)]||VESSEL.Cup;
+  const lv=VESSEL[largeKey]||VESSEL[vesselKey(p.a)]||VESSEL.Cup;
+
+  const showS=st.showSmall, showL=st.showLarge;
+
+  // --- Layout: compute scale so everything fits ---
+  const gapS=6;
+  const COLS=Math.min(showS>0?showS:1, 4);
+  const ROWS=showS>4?2:1;
+  const labelH=14;   // px below each container for "1 Cup" text
+  const rowGap=10;   // extra gap between row-0 and row-1 in 2-row layout
+  const midGapNat=32;
+
+  // Natural (unscaled) total sizes
+  const natSmallW = showS>0 ? COLS*(sv.w+gapS)-gapS : 0;
+  const natLargeW = showL>0 ? showL*(lv.w+gapS)-gapS : 0;
+  // Height: vessel + label per row, plus rowGap between rows
+  const natSmallH = ROWS===2
+    ? (sv.h+labelH) + rowGap + (sv.h+labelH)
+    : sv.h+labelH;
+  const natLargeH = lv.h+labelH;
+  const natMid    = (showS>0&&showL>0) ? midGapNat : 0;
+  const natW      = natSmallW + natMid + natLargeW;
+  const natH      = Math.max(natSmallH, natLargeH);
+
+  // Scale factor: fit within available canvas (8px pad top, 8px pad bottom)
+  const padX=12, padTop=8, padBot=8;
+  const availW=CW-padX*2;
+  const availH=CH-padTop-padBot;
+  const scale=Math.min(1, availW/Math.max(natW,1), availH/Math.max(natH,1));
+
+  // Scaled dimensions
+  const sw=sv.w*scale, sh=sv.h*scale;
+  const lw=lv.w*scale, lh=lv.h*scale;
+  const gap=gapS*scale;
+  const lbH=labelH*scale;
+  const rGap=rowGap*scale;
+  const midGap=(showS>0&&showL>0)?midGapNat*scale:0;
+
+  const scaledSmallW=showS>0?COLS*(sw+gap)-gap:0;
+  const scaledLargeW=showL>0?showL*(lw+gap)-gap:0;
+  const scaledTotalW=scaledSmallW+midGap+scaledLargeW;
+
+  const startX=(CW-scaledTotalW)/2;
+  const lrgStartX=startX+scaledSmallW+midGap;
+  // baseY: bottom edge of last container row, leaving room for label + bottom pad
+  const baseY=CH-padBot-lbH-2;
+
+  // --- Small containers ---
+  const smallPos=new Map();
+  for(let i=0;i<showS;i++){
+    if(st.smallFills[i]<0) continue;
+    const c2=i%4, row=Math.floor(i/4);
+    const x=startX+c2*(sw+gap);
+    // Row 1 bottom aligns to baseY-sh; Row 0 sits above with rowGap between labels
+    const y = ROWS===2
+      ? (row===0 ? baseY-(sh+lbH+rGap)-sh : baseY-sh)
+      : baseY-sh;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    drawVesselClean(ctx, 0, 0, sv, Math.max(0,st.smallFills[i]), c, cl);
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle=c; ctx.globalAlpha=1;
+    ctx.font=`700 ${Math.max(8, Math.round(9*scale))}px Nunito,sans-serif`;
+    ctx.textAlign='center';
+    ctx.fillText(`1 ${smallKey}`, x+sw/2, y+sh+lbH*0.88);
+    ctx.restore();
+    smallPos.set(i,{cx:x+sw/2, topY:y+2*scale, bottomY:y+sh});
+  }
+
+  // Overflow count — place clearly after last visible cup, never overlapping
+  if(st.totalSmall>8){
+    ctx.save();
+    ctx.fillStyle=c; ctx.globalAlpha=0.75;
+    ctx.font=`700 9px Nunito,sans-serif`;
+    ctx.textAlign='center';
+    // Always put it at column-4 position in the bottom row
+    const ox=startX+4*(sw+gap)+sw/2;
+    const oy=baseY-sh/2+4;
+    ctx.fillText(`+${st.totalSmall-8} more`, ox, oy);
+    ctx.restore();
+  }
+
+  // --- Large containers ---
+  const largePos=[];
+  for(let i=0;i<showL;i++){
+    const x=lrgStartX+i*(lw+gap);
+    const y=baseY-lh;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    drawVesselClean(ctx, 0, 0, lv, Math.max(0,st.largeFills[i]), c, cl);
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle=c; ctx.globalAlpha=1;
+    ctx.font=`700 ${Math.max(8, Math.round(9*scale))}px Nunito,sans-serif`;
+    ctx.textAlign='center';
+    ctx.fillText(`1 ${largeKey}`, x+lw/2, y+lh+lbH*0.88);
+    ctx.restore();
+    largePos.push({cx:x+lw/2, topY:y+2*scale});
+  }
+
+  // --- Pour stream ---
+  if(st.pourActive && st.pourSrcIdx>=0 && largePos.length>0){
+    const srcPos=smallPos.get(st.pourSrcIdx);
+    const largeIdx=Math.min(Math.floor(st.pourSrcIdx/p.factor), largePos.length-1);
+    const dst=largePos[largeIdx];
+    if(srcPos && dst){
+      drawPourStreamClean(ctx, srcPos.cx, srcPos.bottomY, dst.cx, dst.topY, st.pourProgress, c);
+    }
+  }
+
+  _capRAF=requestAnimationFrame(tickCapacity);
+}
+
+// Clean vessel: flat liquid surface, clear outline, no wave noise
+function roundedRectPath(ctx,x,y,w,h,r){
+  r=Math.max(0,Math.min(r,w/2,h/2));
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function drawVesselClean(ctx,x,y,v,fill,colorHex,colorLight){
+  const {w:W,h:H,wallT,rx}=v;
+  const iX=wallT+1, iW=W-wallT*2-2;
+  const iTop=4, iBot=H-4, iH=iBot-iTop;
+
+  // Interior background (light tint)
+  ctx.save();
+  roundedRectPath(ctx,x+iX,y+iTop,iW,iH,rx);
+  ctx.fillStyle=colorLight; ctx.globalAlpha=0.85; ctx.fill();
+  ctx.restore();
+
+  // Liquid fill — flat top, solid color
+  if(fill>0.002){
+    const liqTop=y+iBot-iH*fill;
+    ctx.save();
+    roundedRectPath(ctx,x+iX,y+iTop,iW,iH,rx);
+    ctx.clip();
+    ctx.fillStyle=colorHex; ctx.globalAlpha=0.68;
+    ctx.fillRect(x+iX, liqTop, iW, iBot-(liqTop-y));
+    // Clear flat line at surface
+    ctx.strokeStyle=colorHex; ctx.globalAlpha=0.9;
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x+iX,liqTop); ctx.lineTo(x+iX+iW,liqTop); ctx.stroke();
+    // Subtle inner highlight
+    ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.globalAlpha=1;
+    ctx.fillRect(x+iX, liqTop, iW, Math.min(iH*0.15, 8));
+    ctx.restore();
+  }
+
+  // Outer glass border — clean, bold
+  ctx.save();
+  roundedRectPath(ctx,x+wallT/2,y+2,W-wallT,H-3,rx+1);
+  ctx.strokeStyle=colorHex; ctx.lineWidth=wallT; ctx.globalAlpha=1; ctx.stroke();
+  ctx.restore();
+
+  // Thin shine stripe on left wall
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,0.28)'; ctx.globalAlpha=1;
+  roundedRectPath(ctx,x+wallT+1,y+6,2.5,H*0.4,1);
+  ctx.fill();
+  ctx.restore();
+}
+
+// Clean pour stream: visible arc with thick stream, no fade games
+function drawPourStreamClean(ctx,srcX,srcY,dstX,dstY,progress,colorHex){
+  if(progress<=0||progress>=1) return;
+  // Stream only visible during middle portion (5%–95%)
+  const vis=progress>0.05&&progress<0.95;
+  if(!vis) return;
+
+  ctx.save();
+  // Control point: arc to the right and down
+  const cpX=srcX+(dstX-srcX)*0.6;
+  const cpY=srcY-10;
+
+  // Draw full arc as thick stream
+  ctx.beginPath();
+  const steps=40;
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    const bx=(1-t)*(1-t)*srcX+2*(1-t)*t*cpX+t*t*dstX;
+    const by=(1-t)*(1-t)*srcY+2*(1-t)*t*cpY+t*t*dstY;
+    if(i===0) ctx.moveTo(bx,by); else ctx.lineTo(bx,by);
+  }
+  ctx.strokeStyle=colorHex;
+  ctx.lineWidth=4;
+  ctx.globalAlpha=0.75;
+  ctx.lineCap='round';
+  ctx.stroke();
+
+  // Droplet leading edge at current progress point on arc
+  const tp=Math.min(progress*1.2,1);
+  const dpx=(1-tp)*(1-tp)*srcX+2*(1-tp)*tp*cpX+tp*tp*dstX;
+  const dpy=(1-tp)*(1-tp)*srcY+2*(1-tp)*tp*cpY+tp*tp*dstY;
+  ctx.beginPath();
+  ctx.arc(dpx,dpy,4,0,Math.PI*2);
+  ctx.fillStyle=colorHex;
+  ctx.globalAlpha=0.9;
+  ctx.fill();
+
+  ctx.restore();
+}
+
+/* ════════════════════════════════════════
+   TIME — analog clock with animated hands
+════════════════════════════════════════ */
+function buildTime(){
+  const c=col(),cl=colLight(),p=pair();
+  const cx=100,cy=100,r=82,arcR=r-7;
+  const arcLen=(2*Math.PI*arcR).toFixed(2);
+
+  let ticks='';
+  for(let i=0;i<60;i++){
+    const a=(i*6-90)*Math.PI/180,len=i%5===0?11:5;
+    const x1=(cx+(r-3)*Math.cos(a)).toFixed(2),y1=(cy+(r-3)*Math.sin(a)).toFixed(2);
+    const x2=(cx+(r-3-len)*Math.cos(a)).toFixed(2),y2=(cy+(r-3-len)*Math.sin(a)).toFixed(2);
+    ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${i%5===0?c:'#c4b5fd'}" stroke-width="${i%5===0?2.5:1.5}"/>`;
+  }
+  let nums='';
+  for(let n=1;n<=12;n++){
+    const a=(n*30-90)*Math.PI/180;
+    const x=(cx+(r-22)*Math.cos(a)).toFixed(2),y=(cy+(r-22)*Math.sin(a)+4).toFixed(2);
+    nums+=`<text x="${x}" y="${y}" text-anchor="middle" font-family="Fredoka One,cursive" font-size="13" fill="${c}">${n}</text>`;
+  }
+
+  $('visual-area').innerHTML=`
+  <div class="clock-scene">
+    <div class="clock-lbl" id="clockLbl" style="color:${c}"></div>
+    <svg width="200" height="200" viewBox="0 0 200 200" style="filter:drop-shadow(0 4px 14px rgba(139,92,246,.18))">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="#f5f3ff" stroke="${c}" stroke-width="4"/>
+      <!-- progress arc -->
+      <circle id="clockArc" cx="${cx}" cy="${cy}" r="${arcR}" fill="none" stroke="${c}" stroke-width="5"
+        stroke-opacity=".65" stroke-dasharray="0 ${arcLen}" stroke-linecap="round"
+        transform="rotate(-90 ${cx} ${cy})" data-arclen="${arcLen}"/>
+      ${ticks}${nums}
+      <!-- hour hand -->
+      <line id="clockHourHand" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy-46}"
+        stroke="${c}" stroke-width="6" stroke-linecap="round"
+        style="transform-origin:${cx}px ${cy}px;transition:transform .6s cubic-bezier(.34,1.1,.64,1)"/>
+      <!-- minute hand -->
+      <line id="clockMinHand" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy-66}"
+        stroke="#a78bfa" stroke-width="3.5" stroke-linecap="round"
+        style="transform-origin:${cx}px ${cy}px;transition:transform .5s cubic-bezier(.34,1.1,.64,1)"/>
+      <circle cx="${cx}" cy="${cy}" r="7" fill="${c}"/>
+    </svg>
+    <div class="clock-readout" id="clockReadout" style="color:${c}">12:00</div>
+    <div class="clock-hint" id="clockHint" style="color:${c}"></div>
+  </div>`;
+}
+
+function updateTime(){
+  const p=pair(),c=col();
+  let totalMinutes,label;
+  if(p.b==='Minutes'){
+    // Hours → Minutes: show minutes accumulating on clock
+    totalMinutes=currentVal*p.factor;
+    label=`${currentVal} hour${currentVal!==1?'s':''} = ${totalMinutes} minutes`;
+  } else {
+    // Days → Hours: show hours accumulating on clock (each day = 24 hrs)
+    // Use total hours directly so the hand visibly advances each step
+    const totalHours=currentVal*p.factor; // e.g. 3 days = 72 hours
+    totalMinutes=totalHours*60;
+    label=`${currentVal} day${currentVal!==1?'s':''} = ${totalHours} hours`;
+  }
+
+  // hourDeg: continuous rotation — doesn't wrap at 12, keeps going
+  const hourDeg=(totalMinutes/60)*30;       // 30° per hour, continuous
+  // minDeg: wraps every 60 minutes
+  const minDeg=(totalMinutes%60)*6;
+  const minsInHour=totalMinutes%60;
+  const hoursTotal=Math.floor(totalMinutes/60);
+
+  // For display: show hours mod 12 (12-hour clock face)
+  const displayH=hoursTotal===0?12:(hoursTotal%12||12);
+  const arcLen=parseFloat(($('clockArc')&&$('clockArc').dataset.arclen)||471);
+  const arcFill=(minsInHour/60)*arcLen;
+
+  $('clockHourHand').style.transform=`rotate(${hourDeg}deg)`;
+  $('clockMinHand').style.transform=`rotate(${minDeg}deg)`;
+  $('clockArc').setAttribute('stroke-dasharray',`${arcFill.toFixed(2)} ${arcLen}`);
+
+  const hh=String(displayH).padStart(2,'0');
+  const mm=String(minsInHour).padStart(2,'0');
+  $('clockReadout').textContent=`${hh}:${mm}`;
+  $('clockReadout').style.color=c;
+  $('clockLbl').textContent=label;
+  $('clockLbl').style.color=c;
+  $('clockHint').textContent=p.b==='Minutes'?'60 min = 1 full rotation ⟳':'24 hours = 2 full rotations 📅';
+  $('clockHint').style.color=c;
+}
+
+/* ════════════════════════════════════════
+   GROUPS
+════════════════════════════════════════ */
+function renderGroups(){
+  const p=pair(),c=col(),cl=colLight();
+  const row=$('groupsRow'),stmt=$('multStatement');
+  row.innerHTML='';
+  const MAX_G=6,MAX_D=16;
+  const showG=Math.min(currentVal,MAX_G),dpg=Math.min(p.factor,MAX_D);
+  for(let g=0;g<showG;g++){
+    if(g>0){const s=document.createElement('div');s.className='times-sign';s.textContent='+';row.appendChild(s);}
+    const box=document.createElement('div');
+    box.className='group-box';box.style.borderColor=c;box.style.background=cl;
+    for(let d=0;d<dpg;d++){
+      const dot=document.createElement('div');dot.className='unit-dot';
+      const sz=dpg<=12?16:10;
+      dot.style.cssText=`width:${sz}px;height:${sz}px;background:${c};opacity:${0.5+(d/dpg)*.5}`;
+      box.appendChild(dot);
+    }
+    if(p.factor>MAX_D){const sp=document.createElement('span');sp.style.cssText=`font-family:'Fredoka One',cursive;font-size:.85rem;color:${c}`;sp.textContent=`× ${p.factor}`;box.appendChild(sp);}
+    const lbl=document.createElement('div');
+    lbl.style.cssText=`width:100%;text-align:center;font-family:'Fredoka One',cursive;font-size:.7rem;color:${c};margin-top:3px`;
+    lbl.textContent=`1 ${p.a}`;box.appendChild(lbl);
+    row.appendChild(box);
+  }
+  if(currentVal>MAX_G){
+    const more=document.createElement('div');
+    more.innerHTML=`<span style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:${c}">… +${currentVal-MAX_G} more</span>`;
+    row.appendChild(more);
+  }
+  const totB=currentVal*p.factor;
+  stmt.style.background=cl;stmt.style.color=c;
+  stmt.textContent=`${currentVal} × ${p.factor} = ${totB}  →  ${currentVal} ${p.a} = ${totB} ${p.b}`;
+  $('groupDot').style.background=c;
+}
+
+/* ════════════════════════════════════════
+   PROMPTS
+════════════════════════════════════════ */
+function renderPrompts(){
+  const list=$('promptsList');list.innerHTML='';
+  (PROMPTS[currentCat]||[]).forEach(pr=>{
+    const d=document.createElement('div');d.className='prompt-box';
+    d.innerHTML=`<span class="prompt-emoji">${pr.e}</span><span>${pr.t}</span>`;
+    list.appendChild(d);
+  });
+}
+
+/* ════════════════════════════════════════
+   DID YOU KNOW
+════════════════════════════════════════ */
+function renderFact(){
+  const facts=FACTS[currentCat],f=facts[factIdx[currentCat]%facts.length];
+  const inner=$('dykInner');
+  inner.classList.remove('dyk-fade');void inner.offsetWidth;inner.classList.add('dyk-fade');
+  $('dykEmoji').textContent=f.e;$('dykHeadline').textContent=f.h;$('dykBody').textContent=f.b;
+}
+window.nextFact=function(){factIdx[currentCat]=(factIdx[currentCat]+1)%FACTS[currentCat].length;renderFact();};
+
+/* ════════════════════════════════════════
+   DRAG MANIPULATIVE SYSTEM
+════════════════════════════════════════ */
+// State
+let _manip = {
+  smallName:'', largeName:'',
+  smallPlural:'', largePlural:'',
+  factor:1,
+  color:'#6366f1', colorLight:'#eef2ff',
+  smallIcon:'', largeIcon:'',
+  buildCount:0,
+  convertSmall:0,
+  convertLarge:0,
+  dragId:null,
+  dragSource:null,
+  ghostEl:null,
+  grouping:false,
+  nextId:0,
+};
+
+// UNIT ICONS for non-capacity categories
+const UNIT_ICONS = {
+  Feet:'🦶', Inches:'📐', Yards:'📏',
+  Pounds:'⚖️', Ounces:'🪨',
+  Hours:'🕐', Minutes:'⏱️', Days:'📅',
+  Pints:'🥛', Cups:'☕', Quarts:'🫙', Gallons:'🪣',
+};
+
+function manipUnitIcon(name){
+  return UNIT_ICONS[name] || UNIT_ICONS[vesselKey(name)] || '📦';
+}
+
+function buildManipPanel(){
+  const c=col(), cl=colLight(), p=pair();
+  _manip.smallName = p.bSing;   // singular small unit e.g. "Inch"
+  _manip.largeName = p.aSing;   // singular large unit e.g. "Foot"
+  _manip.smallPlural = p.b;     // plural e.g. "Inches"
+  _manip.largePlural = p.a;     // plural e.g. "Feet"
+  _manip.factor    = p.factor;
+  _manip.color     = c;
+  _manip.colorLight= cl;
+  _manip.smallIcon = p.bIcon;
+  _manip.largeIcon = p.aIcon;
+
+  // Style elements
+  const buildBtn=$('manipBuildBtn');
+  if(buildBtn) buildBtn.style.background=c;
+  const numEl=$('manipNum');
+  if(numEl) numEl.style.borderColor=c;
+
+  // Populate unit dropdown — all units for this category
+  const sel=$('manipUnit');
+  if(!sel) return;
+  sel.innerHTML='';
+  sel.style.borderColor=c;
+  const cat=UNITS[currentCat];
+  const seen=new Set();
+  cat.pairs.forEach(p2=>{
+    [p2.a, p2.b].forEach(name=>{
+      if(!seen.has(name)){
+        seen.add(name);
+        const opt=document.createElement('option');
+        opt.value=name;
+        opt.textContent=`${manipUnitIcon(name)} ${name}`;
+        sel.appendChild(opt);
+      }
+    });
+  });
+  sel.value=p.b; // default to small unit (what students usually start with)
+
+  // Update hint
+  const hint=$('manipHint');
+  if(hint){ hint.style.color=c; hint.textContent=`${_manip.factor} ${_manip.smallPlural} = 1 ${_manip.largeName}`; }
+
+  ['buildZone','convertZone'].forEach(id=>{
+    const z=$(id);
+    if(z){ z.style.borderColor='#cbd5e1'; }
+  });
+  const czLbl=$('convertZoneLbl');
+  if(czLbl) czLbl.textContent=`Drop ${_manip.smallPlural} here — group ${_manip.factor} to make 1 ${_manip.largeName}!`;
+
+  clearManip(false);
+  // Note: clearManip already resets _manip.grouping=false, cancelling any in-flight grouping
+}
+
+function clearManip(resetInput=true){
+  $('buildTiles').innerHTML='';
+  $('convertTiles').innerHTML='';
+  const r=$('manipResult');
+  if(r){ r.className='manip-result'; r.textContent=''; }
+  _manip.buildCount=0; _manip.convertSmall=0; _manip.convertLarge=0;
+  _manip.dragId=null; _manip.dragSource=null; _manip.grouping=false;
+  if(resetInput && $('manipNum')) $('manipNum').value='3';
+  updateManipResult();
+  // Remove any floating ghost
+  if(_manip.ghostEl){ _manip.ghostEl.remove(); _manip.ghostEl=null; }
+}
+
+function buildManipTiles(){
+  const numEl=$('manipNum'), selEl=$('manipUnit');
+  if(!numEl||!selEl) return;
+
+  const count=Math.min(20, Math.max(1, parseInt(numEl.value)||1));
+  const unitName=selEl.value;
+
+  // Determine if they picked the small or large unit for the matched pair
+  const cat=UNITS[currentCat];
+  let matchedPairIdx=currentPairIdx;
+  for(let i=0;i<cat.pairs.length;i++){
+    if(cat.pairs[i].a===unitName||cat.pairs[i].b===unitName){ matchedPairIdx=i; break; }
+  }
+  if(matchedPairIdx!==currentPairIdx){
+    currentPairIdx=matchedPairIdx;
+    buildPairBar(); buildVisual(); renderAll();
+    buildManipPanel();
+  }
+
+  // Always spawn the SMALL unit tiles so students can group them
+  const p=cat.pairs[currentPairIdx];
+  const isSmallUnit = (unitName===p.b);
+  // If large unit entered (e.g. 3 Feet): spawn 3×12=36 inch tiles
+  // If small unit entered (e.g. 3 Inches): spawn 3 inch tiles
+  const tileCount = isSmallUnit ? count : count * p.factor;
+  const clampedCount = Math.min(20, tileCount);
+
+  clearManip(false);
+
+  const tray=$('buildTiles');
+  for(let i=0;i<clampedCount;i++){
+    tray.appendChild(makeTile(_manip.smallName, _manip.smallIcon, false));
+  }
+  _manip.buildCount=clampedCount;
+
+  // Update build zone label with correct plural/singular
+  const lbl=$('buildZoneLbl');
+  const unitDisplay=clampedCount===1?_manip.smallName:_manip.smallPlural;
+  if(lbl) lbl.textContent=`${clampedCount} ${unitDisplay} — drag to the zone →`;
+
+  // Sync table to show this value
+  const tableVal = isSmallUnit ? Math.ceil(count/_manip.factor) : count;
+  currentVal=Math.min(20,Math.max(1,tableVal));
+  tableRows=Math.max(tableRows,currentVal);
+  renderAll();
+}
+
+function makeTile(name, icon, isLarge){
+  const id='tile_'+(++_manip.nextId);
+  const el=document.createElement('div');
+  el.className='mtile'+(isLarge?' is-large':'');
+  el.id=id;
+  el.style.borderColor=_manip.color;
+  el.style.background=_manip.colorLight;
+  el.style.color=_manip.color;
+  el.innerHTML=`<div class="mtile-icon">${icon}</div><div>1 ${name}</div>`;
+  el.setAttribute('draggable','true');
+
+  // Mouse drag
+  el.addEventListener('dragstart', e=>{
+    _manip.dragId=id;
+    _manip.dragSource=el.closest('#buildTiles')?'build':'convert';
+    setTimeout(()=>el.classList.add('dragging'),0);
+    e.dataTransfer.effectAllowed='move';
+  });
+  el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); });
+
+  // Touch drag
+  el.addEventListener('touchstart', onTileTouch, {passive:false});
+
+  return el;
+}
+
+// Touch drag implementation
+function onTileTouch(e){
+  e.preventDefault();
+  const tile=e.currentTarget;
+  const id=tile.id;
+  const src=tile.closest('#buildTiles')?'build':'convert';
+  _manip.dragId=id; _manip.dragSource=src;
+
+  // Create ghost
+  const ghost=tile.cloneNode(true);
+  ghost.style.cssText=`position:fixed;pointer-events:none;opacity:.75;z-index:9999;
+    width:${tile.offsetWidth}px;height:${tile.offsetHeight}px;
+    border-radius:9px;border:2.5px solid ${_manip.color};
+    background:${_manip.color};color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    font-family:'Fredoka One',cursive;font-size:.7rem;`;
+  document.body.appendChild(ghost);
+  _manip.ghostEl=ghost;
+  tile.classList.add('dragging');
+
+  function moveGhost(touch){
+    ghost.style.left=(touch.clientX-ghost.offsetWidth/2)+'px';
+    ghost.style.top=(touch.clientY-ghost.offsetHeight/2)+'px';
+    // Highlight zones
+    const cz=$('convertZone'), bz=$('buildZone');
+    const cr=cz.getBoundingClientRect(), br=bz.getBoundingClientRect();
+    cz.classList.toggle('drag-over', touch.clientX>=cr.left&&touch.clientX<=cr.right&&touch.clientY>=cr.top&&touch.clientY<=cr.bottom);
+    bz.classList.toggle('drag-over', touch.clientX>=br.left&&touch.clientX<=br.right&&touch.clientY>=br.top&&touch.clientY<=br.bottom);
+  }
+
+  function onMove(ev){ moveGhost(ev.touches[0]); }
+  function onEnd(ev){
+    ghost.remove(); _manip.ghostEl=null; tile.classList.remove('dragging');
+    $('convertZone').classList.remove('drag-over');
+    $('buildZone').classList.remove('drag-over');
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+    const touch=ev.changedTouches[0];
+    const cz=$('convertZone'), bz=$('buildZone');
+    const cr=cz.getBoundingClientRect(), br=bz.getBoundingClientRect();
+    const inConvert=touch.clientX>=cr.left&&touch.clientX<=cr.right&&touch.clientY>=cr.top&&touch.clientY<=cr.bottom;
+    const inBuild=touch.clientX>=br.left&&touch.clientX<=br.right&&touch.clientY>=br.top&&touch.clientY<=br.bottom;
+    if(inConvert&&src==='build') moveTileToConvert(id);
+    else if(inBuild&&src==='convert') moveTileToBuild(id);
+  }
+  moveGhost(e.touches[0]);
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
+}
+
+// Zone dragover/drop wiring
+function wireZones(){
+  const cz=$('convertZone'), bz=$('buildZone');
+  if(!cz||!bz) return;
+
+  cz.addEventListener('dragover', e=>{ e.preventDefault(); cz.classList.add('drag-over'); });
+  cz.addEventListener('dragleave', e=>{ if(!cz.contains(e.relatedTarget)) cz.classList.remove('drag-over'); });
+  cz.addEventListener('drop', e=>{
+    e.preventDefault(); cz.classList.remove('drag-over');
+    if(_manip.dragId && _manip.dragSource==='build') moveTileToConvert(_manip.dragId);
+  });
+
+  bz.addEventListener('dragover', e=>{ e.preventDefault(); bz.classList.add('drag-over'); });
+  bz.addEventListener('dragleave', e=>{ if(!bz.contains(e.relatedTarget)) bz.classList.remove('drag-over'); });
+  bz.addEventListener('drop', e=>{
+    e.preventDefault(); bz.classList.remove('drag-over');
+    if(_manip.dragId && _manip.dragSource==='convert') moveTileToBuild(_manip.dragId);
+  });
+}
+
+function moveTileToConvert(id){
+  const tile=document.getElementById(id);
+  if(!tile) return;
+  tile.classList.remove('dragging');
+  $('convertTiles').appendChild(tile);
+  // Only small tiles go to convertSmall; large tiles going back count as convertLarge
+  if(tile.classList.contains('is-large')){
+    _manip.convertLarge++;
+  } else {
+    _manip.convertSmall++;
+  }
+  _manip.buildCount--;
+  checkGrouping();
+}
+
+function moveTileToBuild(id){
+  const tile=document.getElementById(id);
+  if(!tile) return;
+  tile.classList.remove('dragging');
+  $('buildTiles').appendChild(tile);
+  // Decrement the right counter based on tile type
+  if(tile.classList.contains('is-large')){
+    _manip.convertLarge--;
+  } else {
+    _manip.convertSmall--;
+  }
+  _manip.buildCount++;
+  updateManipResult();
+}
+
+function checkGrouping(){
+  if(_manip.grouping) return; // lock: one grouping at a time, result updates after
+  if(_manip.convertSmall >= _manip.factor){
+    const convertTilesEl=$('convertTiles');
+    const smallTiles=[...convertTilesEl.querySelectorAll('.mtile:not(.is-large)')];
+    if(smallTiles.length < _manip.factor) return updateManipResult();
+
+    const toGroup=smallTiles.slice(0,_manip.factor);
+    _manip.grouping=true; // lock
+
+    toGroup.forEach(t=>t.classList.add('flash'));
+    setTimeout(()=>{
+      toGroup.forEach(t=>t.remove());
+      _manip.convertSmall -= _manip.factor;
+      const lt=makeTile(_manip.largeName, _manip.largeIcon, true);
+      lt.classList.add('flash');
+      convertTilesEl.appendChild(lt);
+      _manip.convertLarge++;
+      _manip.grouping=false; // unlock
+      // Check again in case more tiles are waiting
+      checkGrouping();
+    }, 520);
+  } else {
+    updateManipResult();
+  }
+}
+
+function updateManipResult(){
+  if(_manip.grouping) return; // skip during animation — counts are in-flight
+  const r=$('manipResult');
+  if(!r) return;
+  const c=_manip.color, cl=_manip.colorLight;
+
+  if(_manip.convertLarge===0 && _manip.convertSmall===0){
+    r.className='manip-result'; r.textContent=''; return;
+  }
+
+  let parts=[];
+  if(_manip.convertLarge>0){
+    const n=_manip.convertLarge;
+    parts.push(`${n} ${n===1?_manip.largeName:_manip.largePlural}`);
+  }
+  if(_manip.convertSmall>0){
+    const n=_manip.convertSmall;
+    parts.push(`${n} ${n===1?_manip.smallName:_manip.smallPlural} leftover`);
+  }
+
+  const allDone=_manip.buildCount===0 && _manip.convertSmall===0 && _manip.convertLarge>0;
+  r.style.background=allDone?c:cl;
+  r.style.color=allDone?'#fff':c;
+  r.textContent= allDone
+    ? `✅ ${parts.join(' + ')} — you did it!`
+    : `So far: ${parts.join(' + ')}`;
+  r.className='manip-result show';
+}
+
+function initManip(){
+  $('manipBuildBtn').addEventListener('click', buildManipTiles);
+  $('manipNum').addEventListener('keydown', e=>{ if(e.key==='Enter') buildManipTiles(); });
+  $('manipClearBtn').addEventListener('click', ()=>clearManip(true));
+  wireZones();
+  buildManipPanel();
+}
+
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
