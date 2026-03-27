@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Laboratorio de Fracciones de Mrs. Nava</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #eef2ff;
+    --card: #ffffff;
+    --header-grad: linear-gradient(135deg, #6C63FF 0%, #8E7CFF 100%);
+    --shadow: 0 4px 20px rgba(108,99,255,0.13);
+    --shadow-lg: 0 8px 32px rgba(108,99,255,0.18);
+    --radius: 18px;
+    --radius-sm: 10px;
+    --text: #1e293b;
+    --muted: #64748b;
+    --accent: #6C63FF;
+
+    /* Fraction piece colors */
+    --c-half:   #FF6B6B;
+    --c-third:  #FF9F43;
+    --c-fourth: #FFC107;
+    --c-fifth:  #26C6DA;
+    --c-sixth:  #66BB6A;
+    --c-eighth: #AB47BC;
+    --c-tenth:  #EC407A;
+    --c-twelfth:#5C6BC0;
+    --c-whole:  #475569;  /* slate — distinct, neutral, anchoring */
+
+    --bar-h: 54px;
+    --whole-w: 680px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--header-grad);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(108,99,255,0.3);
+    position: relative;
+    z-index: 10;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .header-icon {
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+
+  .header-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.75rem;
+    color: #fff;
+    letter-spacing: 0.3px;
+    line-height: 1;
+  }
+
+  .header-subtitle {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.82);
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── CONTROLS BAR ── */
+  .controls-bar {
+    background: var(--card);
+    border-bottom: 2px solid rgba(108,99,255,0.08);
+    padding: 10px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .ctrl-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+
+  .ctrl-btn.danger {
+    background: #FFF1F1; color: #E53E3E; border-color: #FEB2B2;
+  }
+  .ctrl-btn.danger:hover { background: #FED7D7; }
+
+  .ctrl-btn.undo-btn {
+    background: #FFF7ED; color: #C2410C; border-color: #FED7AA;
+  }
+  .ctrl-btn.undo-btn:hover { background: #FFEDD5; }
+  .ctrl-btn.undo-btn:disabled {
+    opacity: 0.38; cursor: not-allowed; transform: none !important;
+  }
+
+  /* Undo flash — bars briefly shimmer when undo fires */
+  @keyframes undo-flash {
+    0%   { opacity: 1; }
+    25%  { opacity: 0.45; }
+    60%  { opacity: 0.85; }
+    100% { opacity: 1; }
+  }
+  .undo-flash { animation: undo-flash 0.38s ease; }
+    background: #f1f5f9; color: var(--muted); border-color: #e2e8f0;
+  }
+  .ctrl-btn.toggle.active {
+    background: #EDE9FE; color: var(--accent); border-color: #C4B5FD;
+  }
+  .ctrl-btn.toggle:hover { background: #e9efff; }
+
+  .ctrl-btn.prompt-btn {
+    background: var(--header-grad); color: #fff; border-color: transparent;
+    margin-left: auto;
+  }
+  .ctrl-btn.prompt-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+
+  .ctrl-divider { width: 1px; height: 28px; background: #e2e8f0; }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 22px 20px 32px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto auto auto auto;
+    gap: 16px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+  }
+
+  .card-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 7px;
+  }
+
+  /* ── BUILD SPACE ── */
+  .build-col {
+    grid-column: 1;
+    grid-row: 1 / 4;
+  }
+
+  #build-space {
+    min-height: 140px;
+    position: relative;
+  }
+
+  .bar-wrapper {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  .bar-label {
+    position: absolute;
+    left: -36px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: var(--muted);
+    width: 30px;
+    text-align: right;
+  }
+
+  .fraction-bar {
+    width: var(--whole-w);
+    height: var(--bar-h);
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 2.5px dashed #cbd5e1;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+    display: flex;
+    align-items: stretch;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .fraction-bar.full {
+    border-color: #6C63FF;
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.18), 0 0 18px rgba(108,99,255,0.12);
+    border-style: solid;
+  }
+
+  .fraction-bar.over {
+    border-color: #FF6B6B;
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.18);
+  }
+
+  .fraction-bar.drag-over {
+    border-color: var(--accent);
+    background: #EDE9FE;
+  }
+
+  .bar-piece {
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    cursor: grab;
+    position: relative;
+    flex-shrink: 0;
+    transition: filter 0.15s;
+    border-right: 1.5px solid rgba(255,255,255,0.3);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .bar-piece:last-child { border-right: none; }
+  .bar-piece:hover { filter: brightness(1.08); }
+  .bar-piece.removing { animation: pop-out 0.25s ease forwards; }
+
+  @keyframes pop-out {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.7; }
+    100% { transform: scale(0); opacity: 0; width: 0 !important; border: none; padding: 0; }
+  }
+
+  .whole-marker {
+    position: absolute;
+    top: -8px;
+    width: 2px;
+    height: calc(100% + 16px);
+    background: rgba(108,99,255,0.5);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .whole-marker::after {
+    content: '1';
+    position: absolute;
+    top: -18px;
+    left: -6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Fredoka One', cursive;
+  }
+
+  /* Drop zone hint */
+  .drop-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 700;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  /* ── TOOLBOX ── */
+  .toolbox-col {
+    grid-column: 2;
+    grid-row: 1 / 4;
+  }
+
+  #toolbox {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .piece-source {
+    border-radius: 12px;
+    padding: 10px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: grab;
+    transition: all 0.18s ease;
+    border: 2.5px solid transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .piece-source:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    border-color: rgba(255,255,255,0.6);
+  }
+
+  .piece-source:active { transform: scale(0.96); cursor: grabbing; }
+
+  .piece-visual {
+    height: 26px;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  .piece-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .piece-source[data-frac="1/2"]  { background: var(--c-half); }
+  .piece-source[data-frac="1/3"]  { background: var(--c-third); }
+  .piece-source[data-frac="1/4"]  { background: var(--c-fourth); }
+  .piece-source[data-frac="1/5"]  { background: var(--c-fifth); }
+  .piece-source[data-frac="1/6"]  { background: var(--c-sixth); }
+  .piece-source[data-frac="1/8"]  { background: var(--c-eighth); }
+  .piece-source[data-frac="1/10"] { background: var(--c-tenth); }
+  .piece-source[data-frac="1/12"] { background: var(--c-twelfth); }
+
+  /* ── 1 WHOLE toolbox piece — spans full 2-col width ── */
+  .piece-source-whole {
+    grid-column: 1 / -1;   /* span both columns */
+    border-radius: 12px;
+    padding: 9px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: grab;
+    background: var(--c-whole);
+    border: 2.5px solid transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: all 0.18s ease;
+    order: -1;   /* always first in toolbox */
+  }
+
+  .piece-source-whole:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(71,85,105,0.25);
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  .piece-source-whole:active { transform: scale(0.97); cursor: grabbing; }
+
+  .whole-piece-bar {
+    flex: 1;
+    height: 22px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle stripe pattern inside whole bar */
+  .whole-piece-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(255,255,255,0.1) 18px,
+      rgba(255,255,255,0.1) 20px
+    );
+  }
+
+  .whole-piece-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: #fff;
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+
+  /* ── WHOLE OUTLINE behind each fraction bar ── */
+
+  /* Whole outline: absolutely positioned behind the bar contents */
+  .whole-outline {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    border: 2.5px solid rgba(71,85,105,0.22);
+    pointer-events: none;
+    z-index: 0;
+    box-sizing: border-box;
+  }
+
+  /* Each whole unit segment marker on the outline */
+  .whole-unit-line {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: rgba(71,85,105,0.18);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* "1" label at the right end of each whole segment */
+  .whole-unit-cap {
+    position: absolute;
+    right: -1px;
+    top: -18px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.65rem;
+    color: rgba(71,85,105,0.55);
+    pointer-events: none;
+  }
+
+  /* Whole piece as a placed bar-piece */
+  .bar-piece.whole-piece {
+    background: var(--c-whole) !important;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Stripe pattern on placed whole piece */
+  .bar-piece.whole-piece::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 24px,
+      rgba(255,255,255,0.1) 24px,
+      rgba(255,255,255,0.1) 26px
+    );
+    pointer-events: none;
+  }
+
+  /* Whole-filled animation — extra prominent glow when bar = exactly 1 whole */
+  @keyframes whole-align-pulse {
+    0%,100% { box-shadow: 0 0 0 2px rgba(71,85,105,0.15), 0 0 12px rgba(71,85,105,0.08); }
+    50%      { box-shadow: 0 0 0 4px rgba(71,85,105,0.25), 0 0 20px rgba(71,85,105,0.16); }
+  }
+
+  /* ── VALUE DISPLAY ── */
+  .value-card {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .value-display {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .value-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+  }
+
+  .value-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .fraction-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
+
+  .frac-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: var(--accent);
+    line-height: 1;
+    transition: all 0.2s;
+  }
+
+  .frac-line {
+    width: 100%;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 2px 0;
+  }
+
+  .frac-den {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: var(--accent);
+    line-height: 1;
+    transition: all 0.2s;
+  }
+
+  .mixed-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: #5C6BC0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .mixed-whole { font-size: 2.4rem; }
+
+  .mixed-frac {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.3rem;
+    line-height: 1.1;
+  }
+
+  .mixed-frac-line {
+    width: 100%;
+    height: 2px;
+    background: #5C6BC0;
+    margin: 1px 0;
+  }
+
+  .value-zero { color: #cbd5e1 !important; }
+
+  .value-divider {
+    width: 2px;
+    height: 60px;
+    background: #e2e8f0;
+    border-radius: 2px;
+  }
+
+  /* Decomposition */
+  #decomp-display {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    min-height: 28px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .decomp-unit {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    margin: 2px 2px;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .decomp-plus {
+    color: var(--muted);
+    margin: 0 2px;
+    font-weight: 800;
+  }
+
+  .decomp-eq {
+    color: var(--accent);
+    margin: 0 5px;
+    font-size: 1rem;
+  }
+
+  /* ── DUAL NUMBER LINES ── */
+  #number-line-wrap {
+    display: none;
+    margin-top: 14px;
+    background: #f8faff;
+    border-radius: 14px;
+    border: 2px solid #e2e8f0;
+    padding: 14px 18px 10px;
+  }
+
+  #number-line-wrap.visible { display: block; }
+
+  .nl-section {
+    position: relative;
+    margin-bottom: 6px;
+  }
+
+  .nl-label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .nl-badge {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.7rem;
+    padding: 2px 9px;
+    border-radius: 10px;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .nl-badge.primary { background: #6C63FF; }
+  .nl-badge.extended { background: #5C6BC0; }
+
+  .nl-desc {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  .nl-svg-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .nl-svg {
+    width: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  .nl-divider {
+    width: 100%;
+    height: 1.5px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin: 8px 0;
+  }
+
+  /* Animated point transition */
+  .nl-point {
+    transition: cx 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Clamp indicator (value > 1 on 0-1 line) */
+  .nl-clamp-arrow {
+    transition: all 0.3s ease;
+  }
+
+  /* ── DUAL ROW BUILD ZONE ── */
+  .dual-rows-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .row-block {
+    position: relative;
+  }
+
+  .row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    margin-left: 40px;
+  }
+
+  .row-pill {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.75rem;
+    padding: 3px 11px;
+    border-radius: 20px;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .row-pill.row-a { background: linear-gradient(135deg,#6C63FF,#8E7CFF); }
+  .row-pill.row-b { background: linear-gradient(135deg,#06b6d4,#0ea5e9); }
+
+  .row-val-inline {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    transition: all 0.25s;
+    min-width: 60px;
+  }
+
+  .row-val-inline.val-a { color: #6C63FF; }
+  .row-val-inline.val-b { color: #0ea5e9; }
+
+  /* Equivalence bridge between rows */
+  .equiv-bridge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 4px 0 4px 40px;
+    min-height: 32px;
+    transition: all 0.3s ease;
+  }
+
+  .equiv-bridge-line {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    transition: background 0.3s, opacity 0.3s;
+    max-width: 260px;
+  }
+
+  .equiv-badge {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: #cbd5e1;
+    transition: color 0.3s, transform 0.3s;
+    transform: scale(0.85);
+    line-height: 1;
+  }
+
+  .equiv-badge.match {
+    color: #22c55e;
+    transform: scale(1.1);
+    text-shadow: 0 0 12px rgba(34,197,94,0.35);
+  }
+
+  .equiv-badge.close {
+    color: #f59e0b;
+    transform: scale(1);
+  }
+
+  /* Glow on both rows when equal */
+  .row-block.equiv-glow .fraction-bar {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.2), 0 0 18px rgba(34,197,94,0.15) !important;
+    border-style: solid !important;
+    animation: equiv-pulse 2s ease-in-out infinite !important;
+  }
+
+  /* Individual bar highlight on equiv match */
+  .fraction-bar.equiv-match {
+    border-color: #22c55e !important;
+    border-style: solid !important;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.2), 0 0 16px rgba(34,197,94,0.15) !important;
+    animation: equiv-pulse 2s ease-in-out infinite !important;
+  }
+
+  @keyframes equiv-pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.2), 0 0 14px rgba(34,197,94,0.12); }
+    50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0.3), 0 0 24px rgba(34,197,94,0.22); }
+  }
+
+  /* Equiv forms display below rows */
+  .equiv-forms-display {
+    margin-left: 40px;
+    margin-top: 4px;
+    min-height: 24px;
+  }
+
+  .equiv-found-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border: 2px solid #6ee7b7;
+    border-radius: 12px;
+    padding: 7px 14px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    color: #065f46;
+    animation: slide-in 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes slide-in {
+    0%   { transform: translateY(-6px) scale(0.96); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  /* Legacy compare-section hidden — replaced */
+  #compare-section { display: none !important; }
+
+  /* Prompt popup */
+  .prompt-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(30,41,59,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .prompt-popup.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .prompt-card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 32px 36px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(108,99,255,0.25);
+    transform: scale(0.9);
+    transition: transform 0.25s ease;
+    text-align: center;
+  }
+
+  .prompt-popup.visible .prompt-card { transform: scale(1); }
+
+  .prompt-emoji { font-size: 3rem; margin-bottom: 8px; }
+
+  .prompt-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .prompt-close {
+    background: var(--header-grad);
+    color: #fff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+
+  .prompt-close:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* Did You Know card */
+  .dyk-card {
+    grid-column: 2;
+    grid-row: 4;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+    overflow: hidden;
+    min-height: 100px;
+  }
+
+  .dyk-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+  .dyk-inner {
+    transition: opacity 0.35s;
+    opacity: 1;
+  }
+
+  .dyk-inner.fade { opacity: 0; }
+
+  .dyk-emoji { font-size: 1.8rem; margin-bottom: 6px; display: block; }
+
+  .dyk-headline {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .dyk-body {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .dyk-tap {
+    margin-top: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Confetti burst */
+  .burst-particle {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 200;
+    animation: burst 0.8s ease-out forwards;
+  }
+
+  @keyframes burst {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+
+  /* Glow pulse */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(108,99,255,0.18), 0 0 18px rgba(108,99,255,0.12); }
+    50% { box-shadow: 0 0 0 5px rgba(108,99,255,0.28), 0 0 28px rgba(108,99,255,0.22); }
+  }
+
+  .fraction-bar.full { animation: glow-pulse 2s ease-in-out infinite; }
+
+  /* Dragging ghost */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.85;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    color: #fff;
+    font-size: 1rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translate(-50%, -50%);
+    transition: none;
+  }
+
+  /* Scrollable build area */
+  .build-scroll {
+    max-height: 380px;
+    overflow-y: auto;
+    padding-left: 40px;
+    padding-right: 4px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .build-scroll::-webkit-scrollbar { width: 6px; }
+  .build-scroll::-webkit-scrollbar-track { background: transparent; }
+  .build-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  /* Equivalence hint */
+  .equiv-hint {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin-top: 6px;
+    min-height: 20px;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+    }
+    .build-col { grid-column: 1; grid-row: 1; }
+    .toolbox-col { grid-column: 1; grid-row: 2; }
+    .value-card { grid-column: 1; grid-row: 3; }
+    .dyk-card { grid-column: 1; grid-row: 5; }
+    :root { --whole-w: calc(100vw - 60px); }
+    .build-scroll { padding-left: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-left">
+    <div class="header-icon">🍕</div>
+    <div>
+      <div class="header-title">El Laboratorio de Fracciones de Mrs. Nava</div>
+      <div class="header-subtitle">4.° Grado · Módulo 5 · Fracciones</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="badge">4.NF</span>
+    <span class="badge">Manipulativo Digital</span>
+  </div>
+</header>
+
+<!-- ── CONTROLS BAR ── -->
+<div class="controls-bar">
+  <button class="ctrl-btn danger" id="btn-reset">🗑️ Reiniciar</button>
+  <button class="ctrl-btn undo-btn" id="btn-undo" disabled>↩ Deshacer</button>
+  <div class="ctrl-divider"></div>
+  <button class="ctrl-btn toggle active" id="btn-feedback">👁 Retroalimentación</button>
+  <button class="ctrl-btn toggle" id="btn-numline">📏 Recta Numérica</button>
+  <button class="ctrl-btn toggle" id="btn-equiv">🔄 Fracciones Equivalentes</button>
+  <div class="ctrl-divider"></div>
+  <button class="ctrl-btn prompt-btn" id="btn-prompt">🎯 ¡Intenta un Reto!</button>
+</div>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- BUILD SPACE — DUAL ROW -->
+  <div class="build-col card">
+    <div class="card-title">🧱 Espacio para Construir Fracciones
+      <span style="font-family:Nunito;font-size:0.75rem;font-weight:700;color:#94a3b8;margin-left:auto;">arrastra piezas · clic derecho para quitar</span>
+    </div>
+
+    <div class="dual-rows-wrap">
+
+      <!-- ROW A -->
+      <div class="row-block" id="row-block-a">
+        <div class="row-header">
+          <span class="row-pill row-a">Row A</span>
+          <span class="row-val-inline val-a" id="row-a-val">—</span>
+        </div>
+        <div class="build-scroll" id="build-scroll">
+          <div id="build-space"><!-- bars injected by JS --></div>
+        </div>
+      </div>
+
+      <!-- EQUIVALENCE BRIDGE -->
+      <div class="equiv-bridge" id="equiv-bridge">
+        <div class="equiv-bridge-line" id="bridge-line-l"></div>
+        <div class="equiv-badge" id="equiv-badge">?</div>
+        <div class="equiv-bridge-line" id="bridge-line-r"></div>
+      </div>
+
+      <!-- ROW B -->
+      <div class="row-block" id="row-block-b">
+        <div class="row-header">
+          <span class="row-pill row-b">Row B</span>
+          <span class="row-val-inline val-b" id="row-b-val">—</span>
+        </div>
+        <div class="build-scroll" id="build-scroll-b">
+          <div id="build-space-b"><!-- bars injected by JS --></div>
+        </div>
+      </div>
+
+      <!-- EQUIV FORMS (shown when equivOn + match) -->
+      <div class="equiv-forms-display" id="equiv-forms-display"></div>
+
+    </div><!-- /dual-rows-wrap -->
+
+    <!-- Dual Number Lines -->
+    <div id="number-line-wrap">
+      <!-- 0–1 Precision Line -->
+      <div class="nl-section">
+        <div class="nl-label-row">
+          <span class="nl-badge primary">0 – 1</span>
+          <span class="nl-desc">Precisión · fracciones unitarias · particiones</span>
+        </div>
+        <div class="nl-svg-wrap">
+          <svg id="nl-svg-01" class="nl-svg" height="64" viewBox="0 0 680 64" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;"></svg>
+        </div>
+      </div>
+      <div class="nl-divider"></div>
+      <!-- 0–4 Extended Line -->
+      <div class="nl-section">
+        <div class="nl-label-row">
+          <span class="nl-badge extended">0 – 4</span>
+          <span class="nl-desc">Extensión · fracciones impropias · números mixtos</span>
+        </div>
+        <div class="nl-svg-wrap">
+          <svg id="nl-svg-04" class="nl-svg" height="64" viewBox="0 0 680 64" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy compare section (hidden, kept for compat) -->
+    <div id="compare-section">
+      <div id="compare-space"></div>
+      <div id="compare-symbol"></div>
+    </div>
+
+    <!-- Equivalence hint (legacy, repurposed) -->
+    <div class="equiv-hint" id="equiv-hint"></div>
+  </div>
+
+  <!-- TOOLBOX -->
+  <div class="toolbox-col card">
+    <div class="card-title">🎨 Piezas de Fracciones</div>
+    <div id="toolbox"></div>
+    <div style="margin-top:12px;padding:10px 12px;background:#f8faff;border-radius:10px;font-size:0.76rem;color:#64748b;font-weight:600;line-height:1.5;">
+      💡 <strong>Arrastra</strong> piezas a cualquier barra. <strong>Clic derecho</strong> para quitar una pieza. ¡Construye fracciones y vélas al instante!
+    </div>
+  </div>
+
+  <!-- VALUE + DECOMPOSITION -->
+  <div class="value-card card">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+
+      <!-- Row A value -->
+      <div style="flex:1;min-width:140px;">
+        <div class="card-title" style="margin-bottom:8px;">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#8E7CFF);margin-right:5px;"></span>
+          Row A
+        </div>
+        <div class="value-display">
+          <div class="value-block">
+            <div class="value-label">Fracción</div>
+            <div class="fraction-display" id="frac-form">
+              <div class="frac-num value-zero" id="frac-num">0</div>
+              <div class="frac-line" id="frac-line" style="display:none;"></div>
+              <div class="frac-den" id="frac-den" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="value-divider"></div>
+          <div class="value-block">
+            <div class="value-label">Nº Mixto</div>
+            <div class="mixed-number" id="mixed-display">
+              <span class="value-zero">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="value-divider" style="height:auto;"></div>
+
+      <!-- Row B value -->
+      <div style="flex:1;min-width:140px;">
+        <div class="card-title" style="margin-bottom:8px;">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#0ea5e9);margin-right:5px;"></span>
+          Row B
+        </div>
+        <div class="value-display">
+          <div class="value-block">
+            <div class="value-label">Fracción</div>
+            <div class="fraction-display">
+              <div class="frac-num value-zero" id="frac-num-b" style="color:#0ea5e9;">0</div>
+              <div class="frac-line" id="frac-line-b" style="display:none;background:#0ea5e9;"></div>
+              <div class="frac-den" id="frac-den-b" style="display:none;color:#0ea5e9;"></div>
+            </div>
+          </div>
+          <div class="value-divider"></div>
+          <div class="value-block">
+            <div class="value-label">Nº Mixto</div>
+            <div class="mixed-number" id="mixed-display-b" style="color:#0ea5e9;">
+              <span class="value-zero">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="value-divider" style="height:auto;"></div>
+
+      <!-- Decomposition -->
+      <div style="flex:2;min-width:180px;">
+        <div class="card-title">🔬 Descomposición</div>
+        <div id="decomp-display">
+          <span style="color:#cbd5e1;font-size:0.85rem;">Construye una fracción para verla separada en partes…</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DID YOU KNOW -->
+  <div class="dyk-card card" id="dyk-card" onclick="nextFact()">
+    <div class="card-title">💡 ¿Sabías que...?</div>
+    <div class="dyk-inner" id="dyk-inner">
+      <span class="dyk-emoji" id="dyk-emoji">🍕</span>
+      <div class="dyk-headline" id="dyk-headline">Cargando un dato curioso…</div>
+      <div class="dyk-body" id="dyk-body"></div>
+    </div>
+    <div class="dyk-tap">¡Toca para otro dato!</div>
+  </div>
+
+</main>
+
+<!-- PROMPT POPUP -->
+<div class="prompt-popup" id="prompt-popup">
+  <div class="prompt-card">
+    <div class="prompt-emoji" id="prompt-emoji">🎯</div>
+    <div class="prompt-text" id="prompt-text">Build 3/4</div>
+    <button class="prompt-close" onclick="closePrompt()">¡Entendido! ¡A construir! 🚀</button>
+  </div>
+</div>
+
+<!-- DRAG GHOST -->
+<div class="drag-ghost" id="drag-ghost" style="display:none;"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const FRACS = [
+  { frac: '1',    n: 1, d: 1,  color: 'var(--c-whole)',   isWhole: true  },
+  { frac: '1/2',  n: 1, d: 2,  color: 'var(--c-half)'    },
+  { frac: '1/3',  n: 1, d: 3,  color: 'var(--c-third)'   },
+  { frac: '1/4',  n: 1, d: 4,  color: 'var(--c-fourth)'  },
+  { frac: '1/5',  n: 1, d: 5,  color: 'var(--c-fifth)'   },
+  { frac: '1/6',  n: 1, d: 6,  color: 'var(--c-sixth)'   },
+  { frac: '1/8',  n: 1, d: 8,  color: 'var(--c-eighth)'  },
+  { frac: '1/10', n: 1, d: 10, color: 'var(--c-tenth)'   },
+  { frac: '1/12', n: 1, d: 12, color: 'var(--c-twelfth)' },
+];
+
+const COLOR_MAP = {};
+FRACS.forEach(f => COLOR_MAP[f.d] = f.color);
+
+const PROMPTS = [
+  { emoji: '🍕', text: '¡Construye 3/4 de una pizza!' },
+  { emoji: '🌈', text: '¿Puedes formar exactamente 1 entero?' },
+  { emoji: '🚀', text: '¡Construye más de 1! ¡Pasa del entero!' },
+  { emoji: '🔍', text: '¡Muestra 1/2 de otra manera!' },
+  { emoji: '🎸', text: 'Construye 5/4 — ¿puedes mostrar el número mixto?' },
+  { emoji: '🍫', text: 'Usa piezas iguales para formar 1 entero.' },
+  { emoji: '⭐', text: 'Forma 2/3 en la barra.' },
+  { emoji: '🦋', text: 'Construye 1 entero usando piezas de 1/8.' },
+  { emoji: '🧠', text: '¿Puedes mostrar que 2/4 = 1/2?' },
+  { emoji: '🎯', text: '¡Haz una fracción mayor que 1/2 pero menor que 1!' },
+  { emoji: '🌊', text: 'Construye la fracción 7/8.' },
+  { emoji: '🏆', text: '¡Forma 1 entero y 1/2!' },
+];
+
+const DYK_FACTS = [
+  { emoji: '🍕', headline: '¡La pizza se divide en fracciones!', body: 'Cuando cortas una pizza en 8 partes iguales, cada rebanada es 1/8. ¡Si comes 3 rebanadas, comiste 3/8 de la pizza!' },
+  { emoji: '🏀', headline: '¡Los cuartos del básquetbol!', body: 'Un partido de básquetbol tiene 4 cuartos iguales. Cada cuarto es 1/4 del partido. ¡El medio tiempo ocurre después de 2/4, es decir 1/2!' },
+  { emoji: '🍫', headline: '¡Matemáticas con chocolate!', body: 'Una barra de chocolate tiene 12 piezas. Si comes 3 piezas, comiste 3/12 — ¡que es igual a 1/4 de la barra!' },
+  { emoji: '⏰', headline: '¡Los relojes usan fracciones!', body: 'Una hora tiene 60 minutos. Media hora (30 min) es 1/2. Un cuarto de hora (15 min) es 1/4. ¡Por eso decimos "y cuarto"!' },
+  { emoji: '🌍', headline: '¡La Tierra es 3/4 agua!', body: 'Aproximadamente 3/4 de la superficie de la Tierra está cubierta de agua. Si divides la Tierra en 4 partes, solo 1 parte sería tierra.' },
+  { emoji: '🎵', headline: '¡Las notas musicales son fracciones!', body: 'Una nota entera llena un compás. Una media nota llena 1/2. Una negra llena 1/4. ¡La música son fracciones que se pueden escuchar!' },
+  { emoji: '🌮', headline: '¡Fracciones del martes de tacos!', body: 'Si cortas una tortilla en 3 partes iguales, cada parte es 1/3. Dos partes juntas son 2/3 — ¡casi una tortilla entera!' },
+  { emoji: '🌡️', headline: '¡Las recetas necesitan fracciones!', body: 'La mayoría de los pasteles usan 3/4 de taza de azúcar. ¡Son 3 cuartos de taza! Los panaderos usan fracciones todos los días.' },
+  { emoji: '⚽', headline: '¡Los tiempos del fútbol!', body: 'Un partido de fútbol se divide en 2 tiempos. Cada tiempo es 1/2 de 90 minutos = 45 minutos. ¡El tiempo extra agrega más fracciones!' },
+  { emoji: '🪙', headline: '¡El dinero SON fracciones!', body: 'Una moneda de 25 centavos es 1/4 de un dólar. Dos monedas de 25 hacen 1/2 dólar. ¡Las fracciones viven en tu bolsillo!' },
+  { emoji: '🌻', headline: '¡Semillas de girasol!', body: 'Las semillas del girasol crecen en patrones de fracciones — espirales basadas en 1/3 y 1/5. ¡La naturaleza ama las fracciones!' },
+  { emoji: '📏', headline: '¡Las reglas son herramientas de fracciones!', body: 'Cada pulgada de una regla está dividida en mitades, cuartos y octavos. ¡Cada medida que tomas usa fracciones!' },
+  { emoji: '🏠', headline: '¡Las casas usan fracciones!', body: 'Los constructores cortan tablones en mitades y cuartos todo el día. Una madera "2x4" en realidad mide 1/2 pulgada menos de 2 pulgadas.' },
+  { emoji: '🧃', headline: '¡Fracciones en la cajita de jugo!', body: 'Una cajita de jugo es 1 porción entera. Bebe la mitad y tomaste 1/2. ¡Compártela entre 3 amigos y cada uno recibe 1/3!' },
+  { emoji: '🎂', headline: '¡Rebanadas de pastel de cumpleaños!', body: 'Un pastel cortado en 12 rebanadas significa que cada pieza es 1/12. Si 5 amigos toman una rebanada, ¡5/12 del pastel ya se acabó!' },
+  { emoji: '🐝', headline: '¡Las abejas hacen miel en fracciones!', body: 'Una celda de panal se divide en 6 hexágonos iguales. Cada celda es 1/6 de una sección — ¡las abejas son expertas naturales en fracciones!' },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+
+let bars = [[]];          // Row A — array of bars, each bar = array of denominators
+let barsB = [[]];         // Row B — same structure
+let compareBars = [[]];   // legacy compat
+let feedbackOn = true;
+let compareMode = false;  // legacy compat
+let numlineOn = false;
+let equivOn = false;
+let dykIndex = -1;
+let dragging = null;     // { denom, fromBar, fromPiece, isCompare }
+
+// ── UNDO STACK ────────────────────────────────────────────────────────────────
+const MAX_UNDO = 40;
+let undoStack = [];   // array of { bars, barsB } snapshots (deep copies)
+
+function saveUndo() {
+  undoStack.push({
+    bars: bars.map(b => [...b]),
+    barsB: barsB.map(b => [...b]),
+  });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  syncUndoBtn();
+}
+
+function syncUndoBtn() {
+  const btn = document.getElementById('btn-undo');
+  if (btn) btn.disabled = undoStack.length === 0;
+}
+
+function performUndo() {
+  if (undoStack.length === 0) return;
+  const snap = undoStack.pop();
+  bars = snap.bars.map(b => [...b]);
+  barsB = snap.barsB.map(b => [...b]);
+  syncUndoBtn();
+  render();
+  updateValue();
+  // Flash the build areas to signal the undo
+  ['build-space', 'build-space-b'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('undo-flash');
+    void el.offsetWidth; // force reflow to restart animation
+    el.classList.add('undo-flash');
+    el.addEventListener('animationend', () => el.classList.remove('undo-flash'), { once: true });
+  });
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function lcm(a, b) { return (a * b) / gcd(a, b); }
+
+function totalValue(barArr) {
+  // Returns { n, d } as irreducible fraction
+  if (barArr.flat().length === 0) return { n: 0, d: 1 };
+  let allD = barArr.flat().map(d => d);
+  if (allD.length === 0) return { n: 0, d: 1 };
+  let commonD = allD.reduce((acc, v) => lcm(acc, v), 1);
+  let totalN = allD.reduce((acc, v) => acc + commonD / v, 0);
+  let g = gcd(totalN, commonD);
+  return { n: totalN / g, d: commonD / g };
+}
+
+function toMixed(n, d) {
+  if (n === 0) return null;
+  let whole = Math.floor(n / d);
+  let rem = n % d;
+  let g = gcd(rem, d);
+  return { whole, rn: rem / g, rd: d / g };
+}
+
+function barSum(flatArr) {
+  if (flatArr.length === 0) return 0;
+  let commonD = flatArr.reduce((acc, v) => lcm(acc, v), 1);
+  return flatArr.reduce((acc, v) => acc + commonD / v, 0) / commonD;
+}
+
+// ── TOOLBOX ───────────────────────────────────────────────────────────────────
+
+function buildToolbox() {
+  const box = document.getElementById('toolbox');
+  box.innerHTML = '';
+  FRACS.forEach(f => {
+    if (f.isWhole) {
+      // Special full-width whole piece
+      const el = document.createElement('div');
+      el.className = 'piece-source-whole';
+      el.setAttribute('data-frac', '1');
+      el.setAttribute('data-denom', '1');
+      el.innerHTML = `
+        <div class="whole-piece-label">1 Entero</div>
+        <div class="whole-piece-bar"></div>
+        <div class="whole-piece-label">= 1</div>`;
+      el.addEventListener('mousedown', e => startDrag(e, 1, false, null, null, false, null, false));
+      el.addEventListener('touchstart', e => startDrag(e, 1, false, null, null, false, null, false), { passive: false });
+      box.appendChild(el);
+    } else {
+      const el = document.createElement('div');
+      el.className = 'piece-source';
+      el.setAttribute('data-frac', f.frac);
+      el.setAttribute('data-denom', f.d);
+      el.innerHTML = `
+        <div class="piece-visual" style="background:rgba(255,255,255,0.25);">${f.frac}</div>
+        <div class="piece-label">${f.frac}</div>`;
+      el.addEventListener('mousedown', e => startDrag(e, f.d, false, null, null, false, null, false));
+      el.addEventListener('touchstart', e => startDrag(e, f.d, false, null, null, false, null, false), { passive: false });
+      box.appendChild(el);
+    }
+  });
+}
+
+// ── BAR RENDERING ─────────────────────────────────────────────────────────────
+
+const WHOLE_W = 680; // px logical
+
+function renderBars(targetDiv, barsArr, isCompare) {
+  targetDiv.innerHTML = '';
+  barsArr.forEach((bar, bi) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'bar-wrapper';
+
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = bi + 1;
+    wrapper.appendChild(label);
+
+    // ── WHOLE OUTLINE (always visible behind pieces) ──
+    const outline = document.createElement('div');
+    outline.className = 'whole-outline';
+    wrapper.appendChild(outline);
+
+    const barEl = document.createElement('div');
+    barEl.className = 'fraction-bar';
+    barEl.setAttribute('data-bar', bi);
+    barEl.setAttribute('data-compare', isCompare ? '1' : '0');
+
+    const sum = barSum(bar);
+    if (feedbackOn) {
+      if (Math.abs(sum - 1) < 0.001) barEl.classList.add('full');
+      else if (sum > 1.001) barEl.classList.add('over');
+    }
+
+    // Pieces
+    if (bar.length === 0) {
+      const hint = document.createElement('div');
+      hint.className = 'drop-hint';
+      hint.textContent = isCompare ? '← arrastra piezas a la Fila B' : '← arrastra piezas a la Fila A';
+      barEl.appendChild(hint);
+    }
+
+    bar.forEach((denom, pi) => {
+      const piece = document.createElement('div');
+      piece.className = 'bar-piece' + (denom === 1 ? ' whole-piece' : '');
+      const pct = (1 / denom) * 100;
+      piece.style.width = `${pct}%`;
+      piece.style.background = getComputedColor(denom);
+      piece.textContent = denom === 1 ? '1 Entero' : `1/${denom}`;
+      piece.setAttribute('data-bar', bi);
+      piece.setAttribute('data-piece', pi);
+      piece.setAttribute('data-compare', isCompare ? '1' : '0');
+
+      piece.addEventListener('mousedown', e => startDrag(e, denom, true, bi, pi, isCompare, null, false));
+      piece.addEventListener('touchstart', e => {
+        let moved = false;
+        const onMove = () => { moved = true; };
+        document.addEventListener('touchmove', onMove, { once: true });
+        pressTimer = setTimeout(() => {
+          if (!moved) removePiece(bi, pi, isCompare);
+        }, 600);
+        startDrag(e, denom, true, bi, pi, isCompare, null, false);
+      }, { passive: false });
+
+      piece.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        removePiece(bi, pi, isCompare);
+      });
+
+      let pressTimer;
+      piece.addEventListener('touchend', () => clearTimeout(pressTimer));
+
+      barEl.appendChild(piece);
+    });
+
+    // Drop zone listeners
+    barEl.addEventListener('dragover', e => e.preventDefault());
+    barEl.addEventListener('dragenter', () => { if (dragging) barEl.classList.add('drag-over'); });
+    barEl.addEventListener('dragleave', () => barEl.classList.remove('drag-over'));
+    barEl.addEventListener('drop', e => {
+      e.preventDefault();
+      barEl.classList.remove('drag-over');
+      if (dragging) dropOnBar(bi, isCompare);
+    });
+
+    wrapper.appendChild(barEl);
+    targetDiv.appendChild(wrapper);
+  });
+}
+
+function getComputedColor(denom) {
+  const map = {
+    1:  '#475569',
+    2:  '#FF6B6B',
+    3:  '#FF9F43',
+    4:  '#FFC107',
+    5:  '#26C6DA',
+    6:  '#66BB6A',
+    8:  '#AB47BC',
+    10: '#EC407A',
+    12: '#5C6BC0',
+  };
+  return map[denom] || '#94a3b8';
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+
+let ghostEl = null;
+
+function startDrag(e, denom, isFromBar, barIdx, pieceIdx, isCompare, equivRow, fromRowB) {
+  e.preventDefault();
+  dragging = {
+    denom,
+    fromBar: isFromBar ? barIdx : null,
+    fromPiece: isFromBar ? pieceIdx : null,
+    isCompare: isCompare || false,
+    equivRow: equivRow || null,
+    fromRowB: fromRowB || false
+  };
+
+  ghostEl = document.getElementById('drag-ghost');
+  ghostEl.style.display = 'flex';
+  ghostEl.style.width = `${Math.max(36, Math.round(680 / denom))}px`;
+  ghostEl.style.height = '48px';
+  ghostEl.style.background = getComputedColor(denom);
+  ghostEl.textContent = `1/${denom}`;
+
+  moveGhost(e);
+
+  document.addEventListener('mousemove', moveGhost);
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchmove', moveGhost, { passive: false });
+  document.addEventListener('touchend', endDragTouch);
+}
+
+function moveGhost(e) {
+  if (!ghostEl) return;
+  const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+  const y = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+  ghostEl.style.left = x + 'px';
+  ghostEl.style.top = y + 'px';
+
+  // Highlight bar underneath
+  const el = document.elementFromPoint(x, y);
+  const bar = el?.closest('.fraction-bar');
+  document.querySelectorAll('.fraction-bar').forEach(b => b.classList.remove('drag-over'));
+  if (bar) bar.classList.add('drag-over');
+}
+
+function endDrag(e) {
+  if (!dragging) return;
+  const x = e.clientX;
+  const y = e.clientY;
+  const el = document.elementFromPoint(x, y);
+  const bar = el?.closest('.fraction-bar');
+  document.querySelectorAll('.fraction-bar').forEach(b => b.classList.remove('drag-over'));
+  if (bar) {
+    const bi = parseInt(bar.getAttribute('data-bar'));
+    const isRowB = bar.getAttribute('data-row-b') === '1';
+    const isC = bar.getAttribute('data-compare') === '1';
+    if (isRowB) dropOnRowB(bi);
+    else dropOnBar(bi, isC);
+  }
+  cleanupDrag();
+}
+
+function endDragTouch(e) {
+  if (!dragging) return;
+  const touch = e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const bar = el?.closest('.fraction-bar');
+  document.querySelectorAll('.fraction-bar').forEach(b => b.classList.remove('drag-over'));
+  if (bar) {
+    const bi = parseInt(bar.getAttribute('data-bar'));
+    const isRowB = bar.getAttribute('data-row-b') === '1';
+    const isC = bar.getAttribute('data-compare') === '1';
+    if (isRowB) dropOnRowB(bi);
+    else dropOnBar(bi, isC);
+  }
+  cleanupDrag();
+}
+
+function cleanupDrag() {
+  dragging = null;
+  if (ghostEl) ghostEl.style.display = 'none';
+  document.removeEventListener('mousemove', moveGhost);
+  document.removeEventListener('mouseup', endDrag);
+  document.removeEventListener('touchmove', moveGhost);
+  document.removeEventListener('touchend', endDragTouch);
+}
+
+function dropOnBar(barIdx, isCompare) {
+  if (!dragging) return;
+  saveUndo();
+  const target = isCompare ? compareBars : bars;
+  // Remove from source
+  if (dragging.fromBar !== null) {
+    if (dragging.fromRowB) {
+      barsB[dragging.fromBar].splice(dragging.fromPiece, 1);
+      while (barsB.length > 1 && barsB[barsB.length - 1].length === 0) barsB.pop();
+    } else {
+      const src = dragging.isCompare ? compareBars : bars;
+      src[dragging.fromBar].splice(dragging.fromPiece, 1);
+      while (src.length > 1 && src[src.length - 1].length === 0) src.pop();
+    }
+  }
+  while (target.length <= barIdx) target.push([]);
+  target[barIdx].push(dragging.denom);
+  ensureProperBarCount(target);
+  render();
+  updateValue();
+  burst();
+}
+
+
+function ensureProperBarCount(barsArr) {
+  // Always have at least one empty bar at end if last is full
+  const last = barsArr[barsArr.length - 1];
+  if (barSum(last) >= 0.999 && barsArr.length < 8) {
+    barsArr.push([]);
+  }
+  // Remove trailing empty bars (keep at least 2 if last full)
+  while (barsArr.length > 1) {
+    const last2 = barsArr[barsArr.length - 1];
+    const prev = barsArr[barsArr.length - 2];
+    if (last2.length === 0 && barSum(prev) < 0.999) {
+      barsArr.pop();
+    } else break;
+  }
+}
+
+function removePiece(barIdx, pieceIdx, isCompare) {
+  saveUndo();
+  const target = isCompare ? compareBars : bars;
+  target[barIdx].splice(pieceIdx, 1);
+  // Clean up trailing empty bars
+  while (target.length > 1 && target[target.length - 1].length === 0) target.pop();
+  render();
+  updateValue();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+
+function render() {
+  renderBars(document.getElementById('build-space'), bars, false, null);
+  renderRowB(document.getElementById('build-space-b'), barsB);
+  updateRowValues();
+  updateEquivBridge();
+  if (compareMode) {
+    renderBars(document.getElementById('compare-space'), compareBars, true, null);
+    updateCompareSymbol();
+  }
+  updateNumberLine();
+  updateEquivHint();
+}
+
+// ── ROW B RENDERER ────────────────────────────────────────────────────────────
+// Row B is a single-bar drop zone (mirrors renderBars but targets barsB)
+
+function renderRowB(targetDiv, rowBarsArr) {
+  if (!targetDiv) return;
+  targetDiv.innerHTML = '';
+  rowBarsArr.forEach((bar, bi) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'bar-wrapper';
+
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = bi + 1;
+    wrapper.appendChild(label);
+
+    // ── WHOLE OUTLINE ──
+    const outline = document.createElement('div');
+    outline.className = 'whole-outline';
+    wrapper.appendChild(outline);
+
+    const barEl = document.createElement('div');
+    barEl.className = 'fraction-bar';
+    barEl.setAttribute('data-bar', bi);
+    barEl.setAttribute('data-compare', '0');
+    barEl.setAttribute('data-row-b', '1');
+
+    const sum = barSum(bar);
+    if (feedbackOn) {
+      if (Math.abs(sum - 1) < 0.001) barEl.classList.add('full');
+      else if (sum > 1.001) barEl.classList.add('over');
+    }
+
+    if (bar.length === 0) {
+      const hint = document.createElement('div');
+      hint.className = 'drop-hint';
+      hint.textContent = '← arrastra piezas aquí';
+      barEl.appendChild(hint);
+    }
+
+    bar.forEach((denom, pi) => {
+      const piece = document.createElement('div');
+      piece.className = 'bar-piece' + (denom === 1 ? ' whole-piece' : '');
+      piece.style.width = `${(1 / denom) * 100}%`;
+      piece.style.background = getComputedColor(denom);
+      piece.textContent = denom === 1 ? '1 Entero' : `1/${denom}`;
+      piece.setAttribute('data-bar', bi);
+      piece.setAttribute('data-piece', pi);
+      piece.setAttribute('data-row-b', '1');
+
+      piece.addEventListener('mousedown', e => startDrag(e, denom, true, bi, pi, false, null, true));
+      piece.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        removePieceB(bi, pi);
+      });
+      let pt;
+      piece.addEventListener('touchstart', e => {
+        pt = setTimeout(() => removePieceB(bi, pi), 600);
+        startDrag(e, denom, true, bi, pi, false, null, true);
+      }, { passive: false });
+      piece.addEventListener('touchend', () => clearTimeout(pt));
+      barEl.appendChild(piece);
+    });
+
+    barEl.addEventListener('dragover', e => e.preventDefault());
+    barEl.addEventListener('dragenter', () => { if (dragging) barEl.classList.add('drag-over'); });
+    barEl.addEventListener('dragleave', () => barEl.classList.remove('drag-over'));
+    barEl.addEventListener('drop', e => {
+      e.preventDefault();
+      barEl.classList.remove('drag-over');
+      if (dragging) dropOnRowB(bi);
+    });
+
+    wrapper.appendChild(barEl);
+    targetDiv.appendChild(wrapper);
+  });
+}
+
+function removePieceB(barIdx, pieceIdx) {
+  saveUndo();
+  barsB[barIdx].splice(pieceIdx, 1);
+  while (barsB.length > 1 && barsB[barsB.length - 1].length === 0) barsB.pop();
+  render();
+  updateValue();
+}
+
+function dropOnRowB(barIdx) {
+  if (!dragging) return;
+  saveUndo();
+  // If piece came from Row B, remove from source
+  if (dragging.fromRowB && dragging.fromBar !== null) {
+    barsB[dragging.fromBar].splice(dragging.fromPiece, 1);
+    while (barsB.length > 1 && barsB[barsB.length - 1].length === 0) barsB.pop();
+  } else if (dragging.fromBar !== null && !dragging.isCompare && !dragging.fromRowB) {
+    // Dragged from Row A — remove from there
+    bars[dragging.fromBar].splice(dragging.fromPiece, 1);
+    while (bars.length > 1 && bars[bars.length - 1].length === 0) bars.pop();
+  }
+  while (barsB.length <= barIdx) barsB.push([]);
+  barsB[barIdx].push(dragging.denom);
+  ensureProperBarCount(barsB);
+  render();
+  updateValue();
+  burst();
+}
+
+// ── ROW VALUE BADGES ─────────────────────────────────────────────────────────
+
+function updateRowValues() {
+  const elA = document.getElementById('row-a-val');
+  const elB = document.getElementById('row-b-val');
+  if (!elA || !elB) return;
+
+  const vA = totalValue(bars);
+  const vB = totalValue(barsB);
+
+  elA.textContent = vA.n > 0 ? fracStr(vA.n, vA.d) : '—';
+  elB.textContent = vB.n > 0 ? fracStr(vB.n, vB.d) : '—';
+}
+
+// ── EQUIVALENCE BRIDGE ────────────────────────────────────────────────────────
+
+function updateEquivBridge() {
+  const badge  = document.getElementById('equiv-badge');
+  const formsEl = document.getElementById('equiv-forms-display');
+  const blockA = document.getElementById('row-block-a');
+  const blockB = document.getElementById('row-block-b');
+  if (!badge) return;
+
+  const vA = totalValue(bars);
+  const vB = totalValue(barsB);
+  const hasA = vA.n > 0;
+  const hasB = vB.n > 0;
+  const sumA = vA.n / vA.d;
+  const sumB = vB.n / vB.d;
+  const isMatch = hasA && hasB && Math.abs(sumA - sumB) < 0.0001;
+  const bridge = document.getElementById('equiv-bridge');
+
+  if (!hasA && !hasB) {
+    badge.textContent = '?';
+    badge.className = 'equiv-badge';
+    if (bridge) bridge.className = 'equiv-bridge';
+    if (blockA) blockA.classList.remove('equiv-glow');
+    if (blockB) blockB.classList.remove('equiv-glow');
+    if (formsEl) formsEl.innerHTML = '';
+  } else if (isMatch) {
+    badge.textContent = '=';
+    badge.className = 'equiv-badge match';
+    if (bridge) bridge.className = 'equiv-bridge match';
+    if (blockA) blockA.classList.add('equiv-glow');
+    if (blockB) blockB.classList.add('equiv-glow');
+
+    // Glow bars inside each row
+    document.querySelectorAll('#build-space .fraction-bar').forEach(b => b.classList.add('equiv-match'));
+    document.querySelectorAll('#build-space-b .fraction-bar').forEach(b => b.classList.add('equiv-match'));
+
+    // Equiv forms banner
+    if (formsEl) {
+      const strA = fracStr(vA.n, vA.d);
+      const strB = fracStr(vB.n, vB.d);
+      let msg = strA === strB
+        ? `¡Misma fracción! Intenta usar piezas diferentes para mostrarla de otra manera.`
+        : `✨ ¡Descubriste que: <strong>${strA} = ${strB}</strong>!`;
+
+      if (equivOn) {
+        const extras = getEquivForms(vA.n, vA.d);
+        if (extras.length > 0) {
+          msg += ` &nbsp;·&nbsp; También equivale a: <strong>${extras.join(' = ')}</strong>`;
+        }
+      }
+      formsEl.innerHTML = `<div class="equiv-found-banner">🎉 ${msg}</div>`;
+    }
+  } else {
+    badge.textContent = hasA && hasB ? (sumA > sumB ? '>' : '<') : '?';
+    badge.className = 'equiv-badge';
+    if (bridge) bridge.className = 'equiv-bridge';
+    if (blockA) blockA.classList.remove('equiv-glow');
+    if (blockB) blockB.classList.remove('equiv-glow');
+    document.querySelectorAll('#build-space .fraction-bar, #build-space-b .fraction-bar').forEach(b => b.classList.remove('equiv-match'));
+    if (formsEl) formsEl.innerHTML = '';
+  }
+}
+
+function fracStr(n, d) {
+  if (n === 0) return '0';
+  if (d === 1) return `${n}`;
+  return `${n}/${d}`;
+}
+
+function getEquivForms(n, d) {
+  const g = gcd(n, d);
+  const sn = n / g, sd = d / g;
+  let forms = [];
+  for (let m = 1; m <= 6; m++) {
+    const en = sn * m, ed = sd * m;
+    if ((en !== n || ed !== d) && ed <= 12) forms.push(`${en}/${ed}`);
+  }
+  return forms.slice(0, 3);
+}
+
+
+
+function updateValue() {
+  const flat = bars.flat();
+  const { n, d } = totalValue(bars);
+
+  // Fraction form
+  const numEl = document.getElementById('frac-num');
+  const denEl = document.getElementById('frac-den');
+  const lineEl = document.getElementById('frac-line');
+
+  if (n === 0) {
+    numEl.textContent = '0';
+    numEl.className = 'frac-num value-zero';
+    lineEl.style.display = 'none';
+    denEl.style.display = 'none';
+  } else if (d === 1) {
+    numEl.textContent = n;
+    numEl.className = 'frac-num';
+    lineEl.style.display = 'none';
+    denEl.style.display = 'none';
+  } else {
+    numEl.textContent = n;
+    numEl.className = 'frac-num';
+    lineEl.style.display = 'block';
+    denEl.style.display = 'block';
+    denEl.textContent = d;
+  }
+
+  // Mixed number
+  const mixedEl = document.getElementById('mixed-display');
+  if (n === 0) {
+    mixedEl.innerHTML = '<span class="value-zero" id="mixed-zero">0</span>';
+  } else {
+    const m = toMixed(n, d);
+    if (!m || m.whole === 0) {
+      mixedEl.innerHTML = `<span class="mixed-whole">${n}</span>
+        ${d !== 1 ? `<div class="mixed-frac"><span>${n % d === n ? n : ''}</span></div>` : ''}`;
+      // simpler: just show fraction
+      if (d !== 1) {
+        mixedEl.innerHTML = `<span style="font-family:'Fredoka One';font-size:1.6rem;color:#5C6BC0;">${n}/${d}</span>`;
+      } else {
+        mixedEl.innerHTML = `<span class="mixed-whole">${n}</span>`;
+      }
+    } else if (m.rn === 0) {
+      mixedEl.innerHTML = `<span class="mixed-whole">${m.whole}</span>`;
+    } else {
+      mixedEl.innerHTML = `
+        <span class="mixed-whole">${m.whole}</span>
+        <div class="mixed-frac">
+          <span>${m.rn}</span>
+          <div class="mixed-frac-line"></div>
+          <span>${m.rd}</span>
+        </div>`;
+    }
+  }
+
+  // Decomposition
+  updateDecomp(flat, n, d);
+}
+
+function updateDecomp(flat, n, d) {
+  const el = document.getElementById('decomp-display');
+  if (flat.length === 0) {
+    el.innerHTML = '<span style="color:#cbd5e1;font-size:0.85rem;">Construye una fracción para verla separada en partes…</span>';
+    return;
+  }
+
+  // Group by bar, show each bar's decomp
+  let parts = [];
+  bars.forEach((bar, bi) => {
+    if (bar.length === 0) return;
+    let pieces = bar.map(denom => {
+      const span = document.createElement('span');
+      return `<span class="decomp-unit" style="background:${getComputedColor(denom)};">1/${denom}</span>`;
+    });
+    parts.push(pieces.join(`<span class="decomp-plus">+</span>`));
+  });
+
+  let totalStr = '';
+  if (n > 0) {
+    if (d === 1) {
+      totalStr = `<span class="decomp-eq">=</span><span style="font-family:'Fredoka One';font-size:1.1rem;color:var(--accent);">${n}</span>`;
+    } else {
+      totalStr = `<span class="decomp-eq">=</span><span style="font-family:'Fredoka One';font-size:1.1rem;color:var(--accent);">${n}/${d}</span>`;
+    }
+  }
+
+  el.innerHTML = parts.join(`<span style="color:#94a3b8;margin:0 6px;font-size:0.9rem;">│</span>`) + totalStr;
+}
+
+// ── NUMBER LINE ───────────────────────────────────────────────────────────────
+
+function updateNumberLine() {
+  if (!numlineOn) return;
+
+  const { n, d } = totalValue(bars);
+  const val = n / d;  // decimal value
+
+  // Collect all denominators in use for smart partitioning
+  const usedDenoms = [...new Set(bars.flat())];
+
+  draw01Line(n, d, val, usedDenoms);
+  draw04Line(n, d, val, usedDenoms);
+}
+
+// ── 0–1 PRECISION LINE ────────────────────────────────────────────────────────
+function draw01Line(n, d, val, usedDenoms) {
+  const svg = document.getElementById('nl-svg-01');
+  if (!svg) return;
+
+  const W = 680, H = 64;
+  const PAD_L = 28, PAD_R = 28;
+  const lineW = W - PAD_L - PAD_R;
+  const AXIS_Y = 38;
+
+  // Determine best partition denominator for tick marks
+  // Use LCM of used denoms (capped at 12 for readability)
+  let partD = 1;
+  if (usedDenoms.length > 0) {
+    partD = usedDenoms.reduce((a, v) => lcm(a, v), 1);
+    if (partD > 12) partD = usedDenoms[0]; // fallback to first used
+    if (partD > 12) partD = 4; // hard fallback
+  } else {
+    partD = 4; // default partition
+  }
+
+  let out = ``;
+
+  // Shaded region from 0 to val (clamped 0–1)
+  const clampedVal = Math.min(val, 1);
+  if (clampedVal > 0.001) {
+    const fillX = PAD_L + clampedVal * lineW;
+    out += `<rect x="${PAD_L}" y="${AXIS_Y - 6}" width="${fillX - PAD_L}" height="12" rx="6"
+              fill="#6C63FF" opacity="0.13"/>`;
+  }
+
+  // Axis line
+  out += `<line x1="${PAD_L}" y1="${AXIS_Y}" x2="${W - PAD_R}" y2="${AXIS_Y}"
+            stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>`;
+
+  // Partition tick marks
+  for (let i = 0; i <= partD; i++) {
+    const frac = i / partD;
+    const x = PAD_L + frac * lineW;
+    const isWhole = (i === 0 || i === partD);
+    const tickH = isWhole ? 14 : 9;
+    out += `<line x1="${x}" y1="${AXIS_Y - tickH / 2}" x2="${x}" y2="${AXIS_Y + tickH / 2}"
+              stroke="${isWhole ? '#94a3b8' : '#c7d2fe'}" stroke-width="${isWhole ? 2.5 : 1.5}"/>`;
+
+    // Label every partition tick (if not too crowded)
+    const showLabel = (partD <= 12);
+    if (showLabel) {
+      const labelText = i === 0 ? '0' : i === partD ? '1' : `${i}/${partD}`;
+      // Only label 0, 1, and partition-aligned positions if denom ≤ 8
+      const shouldLabel = (i === 0 || i === partD) || (partD <= 8);
+      if (shouldLabel) {
+        out += `<text x="${x}" y="${AXIS_Y + 22}" text-anchor="middle"
+                  font-family="Fredoka One" font-size="${isWhole ? 13 : 10}"
+                  fill="${isWhole ? '#475569' : '#94a3b8'}">${labelText}</text>`;
+      }
+    }
+  }
+
+  // Whole number endpoints big labels
+  out += `<text x="${PAD_L}" y="${AXIS_Y - 18}" text-anchor="middle"
+            font-family="Fredoka One" font-size="14" fill="#475569">0</text>`;
+  out += `<text x="${W - PAD_R}" y="${AXIS_Y - 18}" text-anchor="middle"
+            font-family="Fredoka One" font-size="14" fill="#475569">1</text>`;
+
+  // ── POINT ──
+  if (n > 0) {
+    const isOver = val > 1.0015;
+    const isExact = Math.abs(val - 1) < 0.001;
+
+    if (isOver) {
+      // Value exceeds 1: show point at right edge with overflow arrow
+      const edgeX = PAD_L + lineW;
+      // Arrow pointing right
+      out += `<circle cx="${edgeX}" cy="${AXIS_Y}" r="7" fill="#FF6B6B" opacity="0.9"/>`;
+      out += `<polygon points="${edgeX + 10},${AXIS_Y} ${edgeX + 18},${AXIS_Y - 6} ${edgeX + 18},${AXIS_Y + 6}"
+                fill="#FF6B6B" opacity="0.85"/>`;
+      out += `<line x1="${edgeX + 7}" y1="${AXIS_Y}" x2="${edgeX + 10}" y2="${AXIS_Y}"
+                stroke="#FF6B6B" stroke-width="2.5"/>`;
+      // Label above
+      const fracStr = d === 1 ? `${n}` : `${n}/${d}`;
+      out += `<text x="${edgeX - 2}" y="${AXIS_Y - 16}" text-anchor="middle"
+                font-family="Fredoka One" font-size="12" fill="#FF6B6B">${fracStr} →</text>`;
+      // Overflow note
+      out += `<text x="${edgeX + 20}" y="${AXIS_Y + 5}" text-anchor="start"
+                font-family="Nunito" font-size="10" font-weight="700" fill="#FF6B6B" opacity="0.8">¡más de 1!</text>`;
+    } else {
+      const px = PAD_L + val * lineW;
+      const pointColor = isExact ? '#22c55e' : '#6C63FF';
+
+      // Vertical drop line from point to axis
+      out += `<line x1="${px}" y1="${AXIS_Y - 20}" x2="${px}" y2="${AXIS_Y}"
+                stroke="${pointColor}" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.5"/>`;
+
+      // Point circle
+      out += `<circle cx="${px}" cy="${AXIS_Y}" r="9" fill="${pointColor}" opacity="0.95"
+                filter="url(#glow01)"/>`;
+      out += `<circle cx="${px}" cy="${AXIS_Y}" r="4" fill="white" opacity="0.9"/>`;
+
+      // Label above point
+      const fracStr = d === 1 ? `${n}` : `${n}/${d}`;
+      out += `<text x="${px}" y="${AXIS_Y - 24}" text-anchor="middle"
+                font-family="Fredoka One" font-size="13" fill="${pointColor}">${fracStr}</text>`;
+    }
+  }
+
+  // Glow filter
+  out = `<defs>
+    <filter id="glow01" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>` + out;
+
+  svg.innerHTML = out;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+}
+
+// ── 0–4 EXTENDED LINE ─────────────────────────────────────────────────────────
+function draw04Line(n, d, val, usedDenoms) {
+  const svg = document.getElementById('nl-svg-04');
+  if (!svg) return;
+
+  const W = 680, H = 64;
+  const PAD_L = 28, PAD_R = 28;
+  const lineW = W - PAD_L - PAD_R;
+  const AXIS_Y = 38;
+  const MAX = 4;
+
+  // Partition denominator for sub-ticks between whole numbers
+  let partD = 1;
+  if (usedDenoms.length > 0) {
+    partD = usedDenoms.reduce((a, v) => lcm(a, v), 1);
+    if (partD > 8) partD = usedDenoms[0];
+    if (partD > 8) partD = 4;
+  } else {
+    partD = 4;
+  }
+
+  let out = ``;
+
+  // Shaded region from 0 to val (capped at MAX)
+  const clampedVal = Math.min(val, MAX);
+  if (clampedVal > 0.001) {
+    const fillX = PAD_L + (clampedVal / MAX) * lineW;
+    out += `<rect x="${PAD_L}" y="${AXIS_Y - 6}" width="${fillX - PAD_L}" height="12" rx="6"
+              fill="#5C6BC0" opacity="0.12"/>`;
+  }
+
+  // Axis line
+  out += `<line x1="${PAD_L}" y1="${AXIS_Y}" x2="${W - PAD_R}" y2="${AXIS_Y}"
+            stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>`;
+
+  // Whole number sections with alternating light bands
+  for (let w = 0; w < MAX; w++) {
+    const x0 = PAD_L + (w / MAX) * lineW;
+    const x1 = PAD_L + ((w + 1) / MAX) * lineW;
+    if (w % 2 === 0) {
+      out += `<rect x="${x0}" y="${AXIS_Y - 5}" width="${x1 - x0}" height="10" rx="0"
+                fill="#e0e7ff" opacity="0.35"/>`;
+    }
+  }
+
+  // Axis line on top of bands
+  out += `<line x1="${PAD_L}" y1="${AXIS_Y}" x2="${W - PAD_R}" y2="${AXIS_Y}"
+            stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>`;
+
+  // Sub-division ticks (between each whole)
+  for (let w = 0; w < MAX; w++) {
+    const segStart = PAD_L + (w / MAX) * lineW;
+    const segW = lineW / MAX;
+    for (let i = 1; i < partD; i++) {
+      const x = segStart + (i / partD) * segW;
+      out += `<line x1="${x}" y1="${AXIS_Y - 5}" x2="${x}" y2="${AXIS_Y + 5}"
+                stroke="#c7d2fe" stroke-width="1.2"/>`;
+    }
+  }
+
+  // Whole number ticks and labels
+  for (let w = 0; w <= MAX; w++) {
+    const x = PAD_L + (w / MAX) * lineW;
+    out += `<line x1="${x}" y1="${AXIS_Y - 14}" x2="${x}" y2="${AXIS_Y + 14}"
+              stroke="#94a3b8" stroke-width="2.5"/>`;
+    out += `<text x="${x}" y="${AXIS_Y + 26}" text-anchor="middle"
+              font-family="Fredoka One" font-size="14" fill="#475569">${w}</text>`;
+    // Top label
+    out += `<text x="${x}" y="${AXIS_Y - 18}" text-anchor="middle"
+              font-family="Fredoka One" font-size="13" fill="#94a3b8">${w}</text>`;
+  }
+
+  // Half-tick labels between whole numbers (e.g. 1/2, 1, 1½, 2…)
+  // Show half-way labels if denominator is 2 or 4
+  if (partD >= 2 && partD <= 8) {
+    for (let w = 0; w < MAX; w++) {
+      const segStart = PAD_L + (w / MAX) * lineW;
+      const segW = lineW / MAX;
+      // Label at midpoint of each segment
+      const mx = segStart + segW / 2;
+      const mFracN = w * partD + Math.round(partD / 2);
+      const mFracD = partD;
+      const mg = gcd(mFracN, mFracD);
+      const dispN = mFracN / mg, dispD = mFracD / mg;
+      const dispStr = dispD === 1 ? `${dispN}` : `${dispN}/${dispD}`;
+      out += `<text x="${mx}" y="${AXIS_Y + 26}" text-anchor="middle"
+                font-family="Fredoka One" font-size="9.5" fill="#a5b4fc" opacity="0.9">${dispStr}</text>`;
+    }
+  }
+
+  // ── POINT ──
+  if (n > 0) {
+    const clamp4 = Math.min(val, MAX);
+    const isOver = val > MAX - 0.001;
+    const px = PAD_L + (clamp4 / MAX) * lineW;
+    const pointColor = '#5C6BC0';
+
+    // Which whole-number segment does this land in?
+    const wholeN = Math.floor(val);
+    const fracRem = val - wholeN;
+
+    // Vertical drop line
+    out += `<line x1="${px}" y1="${AXIS_Y - 22}" x2="${px}" y2="${AXIS_Y - 9}"
+              stroke="${pointColor}" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>`;
+
+    // Point
+    out += `<circle cx="${px}" cy="${AXIS_Y}" r="10" fill="${pointColor}" opacity="0.95"
+              filter="url(#glow04)"/>`;
+    out += `<circle cx="${px}" cy="${AXIS_Y}" r="4.5" fill="white" opacity="0.9"/>`;
+
+    // Overflow arrow if val > 4
+    if (isOver && val > MAX + 0.001) {
+      out += `<polygon points="${px + 12},${AXIS_Y} ${px + 20},${AXIS_Y - 6} ${px + 20},${AXIS_Y + 6}"
+                fill="#FF6B6B" opacity="0.85"/>`;
+    }
+
+    // Mixed number label above point
+    const { n: tn, d: td } = totalValue(bars);
+    const mixed = toMixed(tn, td);
+    let labelTop, labelBot;
+
+    if (tn === 0) {
+      labelTop = '0';
+      labelBot = '';
+    } else if (td === 1) {
+      labelTop = `${tn}`;
+      labelBot = '';
+    } else if (mixed && mixed.whole > 0 && mixed.rn > 0) {
+      labelTop = `${mixed.whole} ${mixed.rn}/${mixed.rd}`;
+      labelBot = `(${tn}/${td})`;
+    } else {
+      labelTop = `${tn}/${td}`;
+      labelBot = '';
+    }
+
+    out += `<text x="${px}" y="${AXIS_Y - 26}" text-anchor="middle"
+              font-family="Fredoka One" font-size="13" fill="${pointColor}">${labelTop}</text>`;
+    if (labelBot) {
+      out += `<text x="${px}" y="${AXIS_Y - 13}" text-anchor="middle"
+                font-family="Fredoka One" font-size="10" fill="${pointColor}" opacity="0.7">${labelBot}</text>`;
+    }
+
+    // Connector line to 0–1 line (visual sync cue) — just a subtle pulse dot
+    // We'll do this via DOM: both SVGs show same color point
+  }
+
+  // Glow filter
+  out = `<defs>
+    <filter id="glow04" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>` + out;
+
+  svg.innerHTML = out;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+}
+
+
+// ── COMPARE ───────────────────────────────────────────────────────────────────
+
+function updateCompareSymbol() {
+  const v1 = totalValue(bars);
+  const v2 = totalValue(compareBars);
+  const a = v1.n / v1.d;
+  const b = v2.n / v2.d;
+  const el = document.getElementById('compare-symbol');
+  if (v1.n === 0 && v2.n === 0) { el.textContent = '—'; return; }
+  if (Math.abs(a - b) < 0.001) el.textContent = '=';
+  else if (a > b) el.textContent = '>';
+  else el.textContent = '<';
+}
+
+// ── EQUIVALENCE HINT ──────────────────────────────────────────────────────────
+
+function updateEquivHint() {
+  const hint = document.getElementById('equiv-hint');
+  if (!equivOn) { hint.textContent = ''; return; }
+  const { n, d } = totalValue(bars);
+  if (n === 0) { hint.textContent = ''; return; }
+
+  let equivs = [];
+  // Show simplified + multiples
+  const g = gcd(n, d);
+  const sn = n / g, sd = d / g;
+
+  // Show a few equivalent forms
+  for (let m = 1; m <= 6; m++) {
+    const en = sn * m, ed = sd * m;
+    if (en !== n || ed !== d) {
+      if (ed <= 12) equivs.push(`${en}/${ed}`);
+    }
+  }
+
+  if (equivs.length > 0) {
+    hint.textContent = `🔄 Formas equivalentes: ${n}/${d} = ${equivs.slice(0,3).join(' = ')}`;
+  } else {
+    hint.textContent = '';
+  }
+}
+
+// ── BURST ─────────────────────────────────────────────────────────────────────
+
+function burst() {
+  const flat = bars.flat();
+  const sum = barSum(flat);
+  if (!feedbackOn) return;
+  // Burst on whole number reached
+  if (Math.abs(sum % 1) < 0.03 && sum > 0) {
+    spawnBurst();
+  }
+}
+
+function spawnBurst() {
+  const colors = ['#FF6B6B','#FFC107','#6C63FF','#26C6DA','#66BB6A','#FF9F43'];
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'burst-particle';
+    const angle = (i / 18) * Math.PI * 2;
+    const dist = 60 + Math.random() * 80;
+    p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+    p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.background = colors[i % colors.length];
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 900);
+  }
+}
+
+// ── DID YOU KNOW ──────────────────────────────────────────────────────────────
+
+function nextFact() {
+  const inner = document.getElementById('dyk-inner');
+  inner.classList.add('fade');
+  setTimeout(() => {
+    let next;
+    do { next = Math.floor(Math.random() * DYK_FACTS.length); } while (next === dykIndex);
+    dykIndex = next;
+    const f = DYK_FACTS[dykIndex];
+    document.getElementById('dyk-emoji').textContent = f.emoji;
+    document.getElementById('dyk-headline').textContent = f.headline;
+    document.getElementById('dyk-body').textContent = f.body;
+    inner.classList.remove('fade');
+  }, 300);
+}
+
+// ── PROMPTS ───────────────────────────────────────────────────────────────────
+
+let lastPromptIdx = -1;
+
+function showPrompt() {
+  let next;
+  do { next = Math.floor(Math.random() * PROMPTS.length); } while (next === lastPromptIdx);
+  lastPromptIdx = next;
+  const p = PROMPTS[next];
+  document.getElementById('prompt-emoji').textContent = p.emoji;
+  document.getElementById('prompt-text').textContent = p.text;
+  document.getElementById('prompt-popup').classList.add('visible');
+}
+
+function closePrompt() {
+  document.getElementById('prompt-popup').classList.remove('visible');
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  undoStack = [];
+  syncUndoBtn();
+  bars = [[]];
+  compareBars = [[]];
+  barsA = [[]];
+  barsB = [[]];
+  render();
+  updateValue();
+});
+
+document.getElementById('btn-undo').addEventListener('click', performUndo);
+
+document.getElementById('btn-feedback').addEventListener('click', function() {
+  feedbackOn = !feedbackOn;
+  this.classList.toggle('active', feedbackOn);
+  render();
+});
+
+document.getElementById('btn-numline').addEventListener('click', function() {
+  numlineOn = !numlineOn;
+  this.classList.toggle('active', numlineOn);
+  const wrap = document.getElementById('number-line-wrap');
+  wrap.classList.toggle('visible', numlineOn);
+  if (numlineOn) updateNumberLine();
+});
+
+document.getElementById('btn-equiv').addEventListener('click', function() {
+  equivOn = !equivOn;
+  this.classList.toggle('active', equivOn);
+  updateEquivHint();
+  updateEquivBridge(); // re-render banner with equiv forms if toggled on
+});
+
+document.getElementById('btn-prompt').addEventListener('click', showPrompt);
+
+document.getElementById('prompt-popup').addEventListener('click', function(e) {
+  if (e.target === this) closePrompt();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+buildToolbox();
+render();
+updateValue();
+nextFact();
+
+</script>
+</body>
+</html>
