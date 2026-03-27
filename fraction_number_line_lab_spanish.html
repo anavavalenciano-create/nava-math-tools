@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Laboratorio de Recta Numérica de Fracciones de Mrs. Nava</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eef2ff;
+  --card: #ffffff;
+  --header-start: #6C63FF;
+  --header-end: #8E7CFF;
+  --accent1: #f59e0b;
+  --text-dark: #1e293b;
+  --text-mid: #475569;
+  --text-light: #94a3b8;
+  --shadow: 0 4px 24px rgba(108,99,255,0.10);
+  --radius: 18px;
+  --radius-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 0 32px 0;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  width: 100%;
+  background: linear-gradient(135deg, var(--header-start), var(--header-end));
+  padding: 16px 24px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(108,99,255,0.28);
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header-icon {
+  width: 46px; height: 46px; background: rgba(255,255,255,0.2);
+  border-radius: 13px; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+.header-title { color: #fff; }
+.header-title h1 { font-family: 'Fredoka One', cursive; font-size: 1.45rem; line-height: 1.1; }
+.header-title p { font-size: 0.76rem; opacity: 0.85; font-weight: 600; letter-spacing: 0.04em; margin-top: 2px; }
+.badge {
+  background: rgba(255,255,255,0.18); color: #fff; border-radius: 20px;
+  padding: 5px 14px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em;
+  border: 1.5px solid rgba(255,255,255,0.3); white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── MAIN ── */
+.main { width: 100%; max-width: 1000px; padding: 18px 16px 0; display: flex; flex-direction: column; gap: 13px; }
+
+/* ── CONTROLS BAR ── */
+.controls-bar {
+  background: var(--card); border-radius: var(--radius);
+  padding: 12px 18px; box-shadow: var(--shadow);
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.ctrl-label { font-family: 'Fredoka One', cursive; font-size: 0.95rem; color: var(--header-start); white-space: nowrap; }
+.denom-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.denom-chip {
+  background: var(--bg); border: 2.5px solid #c7d2fe; color: var(--text-dark);
+  font-family: 'Fredoka One', cursive; font-size: 1rem; border-radius: 30px;
+  padding: 3px 15px; cursor: pointer; transition: all 0.16s; user-select: none;
+}
+.denom-chip:hover { border-color: var(--header-start); background: #ede9fe; }
+.denom-chip.active {
+  background: var(--header-start); border-color: var(--header-start); color: #fff;
+  box-shadow: 0 2px 8px rgba(108,99,255,0.28);
+}
+.ctrl-divider { width: 1px; height: 30px; background: #e2e8f0; flex-shrink: 0; }
+.ctrl-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--bg); border: 2px solid #c7d2fe;
+  border-radius: 30px; padding: 4px 13px;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.80rem;
+  color: var(--text-mid); cursor: pointer; transition: all 0.16s;
+  white-space: nowrap; user-select: none;
+}
+.ctrl-btn:hover { border-color: var(--header-start); color: var(--header-start); background: #ede9fe; }
+.ctrl-btn.active { background: var(--accent1); border-color: var(--accent1); color: #fff; }
+.ctrl-btn.btn-undo:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+.ctrl-btn.btn-reset:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+
+/* ── WORKSPACE ── */
+.workspace {
+  background: var(--card); border-radius: var(--radius); padding: 24px 24px 20px;
+  box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 0;
+}
+
+/* ── NUMBER LINE SECTIONS ── */
+.nl-section { display: flex; flex-direction: column; gap: 6px; padding: 10px 0 12px; }
+.nl-section + .nl-section { border-top: 2px dashed #e2e8f0; padding-top: 14px; }
+.nl-label-row { display: flex; align-items: center; gap: 9px; margin-bottom: 2px; }
+.nl-badge {
+  font-family: 'Fredoka One', cursive; font-size: 0.75rem; letter-spacing: 0.05em;
+  padding: 2px 11px; border-radius: 20px; background: #ede9fe; color: var(--header-start);
+}
+.nl-badge.ext { background: #d1fae5; color: #065f46; }
+.nl-hint { font-size: 0.72rem; color: var(--text-light); font-weight: 700; }
+
+/* Canvas wrap — the key to precise layout */
+.nl-wrap {
+  position: relative; width: 100%;
+  user-select: none;
+}
+.nl-wrap.nl0 { height: 78px; }
+.nl-wrap.nl1 { height: 78px; }
+.jump-mode-on .nl-wrap.nl0 { height: 110px; }
+.jump-mode-on .nl-wrap.nl1 { height: 110px; }
+canvas.nl-canvas {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  cursor: crosshair; display: block;
+}
+.jump-mode-on canvas.nl-canvas { cursor: cell; }
+
+/* ── JUMP PANEL ── */
+.jump-panel-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px; flex-wrap: wrap; min-height: 36px;
+}
+.jump-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: #f8fafc; border: 2.5px solid #e2e8f0;
+  border-radius: 11px; padding: 4px 10px;
+  transition: all 0.16s; cursor: pointer; user-select: none;
+}
+.jump-chip:hover { border-color: #94a3b8; }
+.jump-chip.sel { box-shadow: 0 0 0 2.5px rgba(139,92,246,0.28); }
+.jump-arc-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  flex-shrink: 0; border: 2px solid rgba(0,0,0,0.15);
+}
+.jump-from, .jump-to { font-family: 'Fredoka One', cursive; font-size: 0.85rem; }
+.jump-arrow-sym { font-size: 0.88rem; color: #64748b; }
+.jump-delta {
+  font-size: 0.75rem; font-weight: 800;
+  border-radius: 5px; padding: 1px 6px;
+  font-family: 'Nunito', sans-serif;
+}
+.jump-delta.pos { color: #047857; background: #d1fae5; }
+.jump-delta.neg { color: #b91c1c; background: #fee2e2; }
+.jump-delta.zero { color: #64748b; background: #f1f5f9; }
+.jump-rm {
+  width: 16px; height: 16px; border-radius: 50%; background: #fee2e2;
+  color: #ef4444; font-size: 10px; display: flex; align-items: center;
+  justify-content: center; font-weight: 900; cursor: pointer; flex-shrink: 0;
+  transition: all 0.14s; line-height: 1;
+}
+.jump-rm:hover { background: #ef4444; color: #fff; }
+.jump-empty { font-size: 0.76rem; color: var(--text-light); font-weight: 700; }
+
+/* ── FRACTION PANEL ── */
+.panel-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 10px; flex-wrap: wrap;
+}
+.fraction-panel { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; min-height: 44px; }
+.frac-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: #f8fafc; border: 2.5px solid #e2e8f0;
+  border-radius: 11px; padding: 5px 11px;
+  transition: all 0.16s; cursor: pointer; user-select: none;
+}
+.frac-chip:hover { border-color: #94a3b8; }
+.frac-chip.sel { box-shadow: 0 0 0 2.5px rgba(108,99,255,0.22); }
+.dot-dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(0,0,0,0.18); }
+.frac-val { font-family: 'Fredoka One', cursive; font-size: 1rem; }
+.frac-mix {
+  font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 700;
+  color: var(--text-mid); background: #f1f5f9; border-radius: 5px; padding: 1px 5px;
+}
+.frac-rm {
+  width: 17px; height: 17px; border-radius: 50%; background: #fee2e2;
+  color: #ef4444; font-size: 11px; display: flex; align-items: center;
+  justify-content: center; font-weight: 900; cursor: pointer; flex-shrink: 0;
+  transition: all 0.14s; line-height: 1;
+}
+.frac-rm:hover { background: #ef4444; color: #fff; }
+.add-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: linear-gradient(135deg, var(--header-start), var(--header-end));
+  color: #fff; border: none; border-radius: 11px; padding: 6px 13px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.80rem;
+  cursor: pointer; transition: all 0.16s; box-shadow: 0 2px 8px rgba(108,99,255,0.22);
+  white-space: nowrap;
+}
+.add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(108,99,255,0.32); }
+
+/* ── COMPARISON STRIP ── */
+.cmp-strip {
+  display: flex; align-items: center; justify-content: center; gap: 9px; flex-wrap: wrap;
+  background: #f8fafc; border-radius: 11px; padding: 7px 16px; margin-top: 6px; min-height: 36px;
+}
+.cmp-item { font-family: 'Fredoka One', cursive; font-size: 1.02rem; }
+.cmp-sym { font-family: 'Fredoka One', cursive; font-size: 1.08rem; color: var(--header-start); }
+.cmp-empty { font-size: 0.76rem; color: var(--text-light); font-weight: 700; }
+
+/* ── PROMPT ── */
+.prompt-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #f0f4ff, #faf5ff);
+  border: 2px solid #c7d2fe; border-radius: var(--radius-sm); padding: 9px 15px;
+}
+.prompt-icon { font-size: 1.25rem; }
+.prompt-text { font-family: 'Fredoka One', cursive; font-size: 0.97rem; color: var(--header-start); flex: 1; }
+.prompt-btn {
+  background: var(--header-start); color: #fff; border: none; border-radius: 7px;
+  padding: 4px 11px; font-family: 'Nunito', sans-serif; font-weight: 700;
+  font-size: 0.73rem; cursor: pointer; transition: all 0.14s; white-space: nowrap;
+}
+.prompt-btn:hover { background: var(--header-end); }
+
+/* ── DID YOU KNOW ── */
+.dyk-card {
+  background: linear-gradient(135deg, #fff7ed, #fef3c7);
+  border: 2.5px solid #fde68a; border-radius: var(--radius);
+  padding: 15px 18px; cursor: pointer; transition: box-shadow 0.2s;
+  display: flex; align-items: flex-start; gap: 13px;
+  box-shadow: 0 2px 12px rgba(251,191,36,0.10); user-select: none;
+}
+.dyk-card:hover { box-shadow: 0 4px 20px rgba(251,191,36,0.22); }
+.dyk-emoji { font-size: 1.9rem; flex-shrink: 0; margin-top: 2px; }
+.dyk-body { flex: 1; }
+.dyk-hl { font-family: 'Fredoka One', cursive; font-size: 0.97rem; color: #92400e; margin-bottom: 3px; }
+.dyk-tx { font-size: 0.80rem; color: #78350f; line-height: 1.45; font-weight: 600; }
+.dyk-tap { font-size: 0.70rem; color: #a16207; font-weight: 700; margin-top: 5px; letter-spacing: 0.03em; }
+.dyk-card.fadein { animation: dykFade 0.38s ease; }
+@keyframes dykFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SNAP OVERLAY ── */
+#snapRing {
+  position: fixed; pointer-events: none; border-radius: 50%;
+  border: 2.5px solid var(--header-start);
+  width: 28px; height: 28px;
+  transform: translate(-50%,-50%) scale(0);
+  opacity: 0; z-index: 999;
+}
+#snapRing.snap {
+  animation: snapRingAnim 0.32s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@keyframes snapRingAnim {
+  0%  { transform: translate(-50%,-50%) scale(0.3); opacity: 0.9; border-width: 3px; }
+  60% { transform: translate(-50%,-50%) scale(1.5); opacity: 0.5; border-width: 1.5px; }
+  100%{ transform: translate(-50%,-50%) scale(2.0); opacity: 0;   border-width: 1px; }
+}
+
+@media (max-width: 640px) {
+  .workspace { padding: 16px 12px 14px; }
+  .header-title h1 { font-size: 1.1rem; }
+  .badge { display: none; }
+  .controls-bar { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="snapRing"></div>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">🔢</div>
+    <div class="header-title">
+      <h1>El Laboratorio de Recta Numérica de Mrs. Nava</h1>
+      <p>EXPLORAR · COLOCAR · COMPARAR · RAZONAR</p>
+    </div>
+  </div>
+  <div class="badge">4.NF.A.1 · 4.NF.A.2</div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- CONTROLS -->
+  <div class="controls-bar">
+    <span class="ctrl-label">🔢 Partición:</span>
+    <div class="denom-chips" id="denomChips"></div>
+    <div class="ctrl-divider"></div>
+    <button class="ctrl-btn" id="benchBtn" onclick="toggleBenchmarks()">📍 Referencias</button>
+    <button class="ctrl-btn" id="jumpBtn" onclick="toggleJumpMode()">↗ Modo Salto</button>
+    <button class="ctrl-btn" id="stepBtn" onclick="toggleStepJumps()" style="display:none;">👣 Saltos por Pasos</button>
+    <button class="ctrl-btn" id="snapBtn" onclick="toggleSnap()">🔒 Ajuste: SÍ</button>
+    <button class="ctrl-btn btn-undo" onclick="undoLast()">↩ Deshacer</button>
+    <button class="ctrl-btn btn-reset" onclick="resetAll()">🗑 Reiniciar</button>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+
+    <!-- RECTA 0–1 -->
+    <div class="nl-section">
+      <div class="nl-label-row">
+        <span class="nl-badge">0 → 1</span>
+        <span class="nl-hint">Toca para colocar · Arrastra para mover</span>
+      </div>
+      <div class="nl-wrap nl0" id="nlWrap0">
+        <canvas class="nl-canvas" id="nlCanvas0"></canvas>
+      </div>
+    </div>
+
+    <!-- RECTA 0–4 -->
+    <div class="nl-section">
+      <div class="nl-label-row">
+        <span class="nl-badge ext">0 → 4</span>
+        <span class="nl-hint">Fracciones impropias y números mixtos</span>
+      </div>
+      <div class="nl-wrap nl1" id="nlWrap1">
+        <canvas class="nl-canvas" id="nlCanvas1"></canvas>
+      </div>
+    </div>
+
+    <!-- FICHAS DE FRACCIONES + AGREGAR -->
+    <div class="panel-row">
+      <div class="fraction-panel" id="fracPanel"></div>
+      <button class="add-btn" onclick="addNewPoint()">＋ Agregar Punto</button>
+    </div>
+
+    <!-- TIRA DE COMPARACIÓN -->
+    <div class="cmp-strip" id="cmpStrip">
+      <span class="cmp-empty">Agrega 2+ puntos para comparar fracciones</span>
+    </div>
+
+    <!-- PANEL DE SALTOS (solo visible en Modo Salto) -->
+    <div class="jump-panel-row" id="jumpPanel" style="display:none;">
+      <span class="jump-empty" id="jumpEmpty">Arrastra sobre la recta para crear un salto</span>
+    </div>
+
+  </div><!-- /workspace -->
+
+  <!-- ACTIVIDAD -->
+  <div class="prompt-wrap">
+    <div class="prompt-icon">💡</div>
+    <div class="prompt-text" id="promptText">Cargando…</div>
+    <button class="prompt-btn" onclick="newPrompt()">Nueva Actividad</button>
+  </div>
+
+  <!-- ¿SABÍAS QUE? -->
+  <div class="dyk-card" id="dykCard" onclick="newFact()">
+    <div class="dyk-emoji" id="dykEmoji">🍕</div>
+    <div class="dyk-body">
+      <div class="dyk-hl"  id="dykHl">Rebanadas de Pizza</div>
+      <div class="dyk-tx"  id="dykTx">Cargando…</div>
+      <div class="dyk-tap">¡Toca para ver otro dato!</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════
+//  PRECISION NUMBER LINE ENGINE  v2
+//  Key invariant: both lines share the same PAD_L, PAD_R values
+//  so x = PAD_L corresponds to 0 on both lines.
+//  NL0 (0→1) maps its full value range to (PAD_L … W-PAD_R)
+//  NL1 (0→4) maps its full value range to (PAD_L … W-PAD_R)
+//  xForVal is independent per line — no shared ppu.
+//  Vertical alignment connectors drawn at integer positions show
+//  the relationship between the two scales pedagogically.
+// ═══════════════════════════════════════════════
+
+// ── PALETTE ──
+const COLORS = [
+  { fill:'#6C63FF', stroke:'#4338ca' },
+  { fill:'#ef4444', stroke:'#b91c1c' },
+  { fill:'#10b981', stroke:'#047857' },
+  { fill:'#f59e0b', stroke:'#b45309' },
+  { fill:'#ec4899', stroke:'#be185d' },
+  { fill:'#3b82f6', stroke:'#1d4ed8' },
+];
+
+// ── GEOMETRY CONSTANTS ──
+// Padding is identical on both lines — this ensures 0 aligns at the same x.
+const PAD_L = 44;   // px, left
+const PAD_R = 44;   // px, right
+const LINE_Y = 0.56; // fraction of canvas height where the line sits
+
+// ── STATE ──
+let denom       = 4;
+let benchmarks  = false;
+let snapOn      = true;
+let jumpMode    = false;
+let stepJumps   = false;        // when ON, each jump is drawn as individual step arcs
+let points      = [];   // { id, val, colorIdx }
+let jumps       = [];   // { id, nlId, fromVal, toVal, colorIdx, progress, selStep }
+let selId       = null;
+let selJumpId   = null;
+let nextId      = 1;
+let nextCI      = 0;    // color index counter
+let nextJCI     = 0;    // jump color index counter
+let lastFact    = -1;
+let lastPrompt  = -1;
+
+// ── CANVAS REFS ──
+let c0, c1, x0, x1;   // canvases + 2d contexts
+let W0=0, H0=0, W1=0, H1=0; // logical sizes (CSS px)
+
+// ══════════════════════
+//  MATH PRIMITIVES
+// ══════════════════════
+
+// Convert a value to canvas x-coordinate (exact floating point)
+function valToX(val, W, nl) {
+  const usable = W - PAD_L - PAD_R;
+  return PAD_L + (val - nl.min) / (nl.max - nl.min) * usable;
+}
+
+// Convert canvas x to value
+function xToVal(x, W, nl) {
+  const usable = W - PAD_L - PAD_R;
+  return nl.min + (x - PAD_L) / usable * (nl.max - nl.min);
+}
+
+// Snap a raw value to the nearest valid fraction
+// Uses integer arithmetic to eliminate float drift
+function snapVal(raw, nl) {
+  if (!snapOn) return Math.max(nl.min, Math.min(nl.max, raw));
+  // Express in units of 1/denom
+  const totalRange = nl.max - nl.min;
+  const totalSteps = totalRange * denom;           // always integer
+  const stepsFromMin = (raw - nl.min) / (1 / denom);
+  const nearestStep = Math.round(stepsFromMin);
+  const clamped = Math.max(0, Math.min(totalSteps, nearestStep));
+  // Reconstruct as exact fraction
+  return nl.min + clamped / denom;
+}
+
+// Format a value as a fraction string (numerator/denom)
+function fmtFrac(val) {
+  const num = Math.round(val * denom);
+  const den = denom;
+  if (num === 0) return '0';
+  if (num % den === 0) return String(num / den);
+  return num + '/' + den;
+}
+
+// Format as mixed number or null
+function fmtMixed(val) {
+  const num = Math.round(val * denom);
+  const den = denom;
+  const whole = Math.floor(num / den);
+  const rem   = num % den;
+  if (rem === 0 || whole === 0) return null;
+  return whole + '\u2009' + rem + '/' + den; // thin space
+}
+
+// NL objects
+const NL0 = { min: 0, max: 1,  id: 0 };
+const NL1 = { min: 0, max: 4,  id: 1 };
+
+// ── JUMP COLOR PALETTE (distinct from point colors) ──
+const JCOLORS = [
+  { arc:'#8b5cf6', dark:'#6d28d9' },  // violet
+  { arc:'#06b6d4', dark:'#0e7490' },  // cyan
+  { arc:'#f97316', dark:'#c2410c' },  // orange
+  { arc:'#84cc16', dark:'#4d7c0f' },  // lime
+  { arc:'#e879f9', dark:'#a21caf' },  // fuchsia
+  { arc:'#14b8a6', dark:'#0f766e' },  // teal
+];
+
+// ══════════════════════
+//  CANVAS SETUP
+// ══════════════════════
+function setupCanvas(canvas, ctx, nlIdx) {
+  const wrap = canvas.parentElement;
+  const rect = wrap.getBoundingClientRect();
+  const dpr  = window.devicePixelRatio || 1;
+  const W    = Math.max(rect.width  || 600, 200);
+  const H    = Math.max(rect.height || 78,  60);
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (nlIdx === 0) { W0 = W; H0 = H; }
+  else             { W1 = W; H1 = H; }
+}
+
+// ══════════════════════
+//  DRAWING ENGINE
+// ══════════════════════
+function drawAll() {
+  drawNL(x0, W0, H0, NL0);
+  drawNL(x1, W1, H1, NL1);
+}
+
+function drawNL(ctx, W, H, nl) {
+  ctx.clearRect(0, 0, W, H);
+  const LY = H * LINE_Y;
+
+  // ── draw region bands for 0-1 and fractional unit on NL1
+  if (nl === NL1) {
+    for (let w = 0; w < nl.max; w++) {
+      const bx = valToX(w, W, nl);
+      const bxe = valToX(w + 1, W, nl);
+      const bw = bxe - bx;
+      // alternating subtle band
+      if (w % 2 === 0) {
+        ctx.fillStyle = 'rgba(99,102,241,0.03)';
+        ctx.fillRect(bx, LY - 18, bw, 36);
+      }
+    }
+  }
+
+  // ── baseline (drawn as a clean, anti-aliased line) ──
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(PAD_L, LY);
+  ctx.lineTo(W - PAD_R, LY);
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.restore();
+
+  // ── arrowhead ──
+  const rx = W - PAD_R;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(rx + 9, LY);
+  ctx.lineTo(rx,     LY - 5.5);
+  ctx.lineTo(rx,     LY + 5.5);
+  ctx.closePath();
+  ctx.fillStyle = '#1e293b';
+  ctx.fill();
+  ctx.restore();
+
+  // ── TICK MARKS ──
+  // Strategy: compute exact x for each tick using pure fraction arithmetic
+  const totalUnits = nl.max - nl.min; // 1 or 4
+
+  for (let u = 0; u < totalUnits; u++) {          // for each whole-number interval
+    for (let n = 0; n < denom; n++) {              // n=0 → whole-number tick
+      // Exact value: (u + n/denom)
+      const val = nl.min + u + n / denom;
+      if (val > nl.max) break;
+
+      // x is computed from exact fraction, no accumulated error
+      const x = valToX(val, W, nl);
+
+      const isWhole = (n === 0);
+      const isHalf  = (denom % 2 === 0) && (n === denom / 2);
+      const isQtr   = (denom % 4 === 0) && (n === denom / 4 || n === 3 * denom / 4);
+
+      if (isWhole) {
+        // Major tick: tall, dark
+        ctx.beginPath();
+        ctx.moveTo(x, LY - 15);
+        ctx.lineTo(x, LY + 15);
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+        // Label
+        ctx.save();
+        ctx.font = '700 13px "Nunito", sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(val.toString(), x, LY + 19);
+        ctx.restore();
+      } else if (isHalf) {
+        // Half tick: tall, clearly visible
+        ctx.beginPath();
+        ctx.moveTo(x, LY - 11);
+        ctx.lineTo(x, LY + 11);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      } else if (isQtr) {
+        // Quarter tick: medium-tall, visible
+        ctx.beginPath();
+        ctx.moveTo(x, LY - 8);
+        ctx.lineTo(x, LY + 8);
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      } else {
+        // Minor tick: visible but subordinate
+        ctx.beginPath();
+        ctx.moveTo(x, LY - 6);
+        ctx.lineTo(x, LY + 6);
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+    }
+  }
+  // Final whole-number tick at nl.max
+  {
+    const x = valToX(nl.max, W, nl);
+    ctx.beginPath();
+    ctx.moveTo(x, LY - 15);
+    ctx.lineTo(x, LY + 15);
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.save();
+    ctx.font = '700 13px "Nunito", sans-serif';
+    ctx.fillStyle = '#1e293b';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(nl.max.toString(), x, LY + 19);
+    ctx.restore();
+  }
+
+  // ── BENCHMARK HIGHLIGHTS ──
+  if (benchmarks) {
+    const bms = nl === NL0
+      ? [0, 0.5, 1]
+      : [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4].filter(b => b <= nl.max);
+    bms.forEach(b => {
+      const x = valToX(b, W, nl);
+      // Glow ring
+      ctx.beginPath();
+      ctx.arc(x, LY, 9, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(245,158,11,0.15)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, LY, 9, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Label
+      const lbl = b === 0.5 ? '½' : b === 1.5 ? '1½' : b === 2.5 ? '2½' : b === 3.5 ? '3½' : b.toString();
+      ctx.save();
+      ctx.font = '700 10px "Nunito", sans-serif';
+      ctx.fillStyle = '#b45309';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(lbl, x, LY - 12);
+      ctx.restore();
+    });
+  }
+
+  // ── POINTS ──
+  // Build label rows to prevent overlap
+  // Sort points by value, assign alternating y-offsets if close
+  const sorted = [...points].sort((a, b) => a.val - b.val);
+
+  points.forEach(pt => {
+    const col = COLORS[pt.colorIdx % COLORS.length];
+    const isSel = pt.id === selId;
+
+    // Determine display x — clamp for NL0 if value > 1
+    const beyondMax = pt.val > nl.max;
+    const beyondMin = pt.val < nl.min;
+    const displayVal = Math.max(nl.min, Math.min(nl.max, pt.val));
+    const x = valToX(displayVal, W, nl);
+
+    // ── OVERFLOW INDICATOR for NL0 when val > 1 ──
+    if (beyondMax && nl === NL0) {
+      const ex = W - PAD_R - 4;
+      // Compute stagger row: how many earlier points also overflow?
+      const overflowRow = points.filter(p => p.val > nl.max && p.id < pt.id).length;
+      const rowOffsetY = overflowRow * 15;
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      const grad = ctx.createLinearGradient(ex - 24, 0, ex, 0);
+      grad.addColorStop(0, col.fill + '00');
+      grad.addColorStop(1, col.fill + '28');
+      ctx.fillStyle = grad;
+      ctx.fillRect(ex - 24, LY - 14 - rowOffsetY, 24, 13);
+      // Arrow
+      ctx.beginPath();
+      ctx.moveTo(ex + 8, LY - rowOffsetY);
+      ctx.lineTo(ex,     LY - 4.5 - rowOffsetY);
+      ctx.lineTo(ex,     LY + 4.5 - rowOffsetY);
+      ctx.closePath();
+      ctx.fillStyle = col.fill;
+      ctx.fill();
+      // Label
+      ctx.font = '700 10px "Fredoka One", cursive';
+      ctx.fillStyle = col.stroke;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('▶ ' + fmtFrac(pt.val), ex - 2, LY - 14 - rowOffsetY);
+      ctx.restore();
+      return;
+    }
+
+    if (beyondMin) return; // don't render below min
+
+    const R = isSel ? 11 : 9;
+
+    // ── Glow ring for selected ──
+    if (isSel) {
+      ctx.beginPath();
+      ctx.arc(x, LY, R + 6, 0, Math.PI * 2);
+      ctx.fillStyle = col.fill + '28';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, LY, R + 3, 0, Math.PI * 2);
+      ctx.fillStyle = col.fill + '18';
+      ctx.fill();
+    }
+
+    // ── Point body ──
+    // Draw with sub-pixel precision — no Math.round() on x
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, LY, R, 0, Math.PI * 2);
+    const grad = ctx.createRadialGradient(x - R*0.25, LY - R*0.25, R*0.1, x, LY, R);
+    grad.addColorStop(0, lighten(col.fill, 0.25));
+    grad.addColorStop(1, col.fill);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, LY, R, 0, Math.PI * 2);
+    ctx.strokeStyle = col.stroke;
+    ctx.lineWidth = isSel ? 2.5 : 1.8;
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Fraction label ──
+    // Compute label y-offset: check for nearby points and stagger
+    const labelY = getLabelY(pt, sorted, LY, R, W, nl);
+    const label  = fmtFrac(pt.val);
+    ctx.save();
+    ctx.font = '700 11.5px "Fredoka One", cursive';
+    const tw = ctx.measureText(label).width;
+    const pw = tw + 10;
+    const ph = 17;
+    const lx = Math.max(PAD_L + pw/2 + 1, Math.min(W - PAD_R - pw/2 - 1, x));
+    const ly = labelY;
+
+    // Background pill
+    ctx.beginPath();
+    roundRect(ctx, lx - pw/2, ly - ph, pw, ph, 5);
+    ctx.fillStyle = 'rgba(255,255,255,0.93)';
+    ctx.shadowColor = 'rgba(0,0,0,0.10)';
+    ctx.shadowBlur = 3;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // Border
+    ctx.strokeStyle = col.stroke + 'aa';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Text
+    ctx.fillStyle = col.stroke;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(label, lx, ly - 1);
+    ctx.restore();
+
+    // Connector from label to point
+    if (Math.abs(ly - (LY - R - ph)) > 2) {
+      ctx.beginPath();
+      ctx.moveTo(lx, ly + 1);
+      ctx.lineTo(x,  LY - R - 1);
+      ctx.strokeStyle = col.fill + '66';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  });
+
+  // ── JUMPS ──
+  drawJumpsOnNL(ctx, W, H, nl, LY);
+
+  // ── JUMP PREVIEW while dragging ──
+  if (jumpMode && jumpDrag && jumpDrag.nlId === nl.id) {
+    drawJumpArc(ctx, W, H, nl, LY,
+      jumpDrag.fromVal, jumpDrag.toVal,
+      { arc: '#8b5cf6', dark: '#6d28d9' },
+      false, true, 1.0);
+  }
+}
+
+// Compute label y so overlapping labels stagger
+function getLabelY(pt, sorted, LY, R, W, nl) {
+  const BASE_Y = LY - R - 5; // just above the point
+  // Find index among visible points on this line
+  const visible = sorted.filter(p => p.val >= nl.min && p.val <= nl.max);
+  const myX = valToX(pt.val, W, nl);
+  let row = 0;
+  for (const other of visible) {
+    if (other.id === pt.id) break;
+    const ox = valToX(other.val, W, nl);
+    if (Math.abs(ox - myX) < 22) row++;
+  }
+  return BASE_Y - row * 16;
+}
+
+// Lighten a hex color by t (0-1)
+function lighten(hex, t) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  const lr = Math.round(r + (255-r)*t), lg = Math.round(g + (255-g)*t), lb = Math.round(b + (255-b)*t);
+  return `#${lr.toString(16).padStart(2,'0')}${lg.toString(16).padStart(2,'0')}${lb.toString(16).padStart(2,'0')}`;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.arcTo(x+w, y, x+w, y+r, r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x+r, y+h);
+  ctx.arcTo(x, y+h, x, y+h-r, r);
+  ctx.lineTo(x, y+r);
+  ctx.arcTo(x, y, x+r, y, r);
+  ctx.closePath();
+}
+
+// ══════════════════════
+//  JUMP DRAWING
+// ══════════════════════
+
+// Compute quadratic bezier control point for a jump arc.
+// Uses a linear formula with a minimum floor so every jump is a clear visible hop,
+// and a maximum cap so arcs never overflow the label zone.
+// Formula: arcH = clamp(0.04 * span + 28, 22, 52)
+//   - span=50px  (tiny NL1 step) → 30px  ← was 10px — now always visible
+//   - span=200px (denom=4 NL0 step) → 36px ← was 53.6px (capped flat)
+//   - span=400px (2-step NL0 jump) → 44px  ← clearly taller than 1-step
+//   - span=800px (full NL0 jump)   → 52px  ← capped, safe
+function jumpCtrl(x1, x2, LY, H) {
+  const mx   = (x1 + x2) / 2;
+  const span = Math.abs(x2 - x1);
+  const arcH = Math.min(Math.max(0.04 * span + 28, 22), 52);
+  return { cpX: mx, cpY: LY - arcH, arcH };
+}
+
+// Draw a single jump arc (quadratic bezier + arrowhead + delta label)
+function drawJumpArc(ctx, W, H, nl, LY, fromVal, toVal, col, isSelected, isPreview, progress) {
+  // progress: 0→1 for entry animation
+  const x1 = valToX(fromVal, W, nl);
+  const x2 = valToX(Math.max(nl.min, Math.min(nl.max, toVal)), W, nl);
+  if (Math.abs(x2 - x1) < 2) return; // zero-length jump, skip
+
+  const { cpX, cpY } = jumpCtrl(x1, x2, LY, H);
+  const alpha = isPreview ? 0.55 : (0.5 + 0.5 * progress);
+  const lw    = isSelected ? 2.8 : (isPreview ? 1.6 : 2.2);
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // ── Arc ──
+  ctx.beginPath();
+  ctx.moveTo(x1, LY);
+  ctx.quadraticCurveTo(cpX, cpY, x2, LY);
+  ctx.strokeStyle = col.arc;
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'round';
+  ctx.setLineDash(isPreview ? [5, 3] : []);
+  if (isSelected) {
+    ctx.shadowColor = col.arc + '66';
+    ctx.shadowBlur = 6;
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.setLineDash([]);
+
+  // ── Arrowhead at x2 ──
+  // Tangent direction of quadratic bezier at t=1:
+  // tangent = 2*(endpoint - controlPoint) = direction from CP to x2
+  const tx = x2 - cpX;
+  const ty = LY - cpY;
+  const tlen = Math.sqrt(tx * tx + ty * ty);
+  const nx = tx / tlen, ny = ty / tlen;
+  const AW = 8, AH = 5;
+  ctx.beginPath();
+  ctx.moveTo(x2, LY);
+  ctx.lineTo(x2 - nx * AW - ny * AH, LY - ny * AW + nx * AH);
+  ctx.lineTo(x2 - nx * AW + ny * AH, LY - ny * AW - nx * AH);
+  ctx.closePath();
+  ctx.fillStyle = col.arc;
+  ctx.fill();
+
+  // ── Start dot ──
+  ctx.beginPath();
+  ctx.arc(x1, LY, 4, 0, Math.PI * 2);
+  ctx.fillStyle = col.arc;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x1, LY, 4, 0, Math.PI * 2);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // ── Delta label at arc apex ──
+  if (!isPreview) {
+    const diff = toVal - fromVal;
+    const num = Math.round(Math.abs(diff) * denom);
+    const den = denom;
+    const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+    let deltaStr;
+    if (num === 0) deltaStr = '0';
+    else if (num % den === 0) deltaStr = sign + (num / den);
+    else deltaStr = sign + num + '/' + den;
+
+    const labelX = cpX;
+    // Clamp so pill never escapes above canvas top
+    const labelY = Math.max(17 + 6, cpY - 5);
+    ctx.font = '700 11px "Fredoka One", cursive';
+    const tw = ctx.measureText(deltaStr).width;
+    const pw = tw + 10, ph = 17;
+
+    // Pill background
+    ctx.beginPath();
+    roundRect(ctx, labelX - pw/2, labelY - ph, pw, ph, 5);
+    ctx.fillStyle = diff > 0 ? '#d1fae5' : diff < 0 ? '#fee2e2' : '#f1f5f9';
+    ctx.globalAlpha = alpha * 0.95;
+    ctx.fill();
+    ctx.strokeStyle = col.dark + '88';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Text
+    ctx.fillStyle = col.dark;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.globalAlpha = alpha;
+    ctx.fillText(deltaStr, labelX, labelY - 1);
+  }
+
+  ctx.restore();
+}
+
+function drawJumpsOnNL(ctx, W, H, nl, LY) {
+  jumps.forEach(jmp => {
+    if (jmp.nlId !== nl.id) return;
+    const col    = JCOLORS[jmp.colorIdx % JCOLORS.length];
+    const isSel  = jmp.id === selJumpId;
+    const prog   = jmp.progress || 1;
+
+    if (stepJumps) {
+      drawSteppedJumpArc(ctx, W, H, nl, LY, jmp, col, isSel, prog);
+    } else {
+      drawJumpArc(ctx, W, H, nl, LY, jmp.fromVal, jmp.toVal, col, isSel, false, prog);
+    }
+  });
+}
+
+// ── STEP JUMP ENGINE ──
+
+// Break a jump into unit steps using integer arithmetic (zero float drift)
+function computeSteps(fromVal, toVal) {
+  const fromSteps = Math.round(fromVal * denom);
+  const toSteps   = Math.round(toVal   * denom);
+  const count     = Math.abs(toSteps - fromSteps);
+  const dir       = toSteps > fromSteps ? 1 : -1;
+  return Array.from({ length: count }, (_, i) => ({
+    from: (fromSteps + i       * dir) / denom,
+    to:   (fromSteps + (i + 1) * dir) / denom,
+    idx:  i,
+  }));
+}
+
+// Draw a full jump as individual step arcs + one shared label + landing dots
+function drawSteppedJumpArc(ctx, W, H, nl, LY, jmp, col, isSelected, progress) {
+  const steps = computeSteps(jmp.fromVal, jmp.toVal);
+
+  // Cap: if too many steps fall back gracefully to single arc
+  const STEP_CAP = 24;
+  if (steps.length === 0) return;
+  if (steps.length > STEP_CAP) {
+    drawJumpArc(ctx, W, H, nl, LY, jmp.fromVal, jmp.toVal, col, isSelected, false, progress);
+    return;
+  }
+
+  const alpha   = 0.5 + 0.5 * progress;
+
+  // ── Draw each step arc ──
+  steps.forEach(s => {
+    const stepSel = isSelected && jmp.selStep === s.idx;
+    const x1 = valToX(s.from, W, nl);
+    const x2 = valToX(Math.max(nl.min, Math.min(nl.max, s.to)), W, nl);
+    if (Math.abs(x2 - x1) < 1) return;
+
+    const { cpX, cpY } = jumpCtrl(x1, x2, LY, H);
+    const lw = stepSel ? 3.0 : (isSelected ? 2.4 : 1.9);
+
+    ctx.save();
+    ctx.globalAlpha = stepSel ? Math.min(alpha * 1.25, 1) : alpha * 0.88;
+
+    // Arc stroke
+    ctx.beginPath();
+    ctx.moveTo(x1, LY);
+    ctx.quadraticCurveTo(cpX, cpY, x2, LY);
+    ctx.strokeStyle = col.arc;
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    if (stepSel) {
+      ctx.shadowColor = col.arc + '88';
+      ctx.shadowBlur  = 8;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Arrowhead on LAST step only (avoids clutter)
+    if (s.idx === steps.length - 1) {
+      const tx = x2 - cpX, ty = LY - cpY;
+      const tlen = Math.sqrt(tx * tx + ty * ty);
+      if (tlen > 0.1) {
+        const nx = tx / tlen, ny = ty / tlen;
+        const AW = 7, AH = 4;
+        ctx.beginPath();
+        ctx.moveTo(x2, LY);
+        ctx.lineTo(x2 - nx * AW - ny * AH, LY - ny * AW + nx * AH);
+        ctx.lineTo(x2 - nx * AW + ny * AH, LY - ny * AW - nx * AH);
+        ctx.closePath();
+        ctx.fillStyle = col.arc;
+        ctx.fill();
+      }
+    }
+
+    // Start cap dot (first step only)
+    if (s.idx === 0) {
+      ctx.beginPath();
+      ctx.arc(x1, LY, 4, 0, Math.PI * 2);
+      ctx.fillStyle = col.arc;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x1, LY, 4, 0, Math.PI * 2);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  });
+
+  // ── Landing dots at intermediate positions ──
+  // Show a small pulsing dot at each landing (not the final destination)
+  steps.slice(0, -1).forEach(s => {
+    const lx = valToX(Math.max(nl.min, Math.min(nl.max, s.to)), W, nl);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.72;
+    // Outer glow
+    ctx.beginPath();
+    ctx.arc(lx, LY, 6.5, 0, Math.PI * 2);
+    ctx.fillStyle = col.arc + '28';
+    ctx.fill();
+    // Inner dot
+    ctx.beginPath();
+    ctx.arc(lx, LY, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = col.arc;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(lx, LY, 3.5, 0, Math.PI * 2);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // ── Step count badge (e.g. "×3") above midpoint of whole jump ──
+  // Only show when more than 1 step
+  if (steps.length > 1) {
+    const midVal  = (jmp.fromVal + jmp.toVal) / 2;
+    const midX    = valToX(Math.max(nl.min, Math.min(nl.max, midVal)), W, nl);
+    // compute overall arc apex
+    const ox1     = valToX(jmp.fromVal, W, nl);
+    const ox2     = valToX(Math.max(nl.min, Math.min(nl.max, jmp.toVal)), W, nl);
+    const { cpY: oCpY } = jumpCtrl(ox1, ox2, LY, H);
+    // Step badge sits just above the arc's overall apex
+    const badgeY  = Math.max(17 + 6, oCpY - 6);
+    const stepLabel = '×' + steps.length;
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.82;
+    ctx.font = '700 10px "Nunito", sans-serif';
+    const bw = ctx.measureText(stepLabel).width + 8;
+    const bh = 15;
+    roundRect(ctx, midX - bw/2, badgeY - bh, bw, bh, 4);
+    ctx.fillStyle = col.arc + '22';
+    ctx.fill();
+    ctx.strokeStyle = col.arc + '66';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = col.dark;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(stepLabel, midX, badgeY - 1);
+    ctx.restore();
+  }
+
+  // ── Single delta label for the whole jump (at overall arc apex) ──
+  const diff    = jmp.toVal - jmp.fromVal;
+  const num     = Math.round(Math.abs(diff) * denom);
+  const den     = denom;
+  const sign    = diff > 0 ? '+' : diff < 0 ? '−' : '';
+  let deltaStr;
+  if (num === 0) deltaStr = '0';
+  else if (num % den === 0) deltaStr = sign + (num / den);
+  else deltaStr = sign + num + '/' + den;
+
+  const ox1 = valToX(jmp.fromVal, W, nl);
+  const ox2 = valToX(Math.max(nl.min, Math.min(nl.max, jmp.toVal)), W, nl);
+  const { cpX: oCpX, cpY: oCpY2 } = jumpCtrl(ox1, ox2, LY, H);
+  // Delta label sits below the step-count badge, slightly higher than normal jump label
+  const labelX = oCpX;
+  const labelY = Math.max(17 + 6, oCpY2 - 5);
+  // Offset down a bit if step badge would overlap (steps.length > 1)
+  const finalLabelY = steps.length > 1 ? labelY + 18 : labelY;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.font = '700 11px "Fredoka One", cursive';
+  const tw = ctx.measureText(deltaStr).width;
+  const pw = tw + 10, ph = 17;
+
+  roundRect(ctx, labelX - pw/2, finalLabelY - ph, pw, ph, 5);
+  ctx.fillStyle = diff > 0 ? '#d1fae5' : diff < 0 ? '#fee2e2' : '#f1f5f9';
+  ctx.globalAlpha = alpha * 0.95;
+  ctx.fill();
+  ctx.strokeStyle = col.dark + '88';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.fillStyle = col.dark;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.globalAlpha = alpha;
+  ctx.fillText(deltaStr, labelX, finalLabelY - 1);
+  ctx.restore();
+}
+
+// Hit-test individual step arcs for a jump — returns stepIdx or -1
+function hitTestStepArcs(mx, my, jmp, W, nl, LY) {
+  if (!stepJumps) return -1;
+  const steps = computeSteps(jmp.fromVal, jmp.toVal);
+  const HIT_X = 28;
+  for (const s of steps) {
+    const x1 = valToX(s.from, W, nl);
+    const x2 = valToX(Math.max(nl.min, Math.min(nl.max, s.to)), W, nl);
+    const cpX = (x1 + x2) / 2;
+    const span = Math.abs(x2 - x1);
+    const arcH = Math.min(Math.max(0.04 * span + 28, 22), 52);
+    const cpY  = LY - arcH;
+    // Hit zone: anywhere between arc apex and the line
+    if (Math.abs(mx - cpX) < HIT_X && my >= cpY - 14 && my <= LY + 6) return s.idx;
+  }
+  return -1;
+}
+
+// ══════════════════════
+//  JUMP INTERACTION
+// ══════════════════════
+let jumpDrag = null;          // { nlId, fromVal, toVal, live } — active drag creating a new jump
+let jumpEndDrag = null;       // { jumpId, end:'from'|'to' }    — dragging existing jump endpoint
+
+function hitTestJumpEndpoints(x, y, W, nl) {
+  const LY = (nl === NL0 ? H0 : H1) * LINE_Y;
+  const HIT = 12;
+  for (let i = jumps.length - 1; i >= 0; i--) {
+    const jmp = jumps[i];
+    if (jmp.nlId !== nl.id) continue;
+    const fx = valToX(jmp.fromVal, W, nl);
+    const tx = valToX(Math.max(nl.min, Math.min(nl.max, jmp.toVal)), W, nl);
+    if (Math.abs(x - fx) <= HIT && Math.abs(y - LY) <= HIT) return { jumpId: jmp.id, end: 'from' };
+    if (Math.abs(x - tx) <= HIT && Math.abs(y - LY) <= HIT) return { jumpId: jmp.id, end: 'to' };
+  }
+  return null;
+}
+
+// Animate a jump in (progress 0→1)
+function animateJump(jmpId) {
+  const jmp = jumps.find(j => j.id === jmpId);
+  if (!jmp) return;
+  jmp.progress = 0;
+  const start = performance.now();
+  const dur = 320; // ms
+  function frame(now) {
+    // Guard: jump may have been removed while animation was running
+    const live = jumps.find(j => j.id === jmpId);
+    if (!live) return;
+    const t = Math.min((now - start) / dur, 1);
+    // Ease out cubic
+    live.progress = 1 - Math.pow(1 - t, 3);
+    drawAll();
+    if (t < 1) requestAnimationFrame(frame);
+    else { live.progress = 1; updateUI(); }
+  }
+  requestAnimationFrame(frame);
+}
+
+// ══════════════════════
+//  POINTER INTERACTION
+// ══════════════════════
+function getPos(canvas, e) {
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+  return { x: cx, y: cy };
+}
+
+let dragId = null;
+let dragNL = null;
+let lastSnappedVal = null;
+
+function hitTestPoints(x, y, W, nl) {
+  const LY = (nl === NL0 ? H0 : H1) * LINE_Y;
+  // Search in reverse (top-of-stack first)
+  for (let i = points.length - 1; i >= 0; i--) {
+    const pt = points[i];
+    const displayVal = Math.max(nl.min, Math.min(nl.max, pt.val));
+    const px = valToX(displayVal, W, nl);
+    const R = pt.id === selId ? 11 : 9;
+    // Require both x and y to be within the point's hit radius
+    if (Math.abs(x - px) <= R + 6 && Math.abs(y - LY) <= R + 6) return pt.id;
+  }
+  return null;
+}
+
+function attachEvents(canvas, nl) {
+  function onDown(e) {
+    e.preventDefault();
+    const W  = nl === NL0 ? W0 : W1;
+    const H  = nl === NL0 ? H0 : H1;
+    const LY = H * LINE_Y;
+    const pos = getPos(canvas, e);
+
+    if (jumpMode) {
+      // ── JUMP MODE: check existing jump endpoints first ──
+      const jHit = hitTestJumpEndpoints(pos.x, pos.y, W, nl);
+      if (jHit) {
+        jumpEndDrag = jHit;
+        selJumpId = jHit.jumpId;
+        updateUI();
+        return;
+      }
+      // Check if clicking a jump label area (select it)
+      const jmpClicked = hitTestJumpLabel(pos.x, pos.y, W, H, nl);
+      if (jmpClicked !== null) {
+        selJumpId = jmpClicked;
+        // Clear step selection on whole-jump click
+        const jmp = jumps.find(j => j.id === jmpClicked);
+        if (jmp) jmp.selStep = -1;
+        updateUI();
+        return;
+      }
+      // Check if clicking a step arc (step jumps mode)
+      if (stepJumps) {
+        for (let i = jumps.length - 1; i >= 0; i--) {
+          const jmp = jumps[i];
+          if (jmp.nlId !== nl.id) continue;
+          const LYj = (nl === NL0 ? H0 : H1) * LINE_Y;
+          const stepHit = hitTestStepArcs(pos.x, pos.y, jmp, W, nl, LYj);
+          if (stepHit >= 0) {
+            selJumpId = jmp.id;
+            jmp.selStep = (jmp.selStep === stepHit) ? -1 : stepHit; // toggle
+            updateUI();
+            return;
+          }
+        }
+      }
+      // Start a new jump drag if near the line
+      if (Math.abs(pos.y - LY) < 36) {
+        const raw = xToVal(pos.x, W, nl);
+        const snapped = snapVal(raw, nl);
+        jumpDrag = { nlId: nl.id, fromVal: snapped, toVal: snapped };
+        selJumpId = null;
+        updateUI();
+      }
+      return;
+    }
+
+    // ── NORMAL MODE ──
+    const hit = hitTestPoints(pos.x, pos.y, W, nl);
+    if (hit !== null) {
+      dragId = hit;
+      dragNL = nl;
+      selId  = hit;
+    } else if (Math.abs(pos.y - LY) < 32) {
+      const raw     = xToVal(pos.x, W, nl);
+      const snapped = snapVal(raw, nl);
+      const existing = points.find(p => Math.abs(p.val - snapped) < 1e-9);
+      if (existing) {
+        selId  = existing.id;
+        dragId = existing.id;
+        dragNL = nl;
+      } else if (points.length < 6) {
+        const np = { id: nextId++, val: snapped, colorIdx: nextCI++ % COLORS.length };
+        points.push(np);
+        selId  = np.id;
+        dragId = np.id;
+        dragNL = nl;
+        lastSnappedVal = snapped;
+        fireSnapEffect(canvas, valToX(snapped, W, nl), LY);
+      }
+    }
+    updateUI();
+  }
+
+  function onMove(e) {
+    const W  = nl === NL0 ? W0 : W1;
+    const H  = nl === NL0 ? H0 : H1;
+    const LY = H * LINE_Y;
+    const pos = getPos(canvas, e);
+
+    if (jumpMode) {
+      // ── Drag existing jump endpoint ──
+      if (jumpEndDrag) {
+        e.preventDefault();
+        const jmp = jumps.find(j => j.id === jumpEndDrag.jumpId);
+        if (jmp) {
+          // Always use the jump's original nl — not the canvas nl — for correct scale
+          const jmpNl = jmp.nlId === 0 ? NL0 : NL1;
+          const jmpW  = jmp.nlId === 0 ? W0  : W1;
+          const raw = xToVal(pos.x, jmpW, jmpNl);
+          const snapped = snapVal(raw, jmpNl);
+          if (jumpEndDrag.end === 'from') jmp.fromVal = snapped;
+          else jmp.toVal = snapped;
+        }
+        updateUI();
+        return;
+      }
+      // ── Live jump preview ──
+      if (jumpDrag) {
+        e.preventDefault();
+        // Always use the drag's originating nl — not the canvas nl — for correct scale
+        const dragOrigNl = jumpDrag.nlId === 0 ? NL0 : NL1;
+        const dragOrigW  = jumpDrag.nlId === 0 ? W0  : W1;
+        const raw = xToVal(pos.x, dragOrigW, dragOrigNl);
+        const snapped = snapVal(raw, dragOrigNl);
+        jumpDrag.toVal = snapped;
+        drawAll(); // fast redraw, no full UI rebuild
+        return;
+      }
+      return;
+    }
+
+    if (dragId === null) return;
+    e.preventDefault();
+    const W2 = dragNL === NL0 ? W0 : W1;
+    const H2 = dragNL === NL0 ? H0 : H1;
+    const LY2 = H2 * LINE_Y;
+    const raw     = xToVal(pos.x, W2, dragNL);
+    const snapped = snapVal(raw, dragNL);
+    const pt = points.find(p => p.id === dragId);
+    if (pt) {
+      if (Math.abs(pt.val - snapped) > 1e-9) {
+        pt.val = snapped;
+        if (snapOn && snapped !== lastSnappedVal) {
+          lastSnappedVal = snapped;
+          fireSnapEffect(canvas, valToX(snapped, W2, dragNL), LY2);
+        }
+      }
+    }
+    updateUI();
+  }
+
+  function onUp(e) {
+    if (jumpMode) {
+      if (jumpEndDrag) {
+        jumpEndDrag = null;
+        buildJumpPanel();
+        drawAll();
+        return;
+      }
+      if (jumpDrag) {
+        // Commit the jump if it has non-zero distance
+        if (Math.abs(jumpDrag.toVal - jumpDrag.fromVal) > 1e-9) {
+          const nj = {
+            id: nextId++,
+            nlId: jumpDrag.nlId,
+            fromVal: jumpDrag.fromVal,
+            toVal: jumpDrag.toVal,
+            colorIdx: nextJCI++ % JCOLORS.length,
+            progress: 0,
+            selStep: -1,
+          };
+          jumps.push(nj);
+          selJumpId = nj.id;
+          animateJump(nj.id);
+        }
+        jumpDrag = null;
+        updateUI();
+        return;
+      }
+      return;
+    }
+    dragId = null;
+    dragNL = null;
+  }
+
+  canvas.addEventListener('mousedown',  onDown, { passive: false });
+  canvas.addEventListener('mousemove',  onMove, { passive: false });
+  canvas.addEventListener('mouseup',    onUp);
+  canvas.addEventListener('mouseleave', onUp);
+  canvas.addEventListener('touchstart', onDown, { passive: false });
+  canvas.addEventListener('touchmove',  onMove, { passive: false });
+  canvas.addEventListener('touchend',   onUp);
+}
+
+// Hit-test the delta label of a jump (returns jumpId or null)
+function hitTestJumpLabel(mx, my, W, H, nl) {
+  const LY = (nl === NL0 ? H0 : H1) * LINE_Y;
+  for (let i = jumps.length - 1; i >= 0; i--) {
+    const jmp = jumps[i];
+    if (jmp.nlId !== nl.id) continue;
+    const x1 = valToX(jmp.fromVal, W, nl);
+    const x2 = valToX(Math.max(nl.min, Math.min(nl.max, jmp.toVal)), W, nl);
+    const cpX = (x1 + x2) / 2;
+    const span = Math.abs(x2 - x1);
+    const arcH = Math.min(Math.max(0.04 * span + 28, 22), 52);
+    const cpY = LY - arcH;
+    const labelX = cpX, labelY = cpY - 5;
+    if (Math.abs(mx - labelX) < 24 && Math.abs(my - (labelY - 8)) < 14) return jmp.id;
+  }
+  return null;
+}
+
+// ── Snap ring effect ──
+let snapRingTO = null;
+function fireSnapEffect(canvas, cx, cy) {
+  const r   = canvas.getBoundingClientRect();
+  const sx  = r.left + cx;
+  const sy  = r.top  + cy;
+  const ring = document.getElementById('snapRing');
+  ring.style.left = sx + 'px';
+  ring.style.top  = sy + 'px';
+  ring.classList.remove('snap');
+  void ring.offsetWidth;
+  ring.classList.add('snap');
+  clearTimeout(snapRingTO);
+  snapRingTO = setTimeout(() => ring.classList.remove('snap'), 400);
+}
+
+// ══════════════════════
+//  UI UPDATES
+// ══════════════════════
+function updateUI() {
+  drawAll();
+  buildFracPanel();
+  buildCmpStrip();
+  buildJumpPanel();
+}
+
+function buildFracPanel() {
+  const panel = document.getElementById('fracPanel');
+  panel.innerHTML = '';
+  points.forEach(pt => {
+    const col = COLORS[pt.colorIdx % COLORS.length];
+    const isSel = pt.id === selId;
+
+    const chip = document.createElement('div');
+    chip.className = 'frac-chip' + (isSel ? ' sel' : '');
+    chip.style.borderColor = isSel ? col.fill : '#e2e8f0';
+    chip.onclick = () => { selId = pt.id; updateUI(); };
+
+    const dot = document.createElement('div');
+    dot.className = 'dot-dot';
+    dot.style.background = col.fill;
+    dot.style.borderColor = col.stroke;
+    chip.appendChild(dot);
+
+    const fv = document.createElement('span');
+    fv.className = 'frac-val';
+    fv.style.color = col.fill;
+    fv.textContent = fmtFrac(pt.val);
+    chip.appendChild(fv);
+
+    const mx = fmtMixed(pt.val);
+    if (mx) {
+      const mv = document.createElement('span');
+      mv.className = 'frac-mix';
+      mv.textContent = '= ' + mx;
+      chip.appendChild(mv);
+    }
+
+    const rm = document.createElement('div');
+    rm.className = 'frac-rm';
+    rm.textContent = '×';
+    rm.title = 'Eliminar';
+    rm.onclick = e => { e.stopPropagation(); removePoint(pt.id); };
+    chip.appendChild(rm);
+
+    panel.appendChild(chip);
+  });
+}
+
+function buildCmpStrip() {
+  const strip = document.getElementById('cmpStrip');
+  strip.innerHTML = '';
+  if (points.length < 2) {
+    strip.innerHTML = '<span class="cmp-empty">Agrega 2+ puntos para comparar fracciones</span>';
+    return;
+  }
+  const sorted = [...points].sort((a, b) => a.val - b.val);
+  sorted.forEach((pt, i) => {
+    const col = COLORS[pt.colorIdx % COLORS.length];
+    const s = document.createElement('span');
+    s.className = 'cmp-item';
+    s.style.color = col.fill;
+    s.textContent = fmtFrac(pt.val);
+    strip.appendChild(s);
+    if (i < sorted.length - 1) {
+      const sym = document.createElement('span');
+      sym.className = 'cmp-sym';
+      const diff = sorted[i+1].val - pt.val;
+      sym.textContent = diff < 1e-9 ? '=' : '<';
+      strip.appendChild(sym);
+    }
+  });
+}
+
+function buildJumpPanel() {
+  const panel = document.getElementById('jumpPanel');
+  const empty = document.getElementById('jumpEmpty');
+  panel.style.display = jumpMode ? 'flex' : 'none';
+  if (!jumpMode) return;
+
+  // Clear everything except the empty-state span
+  Array.from(panel.children).forEach(ch => {
+    if (ch.id !== 'jumpEmpty') ch.remove();
+  });
+
+  if (jumps.length === 0) {
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  jumps.forEach(jmp => {
+    const col = JCOLORS[jmp.colorIdx % JCOLORS.length];
+    const isSel = jmp.id === selJumpId;
+    const diff = jmp.toVal - jmp.fromVal;
+    const num = Math.round(Math.abs(diff) * denom);
+    const den = denom;
+    const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+    let deltaStr;
+    if (num === 0) deltaStr = '0';
+    else if (num % den === 0) deltaStr = sign + (num / den);
+    else deltaStr = sign + num + '/' + den;
+
+    const chip = document.createElement('div');
+    chip.className = 'jump-chip' + (isSel ? ' sel' : '');
+    chip.style.borderColor = isSel ? col.arc : '#e2e8f0';
+    chip.onclick = () => { selJumpId = jmp.id; updateUI(); };
+
+    const dot = document.createElement('div');
+    dot.className = 'jump-arc-dot';
+    dot.style.background = col.arc;
+    chip.appendChild(dot);
+
+    const fr = document.createElement('span');
+    fr.className = 'jump-from';
+    fr.style.color = col.dark;
+    fr.textContent = fmtFrac(jmp.fromVal);
+    chip.appendChild(fr);
+
+    const arr = document.createElement('span');
+    arr.className = 'jump-arrow-sym';
+    arr.textContent = diff >= 0 ? '→' : '←';
+    chip.appendChild(arr);
+
+    const to = document.createElement('span');
+    to.className = 'jump-to';
+    to.style.color = col.dark;
+    to.textContent = fmtFrac(jmp.toVal);
+    chip.appendChild(to);
+
+    const dl = document.createElement('span');
+    dl.className = 'jump-delta ' + (diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero');
+    dl.textContent = deltaStr;
+    chip.appendChild(dl);
+
+    // Step count badge — only in step mode
+    if (stepJumps) {
+      const stepCount = Math.abs(Math.round(jmp.toVal * denom) - Math.round(jmp.fromVal * denom));
+      if (stepCount > 1) {
+        const sc = document.createElement('span');
+        sc.className = 'jump-delta zero';
+        sc.style.fontSize = '0.68rem';
+        sc.textContent = '×' + stepCount + ' pasos';
+        chip.appendChild(sc);
+      }
+    }
+
+    const rm = document.createElement('div');
+    rm.className = 'jump-rm';
+    rm.textContent = '×';
+    rm.title = 'Eliminar salto';
+    rm.onclick = ev => { ev.stopPropagation(); removeJump(jmp.id); };
+    chip.appendChild(rm);
+
+    panel.appendChild(chip);
+  });
+}
+
+// ══════════════════════
+//  DENOMINATOR CHIPS
+// ══════════════════════
+function buildDenomChips() {
+  const wrap = document.getElementById('denomChips');
+  wrap.innerHTML = '';
+  [2, 3, 4, 5, 6, 8, 10, 12].forEach(d => {
+    const chip = document.createElement('div');
+    chip.className = 'denom-chip' + (d === denom ? ' active' : '');
+    chip.textContent = d;
+    chip.onclick = () => setDenom(d);
+    wrap.appendChild(chip);
+  });
+}
+
+function setDenom(d) {
+  denom = d;
+  // Re-snap all points to new denom
+  points.forEach(pt => {
+    pt.val = snapVal(pt.val, NL1); // NL1 is wider, safe for all values
+  });
+  // Re-snap jump endpoints
+  jumps.forEach(jmp => {
+    const nl = jmp.nlId === 0 ? NL0 : NL1;
+    jmp.fromVal = snapVal(jmp.fromVal, nl);
+    jmp.toVal   = snapVal(jmp.toVal, nl);
+  });
+  buildDenomChips();
+  updateUI();
+}
+
+// ══════════════════════
+//  BUTTONS
+// ══════════════════════
+function addNewPoint() {
+  if (points.length >= 6) return;
+  // Try to find an unoccupied fraction position
+  for (let n = 1; n <= denom * NL1.max; n++) {
+    const candidate = n / denom;
+    if (candidate > NL1.max) break;
+    if (!points.find(p => Math.abs(p.val - candidate) < 1e-9)) {
+      const np = { id: nextId++, val: candidate, colorIdx: nextCI++ % COLORS.length };
+      points.push(np);
+      selId = np.id;
+      updateUI();
+      return;
+    }
+  }
+}
+
+function removePoint(id) {
+  points = points.filter(p => p.id !== id);
+  if (selId === id) selId = points.length ? points[points.length - 1].id : null;
+  updateUI();
+}
+
+function removeJump(id) {
+  jumps = jumps.filter(j => j.id !== id);
+  if (selJumpId === id) selJumpId = jumps.length ? jumps[jumps.length - 1].id : null;
+  updateUI();
+}
+
+function undoLast() {
+  if (jumpMode && jumps.length > 0) {
+    const removed = jumps.pop();
+    if (selJumpId === removed.id) selJumpId = jumps.length ? jumps[jumps.length - 1].id : null;
+  } else if (!jumpMode && points.length > 0) {
+    const removed = points.pop();
+    if (selId === removed.id) selId = points.length ? points[points.length - 1].id : null;
+  }
+  updateUI();
+}
+
+function toggleJumpMode() {
+  jumpMode = !jumpMode;
+  const btn = document.getElementById('jumpBtn');
+  btn.classList.toggle('active', jumpMode);
+  btn.textContent = jumpMode ? '↗ Salto: SÍ' : '↗ Modo Salto';
+  // Show/hide the Step Jumps button — only visible while Jump Mode is on
+  const stepBtn = document.getElementById('stepBtn');
+  stepBtn.style.display = jumpMode ? '' : 'none';
+  if (!jumpMode) {
+    stepJumps = false;
+    stepBtn.classList.remove('active');
+    stepBtn.textContent = '👣 Saltos por Pasos';
+  }
+  // Toggle workspace class first so CSS height change applies,
+  // then resize canvases after layout has updated
+  document.querySelector('.workspace').classList.toggle('jump-mode-on', jumpMode);
+  setTimeout(() => {
+    setupCanvas(c0, x0, 0);
+    setupCanvas(c1, x1, 1);
+    updateUI();
+  }, 20);
+}
+
+function toggleStepJumps() {
+  stepJumps = !stepJumps;
+  const btn = document.getElementById('stepBtn');
+  btn.classList.toggle('active', stepJumps);
+  btn.textContent = stepJumps ? '👣 Pasos: SÍ' : '👣 Saltos por Pasos';
+  // Clear all step selections when toggling off
+  if (!stepJumps) jumps.forEach(j => { j.selStep = -1; });
+  updateUI();
+}
+
+function resetAll() {
+  points    = [];
+  jumps     = [];
+  selId     = null;
+  selJumpId = null;
+  nextCI    = 0;
+  nextJCI   = 0;
+  denom     = 4;
+  benchmarks = false;
+  snapOn    = true;
+  jumpMode  = false;
+  stepJumps = false;
+  jumpDrag  = null;
+  jumpEndDrag = null;
+  document.getElementById('benchBtn').classList.remove('active');
+  document.getElementById('jumpBtn').classList.remove('active');
+  document.getElementById('jumpBtn').textContent = '↗ Modo Salto';
+  document.getElementById('stepBtn').classList.remove('active');
+  document.getElementById('stepBtn').textContent = '👣 Saltos por Pasos';
+  document.getElementById('stepBtn').style.display = 'none';
+  document.getElementById('snapBtn').textContent = '🔒 Ajuste: SÍ';
+  document.querySelector('.workspace').classList.remove('jump-mode-on');
+  buildDenomChips();
+  setTimeout(() => {
+    setupCanvas(c0, x0, 0);
+    setupCanvas(c1, x1, 1);
+    const p = { id: nextId++, val: 0.75, colorIdx: nextCI++ % COLORS.length };
+    points.push(p);
+    selId = p.id;
+    updateUI();
+  }, 20);
+}
+
+function toggleBenchmarks() {
+  benchmarks = !benchmarks;
+  document.getElementById('benchBtn').classList.toggle('active', benchmarks);
+  updateUI();
+}
+
+function toggleSnap() {
+  snapOn = !snapOn;
+  document.getElementById('snapBtn').textContent = snapOn ? '🔒 Ajuste: SÍ' : '🔓 Ajuste: NO';
+  updateUI();
+}
+
+// ══════════════════════
+//  PROMPTS & FACTS
+// ══════════════════════
+const PROMPTS = [
+  'Coloca 3/4 en la recta numérica.',
+  '¿Dónde está 1/2?',
+  'Encuentra una fracción entre 1 y 2.',
+  '¿Cuál es mayor: 2/3 o 3/4?',
+  'Coloca 5/4. ¿Es mayor que 1?',
+  'Muestra 1 y 1/2 en la recta extendida.',
+  '¿Puedes colocar 8/8? ¿Dónde cae?',
+  'Encuentra dos fracciones que sean iguales.',
+  'Coloca 3 fracciones en orden de menor a mayor.',
+  '¿Cuál está más cerca de 1: 2/3 o 3/4?',
+  'Muestra 6/4 como número mixto en la recta de abajo.',
+  'Coloca 1/10 — ¿qué tan cerca está del 0?',
+  'Encuentra una fracción entre 1/2 y 1.',
+  '¿Qué fracción está justo en medio de 2 y 3?',
+  'Coloca 7/8 y 9/10. ¿Cuál es más grande?',
+  '¿Puedes encontrar 3 fracciones que sumen 1?',
+  'Coloca 12/12. ¿Qué número entero es?',
+  'Muestra 5/3. ¿Está más cerca de 1 o de 2?',
+];
+
+const FACTS = [
+  { e:'🍕', h:'Rebanadas de Pizza',       t:'Cuando comes 3 de 4 rebanadas de pizza, comiste 3/4 — y dejaste 1/4. ¡Las fracciones muestran exactamente cuánto de un entero tienes!' },
+  { e:'⚾', h:'Entradas de Béisbol',       t:'Un juego de béisbol tiene 9 entradas. Después de 3 entradas, jugaste 3/9 = 1/3 del juego. ¡Las fracciones están en todas partes en los deportes!' },
+  { e:'🍫', h:'Barra de Chocolate',        t:'Una barra Hershey tiene 12 piezas. Come 4 y habrás comido 4/12 = 1/3. ¡Las fracciones equivalentes son solo dos formas de decir lo mismo!' },
+  { e:'🌍', h:'El Agua de la Tierra',      t:'Cerca de 3/4 de la superficie de la Tierra está cubierta de agua. Solo 1/4 es tierra — ¡y gran parte son montañas o desiertos!' },
+  { e:'🏃', h:'Distancia de Maratón',      t:'Un medio maratón es 1/2 de un maratón completo. Completar 3/4 de un maratón es la parte más difícil, ¡según los corredores!' },
+  { e:'🎵', h:'Notas Musicales',           t:'Una negra = 1 tiempo. Una blanca = 2 tiempos = 2/4. Una redonda = 4 tiempos. ¡Los músicos usan fracciones para contar el ritmo todos los días!' },
+  { e:'🕐', h:'Fracciones en el Reloj',    t:'A los 15 minutos, el reloj muestra 1/4 de hora. A los 30 minutos es 1/2. A los 45 minutos es 3/4 de la vuelta. ¡El reloj muestra fracciones cada hora!' },
+  { e:'🏀', h:'Tiros Libres',              t:'Si un jugador encesta 3 de cada 4 tiros libres, su fracción es 3/4 — igual al 75%. ¡Las fracciones y los porcentajes son la misma cosa escrita diferente!' },
+  { e:'🌙', h:'Fases de la Luna',          t:'Una luna media muestra exactamente 1/2 de la superficie iluminada. El ciclo lunar completo tiene 4 fases principales — ¡cada una es 1/4 del total!' },
+  { e:'📏', h:'Pulgadas en una Regla',     t:'Una regla tiene marcas de mitades, cuartos y octavos de pulgada. ¿Esa pequeña marca entre 1/4 y 1/2? ¡Es 3/8 — justo en la recta numérica!' },
+  { e:'🍰', h:'Pastel de Cumpleaños',      t:'Si cortas un pastel en 8 rebanadas y sirves 5, sirviste 5/8 del pastel. ¡Solo quedan 3/8!' },
+  { e:'🏊', h:'Vueltas en la Piscina',     t:'¡Los nadadores olímpicos a veces nadan 5/4 de kilómetro — más de 1 km entero! Las fracciones impropias solo significan que pasaste el entero.' },
+  { e:'🌡️', h:'Fracciones del Clima',     t:'La Tierra se ha calentado cerca de 1/2 grado Celsius en 50 años. ¡Hasta una fracción pequeña puede hacer una gran diferencia!' },
+  { e:'🐝', h:'Alas de Abeja',             t:'Una abeja tiene 4 alas. Cada par es 1/2 del total de alas, y cada ala individual es 1/4. ¡La naturaleza ama las fracciones!' },
+  { e:'🎨', h:'Mezcla de Colores',         t:'Para hacer naranja, mezclas 1/2 rojo y 1/2 amarillo. Para un naranja claro, prueba 1/4 rojo y 3/4 amarillo. ¡Los pintores usan fracciones cada día!' },
+  { e:'🚗', h:'Viajes en Carro',           t:'En un viaje de 4 horas, después de 1 hora completaste 1/4. Después de 3 horas estás en 3/4. ¡Suena familiar desde la recta numérica?' },
+  { e:'📐', h:'Doblar Papel',              t:'Dobla papel a la mitad → 1/2. Dóblalo de nuevo → 1/4. Un doblez más → 1/8. ¡Cada doblez duplica el número de partes iguales!' },
+  { e:'🏈', h:'Campo de Fútbol Americano', t:'Un campo de fútbol americano tiene 100 yardas. La línea de 50 yardas es exactamente 1/2. ¡Las líneas de 25 yardas están cada una a 1/4 de una zona de anotación!' },
+];
+
+function newPrompt() {
+  let i;
+  do { i = Math.floor(Math.random() * PROMPTS.length); } while (i === lastPrompt && PROMPTS.length > 1);
+  lastPrompt = i;
+  document.getElementById('promptText').textContent = PROMPTS[i];
+}
+
+function newFact() {
+  let i;
+  do { i = Math.floor(Math.random() * FACTS.length); } while (i === lastFact && FACTS.length > 1);
+  lastFact = i;
+  const f = FACTS[i];
+  document.getElementById('dykEmoji').textContent = f.e;
+  document.getElementById('dykHl').textContent    = f.h;
+  document.getElementById('dykTx').textContent    = f.t;
+  const card = document.getElementById('dykCard');
+  card.classList.remove('fadein');
+  void card.offsetWidth;
+  card.classList.add('fadein');
+}
+
+// ══════════════════════
+//  INIT
+// ══════════════════════
+function init() {
+  c0 = document.getElementById('nlCanvas0');
+  c1 = document.getElementById('nlCanvas1');
+  x0 = c0.getContext('2d');
+  x1 = c1.getContext('2d');
+
+  buildDenomChips();
+  setupCanvas(c0, x0, 0);
+  setupCanvas(c1, x1, 1);
+  attachEvents(c0, NL0);
+  attachEvents(c1, NL1);
+
+  // Default point
+  const p = { id: nextId++, val: 0.75, colorIdx: nextCI++ % COLORS.length };
+  points.push(p);
+  selId = p.id;
+
+  newPrompt();
+  newFact();
+  updateUI();
+}
+
+// ── Resize handler (debounced) ──
+let resizeTO = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTO);
+  resizeTO = setTimeout(() => {
+    setupCanvas(c0, x0, 0);
+    setupCanvas(c1, x1, 1);
+    drawAll();
+  }, 80);
+});
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
