@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>El Laboratorio de Fracciones de Mrs. Nava</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#eef2ff;
+  --card:#ffffff;
+  --grad-a:#6C63FF;
+  --grad-b:#8E7CFF;
+  --text-dark:#1e293b;
+  --text-mid:#475569;
+  --text-light:#94a3b8;
+  --border:#e2e8f0;
+  --shadow:0 2px 12px rgba(108,99,255,0.10);
+  --shadow-md:0 4px 20px rgba(108,99,255,0.14);
+
+  --c-whole:#7C3AED;
+  --c-half:#2563EB;
+  --c-third:#059669;
+  --c-fourth:#D97706;
+  --c-fifth:#DC2626;
+  --c-sixth:#0891B2;
+  --c-eighth:#9333EA;
+  --c-tenth:#16A34A;
+  --c-twelfth:#C2410C;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html,body{
+  height:100%;
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text-dark);
+  overscroll-behavior:none;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+/* ══════════════════════════════════════
+   ENCABEZADO
+══════════════════════════════════════ */
+.lab-header{
+  background:linear-gradient(135deg,var(--grad-a),var(--grad-b));
+  color:#fff;
+  padding:10px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  box-shadow:0 3px 14px rgba(108,99,255,0.32);
+  flex-shrink:0;
+  z-index:20;
+}
+.lab-header .icon{font-size:1.5rem;line-height:1;}
+.lab-header h1{
+  font-family:'Fredoka One',cursive;
+  font-size:1.35rem;
+  letter-spacing:.3px;
+  flex:1;
+}
+.lab-header .badge{
+  background:rgba(255,255,255,0.20);
+  border:1.5px solid rgba(255,255,255,0.45);
+  border-radius:20px;
+  padding:3px 11px;
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ══════════════════════════════════════
+   BARRA SUPERIOR
+══════════════════════════════════════ */
+.top-toolbar{
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:8px 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  box-shadow:0 2px 8px rgba(108,99,255,0.07);
+}
+
+.bank-label-tag{
+  font-family:'Fredoka One',cursive;
+  font-size:.78rem;
+  color:var(--grad-a);
+  white-space:nowrap;
+  padding-right:4px;
+  border-right:2px solid var(--border);
+  margin-right:2px;
+  flex-shrink:0;
+}
+
+.bank-pieces{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex-shrink:0;
+}
+
+.bank-pill{
+  display:flex;
+  align-items:center;
+  gap:0;
+  cursor:grab;
+  border-radius:6px;
+  overflow:hidden;
+  border:1.5px solid rgba(0,0,0,0.07);
+  transition:transform .12s, box-shadow .12s, opacity .12s;
+  user-select:none;
+  -webkit-user-select:none;
+  flex-shrink:0;
+  opacity:.82;
+}
+.bank-pill:hover{
+  transform:translateY(-2px) scale(1.05);
+  box-shadow:0 3px 10px rgba(0,0,0,0.15);
+  opacity:1;
+}
+.bank-pill:active{cursor:grabbing;opacity:1;}
+
+.pill-color{
+  width:22px;
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  filter:saturate(0.78);
+}
+.pill-text{
+  background:#f8fafc;
+  height:26px;
+  padding:0 6px;
+  font-family:'Fredoka One',cursive;
+  font-size:.72rem;
+  color:var(--text-mid);
+  display:flex;
+  align-items:center;
+  white-space:nowrap;
+  border-left:1px solid rgba(0,0,0,0.06);
+}
+
+.toolbar-divider{
+  width:1px;
+  height:28px;
+  background:var(--border);
+  flex-shrink:0;
+  margin:0 4px;
+}
+
+.ctrl-btn{
+  font-family:'Nunito',sans-serif;
+  font-weight:700;
+  font-size:.70rem;
+  border:none;
+  border-radius:7px;
+  padding:4px 9px;
+  cursor:pointer;
+  transition:all .12s;
+  display:flex;
+  align-items:center;
+  gap:3px;
+  white-space:nowrap;
+  flex-shrink:0;
+  opacity:.85;
+}
+.ctrl-btn:hover{transform:translateY(-1px);filter:brightness(1.07);opacity:1;}
+.ctrl-btn:active{transform:translateY(0);}
+.btn-undo{background:#fef3c7;color:#b45309;}
+.btn-reset{background:#fee2e2;color:#dc2626;}
+
+.toggle-wrap{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:.73rem;
+  font-weight:700;
+  color:var(--text-mid);
+  cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.toggle-wrap input{display:none;}
+.toggle-track{
+  width:32px;height:17px;
+  background:#cbd5e1;
+  border-radius:999px;
+  position:relative;
+  transition:background .18s;
+  flex-shrink:0;
+}
+.toggle-track::after{
+  content:'';
+  position:absolute;
+  top:2px;left:2px;
+  width:13px;height:13px;
+  background:#fff;
+  border-radius:50%;
+  transition:left .18s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-wrap input:checked + .toggle-track{background:var(--grad-a);}
+.toggle-wrap input:checked + .toggle-track::after{left:17px;}
+
+/* ══════════════════════════════════════
+   CUERPO PRINCIPAL
+══════════════════════════════════════ */
+.lab-main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  padding:14px 20px 0;
+  gap:10px;
+  max-width:1200px;
+  width:100%;
+  margin:0 auto;
+  min-height:0;
+}
+
+/* ══════════════════════════════════════
+   ESPACIO DE CONSTRUCCIÓN — DOMINANTE
+══════════════════════════════════════ */
+.combine-wrap{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:#e8eeff;
+  border-radius:18px 18px 0 0;
+  box-shadow:0 6px 28px rgba(108,99,255,0.18), inset 0 0 0 2px rgba(108,99,255,0.12);
+  overflow:hidden;
+  border:2px solid #b8c2ff;
+  border-bottom:none;
+  min-height:0;
+  position:relative;
+}
+
+.combine-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 16px 6px;
+  border-bottom:1px solid rgba(108,99,255,0.10);
+  background:rgba(255,255,255,0.60);
+  backdrop-filter:blur(4px);
+}
+.combine-title{
+  font-family:'Fredoka One',cursive;
+  font-size:.88rem;
+  color:var(--grad-a);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.combine-hint-text{
+  font-size:.70rem;
+  color:var(--text-light);
+  font-weight:600;
+}
+
+.wholes-shelf{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  padding:10px 18px 0;
+  min-height:0;
+}
+.wholes-shelf:empty{ padding:0; }
+
+.whole-block{
+  width:72px;height:72px;
+  background:linear-gradient(135deg,#5b21b6,#7c3aed);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  font-family:'Fredoka One',cursive;
+  font-size:1.5rem;
+  box-shadow:0 4px 16px rgba(91,33,182,.42), inset 0 1px 0 rgba(255,255,255,.20);
+  animation:popIn .25s cubic-bezier(.34,1.56,.64,1);
+  flex-shrink:0;
+  position:relative;
+  border:2px solid rgba(255,255,255,.15);
+}
+.whole-block::after{
+  content:'1 entero';
+  position:absolute;
+  bottom:-17px;
+  font-family:'Nunito',sans-serif;
+  font-size:.60rem;
+  font-weight:800;
+  color:#5b21b6;
+  white-space:nowrap;
+}
+
+.drop-zone-outer{
+  flex:1;
+  display:flex;
+  align-items:center;
+  padding:14px 18px 22px;
+  min-height:0;
+}
+
+.combine-drop-zone{
+  width:100%;
+  min-height:90px;
+  height:100%;
+  border:2px dashed #a5b4fc;
+  border-radius:14px;
+  background:#f0f3ff;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:0 14px;
+  flex-wrap:nowrap;
+  gap:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  transition:border-color .18s, background .18s, box-shadow .18s;
+  position:relative;
+  scrollbar-width:thin;
+  scrollbar-color:#a5b4fc transparent;
+}
+.combine-drop-zone::-webkit-scrollbar{height:4px;}
+.combine-drop-zone::-webkit-scrollbar-track{background:transparent;}
+.combine-drop-zone::-webkit-scrollbar-thumb{background:#a5b4fc;border-radius:2px;}
+
+/* LÍNEA GUÍA */
+.combine-drop-zone::before{
+  content:'';
+  position:absolute;
+  left:14px;right:14px;
+  top:50%;height:3px;
+  transform:translateY(-50%);
+  background:linear-gradient(90deg,#c7d2fe 0%,rgba(199,210,254,0.25) 100%);
+  border-radius:2px;
+  pointer-events:none;
+  z-index:0;
+  transition:opacity .22s;
+}
+.combine-drop-zone.has-pieces::before{ opacity:0; }
+
+.combine-drop-zone.drag-over{
+  border-color:var(--grad-a);
+  border-style:solid;
+  background:#e8ebff;
+  box-shadow:inset 0 0 0 3px rgba(108,99,255,.10);
+}
+
+.drop-hint{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  pointer-events:none;
+  transition:opacity .22s;
+  z-index:1;
+}
+.drop-hint .hint-icon{
+  font-size:1.3rem;
+  opacity:.55;
+}
+.drop-hint .hint-text{
+  font-size:.70rem;
+  font-weight:700;
+  color:#b0bcf7;
+  letter-spacing:.2px;
+}
+
+/* ── PIEZAS DE FRACCIÓN ── */
+.frac-piece{
+  height:72px;
+  border-radius:0;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.97);
+  font-family:'Fredoka One',cursive;
+  font-size:.80rem;
+  cursor:pointer;
+  border-top:2px solid rgba(255,255,255,.20);
+  border-bottom:2px solid rgba(0,0,0,.08);
+  border-left:1px solid rgba(0,0,0,.12);
+  border-right:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+  transition:filter .12s, transform .12s, box-shadow .12s;
+  animation:lockIn .22s cubic-bezier(.22,1.4,.54,1);
+  flex-shrink:0;
+  position:relative;
+  user-select:none;
+  -webkit-user-select:none;
+  z-index:1;
+}
+.frac-piece:first-child{
+  border-radius:8px 0 0 8px;
+  border-left:2px solid rgba(255,255,255,.20);
+}
+.frac-piece:last-child{
+  border-radius:0 8px 8px 0;
+  border-right:2px solid rgba(0,0,0,.08);
+}
+.frac-piece:first-child:last-child{
+  border-radius:8px;
+  border:2px solid rgba(255,255,255,.20);
+}
+.frac-piece:hover{
+  filter:brightness(1.14);
+  transform:translateY(-5px) scaleY(1.04);
+  z-index:4;
+  box-shadow:0 8px 18px rgba(0,0,0,.20);
+}
+.frac-piece .remove-x{
+  display:none;
+  position:absolute;
+  top:-7px;right:-7px;
+  background:#ef4444;
+  color:#fff;
+  border-radius:50%;
+  width:17px;height:17px;
+  font-size:.62rem;
+  align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.28);
+  z-index:6;
+  cursor:pointer;
+  font-weight:900;
+}
+.frac-piece:hover .remove-x{display:flex;}
+
+.equiv-note{
+  position:absolute;
+  bottom:-22px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:.57rem;
+  font-weight:700;
+  color:#0369a1;
+  white-space:nowrap;
+  pointer-events:none;
+  background:#e0f2fe;
+  border:1px solid #bae6fd;
+  border-radius:4px;
+  padding:1px 5px;
+  z-index:5;
+}
+
+@keyframes nearlyGlow{
+  0%,100%{box-shadow:inset 0 0 0 0 rgba(108,99,255,0);}
+  50%{box-shadow:inset 0 0 0 4px rgba(108,99,255,.16);}
+}
+.nearly-whole .combine-drop-zone{animation:nearlyGlow 1.4s ease infinite;}
+
+@keyframes snapFlash{
+  0%{background:#ddd6fe;}
+  45%{background:#bfdbfe;}
+  100%{background:#f0f3ff;}
+}
+.snap-flash{animation:snapFlash .40s ease !important;}
+
+@keyframes lockIn{
+  0%  {transform:scaleY(0.55) translateY(10px);opacity:0;}
+  65% {transform:scaleY(1.07) translateY(-2px);opacity:1;}
+  100%{transform:scaleY(1)    translateY(0);   opacity:1;}
+}
+
+/* ══════════════════════════════════════
+   BARRA DE TOTAL
+══════════════════════════════════════ */
+.total-bar{
+  background:var(--card);
+  border-radius:0 0 14px 14px;
+  box-shadow:0 4px 14px rgba(108,99,255,0.10);
+  border:2px solid #b8c2ff;
+  border-top:none;
+  padding:9px 18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  flex-shrink:0;
+  margin-top:-2px;
+}
+
+.total-section{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+}
+.total-label{
+  font-size:.65rem;
+  font-weight:700;
+  text-transform:uppercase;
+  color:var(--text-light);
+  letter-spacing:.6px;
+}
+.total-frac-display{
+  font-family:'Fredoka One',cursive;
+  font-size:2.3rem;
+  color:var(--grad-a);
+  line-height:1;
+  transition:color .2s;
+  min-width:44px;
+  text-align:center;
+  filter:drop-shadow(0 1px 3px rgba(108,99,255,.18));
+}
+.total-frac-display .frac-num{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  line-height:1.1;
+}
+.total-frac-display .frac-num .top{
+  border-bottom:2.5px solid var(--grad-a);
+  padding-bottom:1px;
+  font-size:1.5rem;
+  line-height:1;
+}
+.total-frac-display .frac-num .bot{
+  font-size:1.2rem;
+  line-height:1;
+}
+.total-mixed-tag{
+  font-family:'Fredoka One',cursive;
+  font-size:.95rem;
+  color:#7c3aed;
+  background:#f5f3ff;
+  border-radius:7px;
+  padding:3px 9px;
+}
+
+.total-sep{
+  width:1px;height:32px;
+  background:var(--border);
+  flex-shrink:0;
+}
+
+.breakdown-list{
+  flex:1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  align-items:center;
+  min-width:0;
+}
+.breakdown-chip{
+  background:#f1f5f9;
+  border-radius:7px;
+  padding:3px 9px;
+  font-size:.76rem;
+  font-weight:700;
+  color:var(--text-mid);
+  display:flex;
+  align-items:center;
+  gap:4px;
+  white-space:nowrap;
+}
+.breakdown-chip .dot{
+  width:9px;height:9px;
+  border-radius:3px;
+  flex-shrink:0;
+}
+
+/* ══════════════════════════════════════
+   FILA INFERIOR
+══════════════════════════════════════ */
+.bottom-row{
+  display:flex;
+  gap:10px;
+  flex-shrink:0;
+  padding-bottom:14px;
+  flex-wrap:wrap;
+}
+
+.prompts-strip{
+  background:var(--card);
+  border-radius:12px;
+  padding:9px 14px;
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  flex:1;
+  min-width:260px;
+}
+.prompt-tag{
+  font-size:.68rem;
+  font-weight:700;
+  text-transform:uppercase;
+  color:var(--text-light);
+  letter-spacing:.5px;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.prompt-chip{
+  background:#ede9ff;
+  color:#7c3aed;
+  border-radius:999px;
+  padding:4px 12px;
+  font-size:.75rem;
+  font-weight:700;
+  cursor:pointer;
+  border:1.5px solid #c4b5fd;
+  transition:all .13s;
+  white-space:nowrap;
+}
+.prompt-chip:hover{background:#ddd6fe;transform:translateY(-1px);}
+.prompt-chip.active{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+
+/* Sabías que */
+.did-you-know{
+  background:linear-gradient(135deg,#fdf4ff,#ede9ff);
+  border:1.5px solid #c4b5fd;
+  border-radius:12px;
+  padding:10px 14px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transition:transform .13s;
+  min-width:280px;
+  max-width:400px;
+  flex-shrink:0;
+}
+.did-you-know:hover{transform:translateY(-2px);}
+.dyk-icon{font-size:1.6rem;flex-shrink:0;line-height:1;}
+.dyk-tap{
+  font-size:.62rem;
+  font-weight:700;
+  text-transform:uppercase;
+  color:#a78bfa;
+  letter-spacing:.4px;
+}
+.dyk-headline{
+  font-family:'Fredoka One',cursive;
+  font-size:.88rem;
+  color:#7c3aed;
+  line-height:1.2;
+}
+.dyk-text{
+  font-size:.72rem;
+  color:var(--text-mid);
+  line-height:1.4;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.dyk-fade{animation:dykFade .35s ease;}
+@keyframes dykFade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* Modo de entrada */
+.input-mode-bar{
+  display:none;
+  background:var(--card);
+  border-radius:10px;
+  padding:8px 14px;
+  box-shadow:var(--shadow);
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+.input-mode-bar.show{display:flex;}
+.input-mode-bar label{font-size:.75rem;font-weight:700;color:var(--text-mid);}
+.frac-input-group{display:flex;align-items:center;gap:5px;}
+.frac-input-group input{
+  width:50px;
+  padding:5px 7px;
+  border:2px solid var(--border);
+  border-radius:7px;
+  font-family:'Fredoka One',cursive;
+  font-size:.95rem;
+  text-align:center;
+  color:var(--text-dark);
+  background:#f8fafc;
+  outline:none;
+  transition:border-color .14s;
+}
+.frac-input-group input:focus{border-color:var(--grad-a);}
+.frac-input-group .slash{
+  font-family:'Fredoka One',cursive;
+  font-size:1.1rem;
+  color:var(--grad-a);
+}
+.btn-add-frac{
+  background:linear-gradient(135deg,var(--grad-a),var(--grad-b));
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:6px 12px;
+  font-family:'Nunito',sans-serif;
+  font-weight:700;
+  font-size:.75rem;
+  cursor:pointer;
+  transition:all .13s;
+}
+.btn-add-frac:hover{transform:translateY(-1px);filter:brightness(1.07);}
+
+/* ══════════════════════════════════════
+   ANIMACIONES
+══════════════════════════════════════ */
+@keyframes popIn{
+  from{transform:scale(0.4);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* ══════════════════════════════════════
+   FANTASMA DE ARRASTRE
+══════════════════════════════════════ */
+.drag-ghost{
+  position:fixed;
+  pointer-events:none;
+  z-index:9999;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.95);
+  font-family:'Fredoka One',cursive;
+  font-size:.9rem;
+  box-shadow:0 8px 28px rgba(0,0,0,.22);
+  transform:rotate(2.5deg) scale(1.06);
+  opacity:.90;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVO
+══════════════════════════════════════ */
+@media(max-width:680px){
+  .lab-header h1{font-size:1.05rem;}
+  .top-toolbar{gap:6px;}
+  .pill-text{display:none;}
+  .lab-main{padding:10px 12px 0;}
+  .did-you-know{max-width:100%;min-width:unset;flex:1;}
+  .bottom-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- ENCABEZADO -->
+<header class="lab-header">
+  <span class="icon">🍕</span>
+  <h1>El Laboratorio de Fracciones de Mrs. Nava</h1>
+  <span class="badge">4.NF · Grado 4</span>
+</header>
+
+<!-- BARRA SUPERIOR: banco + controles -->
+<div class="top-toolbar" id="topToolbar">
+
+  <span class="bank-label-tag">🧩 Piezas</span>
+
+  <div class="bank-pieces" id="bankPieces">
+    <!-- generado por JS -->
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="ctrl-btn btn-undo" onclick="doUndo()">↩ Deshacer</button>
+  <button class="ctrl-btn btn-reset" onclick="doReset()">🗑 Borrar</button>
+
+  <div class="toolbar-divider"></div>
+
+  <label class="toggle-wrap">
+    <input type="checkbox" id="toggleBreakdown" onchange="renderAll()"/>
+    <span class="toggle-track"></span>
+    Desglose
+  </label>
+
+  <label class="toggle-wrap">
+    <input type="checkbox" id="toggleInput" onchange="toggleInputMode()"/>
+    <span class="toggle-track"></span>
+    Modo escritura
+  </label>
+
+</div>
+
+<!-- CUERPO PRINCIPAL -->
+<div class="lab-main">
+
+  <!-- MODO DE ESCRITURA (condicional) -->
+  <div class="input-mode-bar" id="inputModeBar">
+    <label>Escribe una fracción:</label>
+    <div class="frac-input-group">
+      <input type="number" id="inputNum" min="1" max="20" placeholder="3"/>
+      <span class="slash">/</span>
+      <input type="number" id="inputDen" min="1" max="12" placeholder="4"/>
+    </div>
+    <button class="btn-add-frac" onclick="addFromInput()">+ Agregar</button>
+  </div>
+
+  <!-- ESPACIO DE CONSTRUCCIÓN — DOMINANTE -->
+  <div class="combine-wrap" id="combineArea">
+
+    <div class="combine-header">
+      <span class="combine-title">✨ Espacio de Construcción</span>
+      <span class="combine-hint-text">Arrastra piezas · Toca una pieza para quitarla</span>
+    </div>
+
+    <!-- Estante de enteros -->
+    <div class="wholes-shelf" id="wholesRow"></div>
+
+    <!-- Zona de soltar -->
+    <div class="drop-zone-outer">
+      <div class="combine-drop-zone" id="dropZone">
+        <div class="drop-hint" id="dropHint">
+          <span class="hint-icon">🍕</span>
+          <span class="hint-text">arrastra piezas aquí para construir</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BARRA DE TOTAL -->
+  <div class="total-bar" id="totalBar">
+    <div class="total-section">
+      <span class="total-label">Total</span>
+      <div class="total-frac-display" id="totalFrac">—</div>
+      <div class="total-mixed-tag" id="totalMixed" style="display:none;"></div>
+    </div>
+    <div class="total-sep" id="totalSep" style="display:none;"></div>
+    <div class="breakdown-list" id="breakdownList"></div>
+  </div>
+
+  <!-- FILA INFERIOR: sugerencias + Sabías que -->
+  <div class="bottom-row">
+
+    <div class="prompts-strip">
+      <span class="prompt-tag">Intenta →</span>
+      <div class="prompt-chip" onclick="applyPrompt(0)">Construye 3/4</div>
+      <div class="prompt-chip" onclick="applyPrompt(1)">Haz 1 entero</div>
+      <div class="prompt-chip" onclick="applyPrompt(2)">½ + ¼ = ?</div>
+      <div class="prompt-chip" onclick="applyPrompt(3)">Construye 5/4</div>
+      <div class="prompt-chip" onclick="applyPrompt(4)">⅓ + ⅙</div>
+      <div class="prompt-chip" onclick="applyPrompt(5)">Piezas distintas para 1</div>
+    </div>
+
+    <div class="did-you-know" id="dykCard" onclick="nextFact()">
+      <div class="dyk-icon" id="dykIcon">🍕</div>
+      <div>
+        <div class="dyk-tap">¡Toca para un nuevo dato!</div>
+        <div class="dyk-headline" id="dykHeadline">Cargando…</div>
+        <div class="dyk-text" id="dykText"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /lab-main -->
+
+<!-- FANTASMA DE ARRASTRE -->
+<div class="drag-ghost" id="dragGhost" style="display:none;"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATOS
+═══════════════════════════════════════ */
+const FRACTIONS = [
+  { n:1, d:1,  label:'1',    sub:'entero',        color:'var(--c-whole)',   baseW:60 },
+  { n:1, d:2,  label:'1/2',  sub:'mitad',         color:'var(--c-half)',    baseW:56 },
+  { n:1, d:3,  label:'1/3',  sub:'tercio',        color:'var(--c-third)',   baseW:44 },
+  { n:1, d:4,  label:'1/4',  sub:'cuarto',        color:'var(--c-fourth)',  baseW:38 },
+  { n:1, d:5,  label:'1/5',  sub:'quinto',        color:'var(--c-fifth)',   baseW:34 },
+  { n:1, d:6,  label:'1/6',  sub:'sexto',         color:'var(--c-sixth)',   baseW:30 },
+  { n:1, d:8,  label:'1/8',  sub:'octavo',        color:'var(--c-eighth)',  baseW:26 },
+  { n:1, d:10, label:'1/10', sub:'décimo',        color:'var(--c-tenth)',   baseW:22 },
+  { n:1, d:12, label:'1/12', sub:'doceavo',       color:'var(--c-twelfth)', baseW:20 },
+];
+
+const FACTS = [
+  { icon:'🍕', headline:'¡Matemáticas de pizza!', text:'Una pizza cortada en 8 rebanadas — ¡si comes 3, te comiste 3/8 de ella!' },
+  { icon:'⚽', headline:'Medio tiempo', text:'Cada mitad de un partido de fútbol es 1/2 de los 90 minutos totales.' },
+  { icon:'🍫', headline:'Ciencia del chocolate', text:'Rompe 3 cuadritos de una barra de 12 — ¡eso es 3/12 o 1/4 de la barra!' },
+  { icon:'🏃', headline:'Cuartos de maratón', text:'Un maratón se divide en 4 partes — cada parte es 1/4 de las 26 millas.' },
+  { icon:'🍊', headline:'Gajos de naranja', text:'¡Come 5 de 10 gajos de naranja y habrás comido exactamente 1/2 de la naranja!' },
+  { icon:'📏', headline:'Fracciones en la regla', text:'Una pulgada tiene mitades, cuartos y octavos — ¡fracciones por todas partes!' },
+  { icon:'🥧', headline:'Récord de pastelería', text:'4 rebanadas comidas de un pastel de 12 = 4/12 = 1/3 del pastel, ¡desaparecido!' },
+  { icon:'🏈', headline:'Campo de fútbol americano', text:'La línea de 50 yardas está exactamente a 1/2 del campo. ¡La de 25 yardas, a 1/4!' },
+  { icon:'🌍', headline:'Los océanos', text:'El agua cubre 7/10 de la Tierra — ¡la tierra es solo 3/10 de nuestro planeta!' },
+  { icon:'🎵', headline:'Matemáticas musicales', text:'Una nota blanca dura 2/4 de un compás de 4/4 — exactamente la mitad del compás.' },
+  { icon:'🐝', headline:'El trabajo de las abejas', text:'Las abejas pasan 1/3 recogiendo néctar y 2/3 en la colmena. ¡Juntos = 1 vida de abeja!' },
+  { icon:'🎂', headline:'Pastel de cumpleaños', text:'8 amigos comparten por igual = 1/8 cada uno. ¿Solo vienen 6? ¡Ahora les toca 1/6 — más!' },
+  { icon:'⏰', headline:'El reloj y las fracciones', text:'30 min = 1/2 hora. 15 min = 1/4 de hora. ¡Usas fracciones cada vez que ves el reloj!' },
+  { icon:'🌙', headline:'Fases de la luna', text:'Después de 7 de 28 días, ves 1/4 de luna. ¡Después de 14 días, 1/2 luna (luna media)!' },
+  { icon:'🧃', headline:'La cajita de jugo', text:'Tomar 2 de 6 onzas en tu primer sorbo = 2/6 = 1/3 de toda la cajita de jugo.' },
+  { icon:'🚴', headline:'Carrera en bicicleta', text:'Puntos de control cada 3 millas en una carrera de 12 millas = cada tramo es 1/4 de la carrera.' },
+  { icon:'🎃', headline:'Dulces de Halloween', text:'Comer 3 de 10 dulces = 3/10. Regalar 5 = 5/10 = exactamente 1/2 de tu cosecha.' },
+];
+
+/* ═══════════════════════════════════════
+   ESTADO
+═══════════════════════════════════════ */
+let pieces   = [];
+let history  = [];
+let facIdx   = -1;
+let dragging = null;
+
+/* ═══════════════════════════════════════
+   MATEMÁTICAS
+═══════════════════════════════════════ */
+function gcd(a,b){ return b===0?a:gcd(b,a%b); }
+function lcm(a,b){ return a/gcd(a,b)*b; }
+function simplify(n,d){
+  if(n===0) return {n:0,d:1};
+  const g = gcd(Math.abs(n),Math.abs(d));
+  return {n:n/g, d:d/g};
+}
+function toMixed(n,d){
+  const w = Math.floor(n/d);
+  return {wholes:w, remN:n-w*d, remD:d};
+}
+function totalFraction(){
+  if(!pieces.length) return {n:0,d:1};
+  const ld  = pieces.reduce((a,p)=>lcm(a,p.d),1);
+  const num = pieces.reduce((a,p)=>a+(p.n*(ld/p.d)),0);
+  return {n:num, d:ld};
+}
+function pieceWidth(n,d){
+  return Math.max(20, Math.round((n/d)*240));
+}
+
+/* ═══════════════════════════════════════
+   INICIO
+═══════════════════════════════════════ */
+function init(){
+  buildBank();
+  renderAll();
+  showFact(0);
+  facIdx = 0;
+}
+
+/* ═══════════════════════════════════════
+   BANCO DE PIEZAS
+═══════════════════════════════════════ */
+function buildBank(){
+  const container = document.getElementById('bankPieces');
+  container.innerHTML = '';
+  FRACTIONS.forEach(f => {
+    const pill = document.createElement('div');
+    pill.className = 'bank-pill';
+    pill.title = f.sub;
+    pill.innerHTML = `
+      <div class="pill-color" style="background:${f.color};"></div>
+      <div class="pill-text">${f.label}</div>
+    `;
+    pill.addEventListener('mousedown', e => startDrag(e, f));
+    pill.addEventListener('touchstart', e => startDragTouch(e, f), {passive:false});
+    pill.addEventListener('click', () => addPiece(f));
+    container.appendChild(pill);
+  });
+}
+
+/* ═══════════════════════════════════════
+   RENDERIZADO
+═══════════════════════════════════════ */
+function renderAll(){
+  renderDropZone();
+  renderTotal();
+}
+
+function renderDropZone(){
+  const zone  = document.getElementById('dropZone');
+  const hint  = document.getElementById('dropHint');
+  const wrow  = document.getElementById('wholesRow');
+  const area  = document.getElementById('combineArea');
+
+  zone.innerHTML = '';
+  wrow.innerHTML = '';
+  zone.appendChild(hint);
+
+  const {n,d} = totalFraction();
+  const nearly = d>0 && (n/d)>=0.75 && (n/d)<1;
+  area.classList.toggle('nearly-whole', nearly);
+
+  if(!pieces.length){
+    hint.style.opacity = '1';
+    zone.classList.remove('has-pieces');
+    return;
+  }
+  hint.style.opacity = '0';
+  zone.classList.add('has-pieces');
+
+  const wholes = Math.floor(n/d);
+
+  for(let w=0; w<wholes; w++){
+    const wb = document.createElement('div');
+    wb.className = 'whole-block';
+    wb.textContent = '1';
+    wrow.appendChild(wb);
+  }
+
+  pieces.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'frac-piece';
+    const w = pieceWidth(p.n, p.d);
+    el.style.cssText = `width:${w}px; background:${p.color}; min-width:20px;`;
+
+    if(w >= 26) el.innerHTML = `<span style="pointer-events:none;">${p.label}</span>`;
+
+    const rx = document.createElement('div');
+    rx.className = 'remove-x';
+    rx.textContent = '✕';
+    rx.addEventListener('mousedown', e => e.stopPropagation());
+    rx.addEventListener('click', e => { e.stopPropagation(); removePiece(i); });
+    el.appendChild(rx);
+
+    const eq = getEquivNote(p, i);
+    if(eq){
+      const en = document.createElement('div');
+      en.className = 'equiv-note';
+      en.textContent = eq;
+      el.appendChild(en);
+    }
+
+    el.addEventListener('click', () => removePiece(i));
+    zone.appendChild(el);
+  });
+
+  if(wholes > 0 && zone._lastWholes !== wholes){
+    zone.classList.remove('snap-flash');
+    void zone.offsetWidth;
+    zone.classList.add('snap-flash');
+    setTimeout(() => zone.classList.remove('snap-flash'), 450);
+  }
+  zone._lastWholes = wholes;
+}
+
+function getEquivNote(piece, idx){
+  if(pieces.length < 2) return null;
+  const others = pieces.filter((_,i)=>i!==idx);
+  for(const o of others){
+    if(o.d !== piece.d && (o.d % piece.d === 0 || piece.d % o.d === 0)){
+      const cd  = lcm(piece.d, o.d);
+      const eqN = piece.n * (cd / piece.d);
+      if(eqN !== piece.n || cd !== piece.d) return `= ${eqN}/${cd}`;
+    }
+  }
+  return null;
+}
+
+function renderTotal(){
+  const {n,d}   = totalFraction();
+  const fracEl  = document.getElementById('totalFrac');
+  const mixedEl = document.getElementById('totalMixed');
+  const bklist  = document.getElementById('breakdownList');
+  const sepEl   = document.getElementById('totalSep');
+  const showBk  = document.getElementById('toggleBreakdown').checked;
+
+  if(n===0){
+    fracEl.innerHTML = '—';
+    mixedEl.style.display = 'none';
+    bklist.innerHTML = '';
+    sepEl.style.display = 'none';
+    return;
+  }
+
+  const sim = simplify(n,d);
+
+  if(sim.d===1){
+    fracEl.innerHTML = `<span>${sim.n}</span>`;
+  } else {
+    fracEl.innerHTML = `<span class="frac-num"><span class="top">${sim.n}</span><span class="bot">${sim.d}</span></span>`;
+  }
+
+  if(sim.n >= sim.d && sim.d > 1){
+    const {wholes,remN,remD} = toMixed(sim.n, sim.d);
+    if(wholes > 0 && remN > 0){
+      const rs = simplify(remN,remD);
+      mixedEl.style.display = 'block';
+      mixedEl.innerHTML = `${wholes} <sup>${rs.n}</sup>/<sub>${rs.d}</sub>`;
+    } else if(wholes > 0 && remN === 0){
+      mixedEl.style.display = 'block';
+      mixedEl.innerHTML = `${wholes} entero${wholes>1?'s':''}`;
+    } else {
+      mixedEl.style.display = 'none';
+    }
+  } else {
+    mixedEl.style.display = 'none';
+  }
+
+  bklist.innerHTML = '';
+  if(showBk && pieces.length > 0){
+    const groups = {};
+    pieces.forEach(p => {
+      const key = `${p.n}/${p.d}`;
+      if(!groups[key]) groups[key] = {p, count:0};
+      groups[key].count++;
+    });
+
+    let first = true;
+    Object.values(groups).forEach(({p,count}) => {
+      if(!first){
+        const plus = document.createElement('span');
+        plus.style.cssText = 'color:#94a3b8;font-weight:700;font-size:.80rem;';
+        plus.textContent = '+';
+        bklist.appendChild(plus);
+      }
+      first = false;
+      const chip = document.createElement('div');
+      chip.className = 'breakdown-chip';
+      chip.innerHTML = `<div class="dot" style="background:${p.color};"></div>${count>1?count+'×':''}${p.label}`;
+      bklist.appendChild(chip);
+    });
+
+    const eq = document.createElement('span');
+    eq.style.cssText = 'color:#94a3b8;font-weight:700;font-size:.80rem;';
+    eq.textContent = '=';
+    bklist.appendChild(eq);
+
+    const res = document.createElement('div');
+    res.className = 'breakdown-chip';
+    res.style.cssText = 'background:#ede9ff;color:#7c3aed;border-left:3px solid #a78bfa;';
+    res.textContent = sim.d===1 ? `${sim.n}` : `${sim.n}/${sim.d}`;
+    bklist.appendChild(res);
+
+    sepEl.style.display = 'block';
+  } else {
+    sepEl.style.display = 'none';
+  }
+}
+
+/* ═══════════════════════════════════════
+   MANEJO DE PIEZAS
+═══════════════════════════════════════ */
+function addPiece(frac){
+  saveHistory();
+  pieces.push({
+    id: Date.now() + Math.random(),
+    n: frac.n, d: frac.d,
+    color: frac.color, label: frac.label
+  });
+  renderAll();
+}
+
+function removePiece(idx){
+  saveHistory();
+  pieces.splice(idx, 1);
+  renderAll();
+}
+
+function doReset(){
+  saveHistory();
+  pieces = [];
+  document.getElementById('wholesRow').innerHTML = '';
+  const zone = document.getElementById('dropZone');
+  zone._lastWholes = -1;
+  zone.classList.remove('has-pieces');
+  renderAll();
+}
+
+function saveHistory(){
+  history.push(JSON.parse(JSON.stringify(pieces)));
+  if(history.length > 60) history.shift();
+}
+
+function doUndo(){
+  if(!history.length) return;
+  pieces = history.pop();
+  renderAll();
+}
+
+/* ═══════════════════════════════════════
+   ARRASTRAR — RATÓN
+═══════════════════════════════════════ */
+function startDrag(e, frac){
+  if(e.button !== 0) return;
+  e.preventDefault();
+  dragging = frac;
+  showGhost(frac, e.clientX, e.clientY);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+}
+function onMouseMove(e){
+  moveGhost(e.clientX, e.clientY);
+  highlightZone(e.clientX, e.clientY);
+}
+function onMouseUp(e){
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+  hideGhost();
+  const zone = document.getElementById('dropZone');
+  zone.classList.remove('drag-over');
+  if(isOverZone(e.clientX, e.clientY)) addPiece(dragging);
+  dragging = null;
+}
+
+/* TÁCTIL */
+function startDragTouch(e, frac){
+  e.preventDefault();
+  dragging = frac;
+  const t = e.touches[0];
+  showGhost(frac, t.clientX, t.clientY);
+  document.addEventListener('touchmove', onTouchMove, {passive:false});
+  document.addEventListener('touchend', onTouchEnd);
+}
+function onTouchMove(e){
+  e.preventDefault();
+  const t = e.touches[0];
+  moveGhost(t.clientX, t.clientY);
+  highlightZone(t.clientX, t.clientY);
+}
+function onTouchEnd(e){
+  document.removeEventListener('touchmove', onTouchMove);
+  document.removeEventListener('touchend', onTouchEnd);
+  const t = e.changedTouches[0];
+  hideGhost();
+  const zone = document.getElementById('dropZone');
+  zone.classList.remove('drag-over');
+  if(isOverZone(t.clientX, t.clientY)) addPiece(dragging);
+  dragging = null;
+}
+
+/* FANTASMA */
+function showGhost(frac, cx, cy){
+  const g = document.getElementById('dragGhost');
+  g.style.cssText = `display:flex; background:${frac.color}; width:${pieceWidth(frac.n,frac.d)}px; height:72px; border-radius:8px; color:rgba(255,255,255,.97); font-family:'Fredoka One',cursive; font-size:.9rem;`;
+  g.textContent = frac.label;
+  moveGhost(cx, cy);
+}
+function moveGhost(cx, cy){
+  const g = document.getElementById('dragGhost');
+  const w = parseInt(g.style.width)||60;
+  g.style.left = (cx - w/2) + 'px';
+  g.style.top  = (cy - 36) + 'px';
+}
+function hideGhost(){
+  document.getElementById('dragGhost').style.display = 'none';
+}
+function isOverZone(cx, cy){
+  const r = document.getElementById('dropZone').getBoundingClientRect();
+  return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+}
+function highlightZone(cx, cy){
+  document.getElementById('dropZone').classList.toggle('drag-over', isOverZone(cx,cy));
+}
+
+/* ═══════════════════════════════════════
+   MODO DE ESCRITURA
+═══════════════════════════════════════ */
+function toggleInputMode(){
+  const on = document.getElementById('toggleInput').checked;
+  document.getElementById('inputModeBar').classList.toggle('show', on);
+}
+
+function addFromInput(){
+  const nv = parseInt(document.getElementById('inputNum').value);
+  const dv = parseInt(document.getElementById('inputDen').value);
+  if(isNaN(nv)||isNaN(dv)||nv<1||dv<1) return;
+  const known = FRACTIONS.find(f=>f.d===dv);
+  saveHistory();
+  for(let i=0;i<nv;i++){
+    if(known){
+      pieces.push({id:Date.now()+Math.random(), n:known.n, d:known.d, color:known.color, label:known.label});
+    } else {
+      pieces.push({id:Date.now()+Math.random(), n:1, d:dv, color:'#64748b', label:`1/${dv}`});
+    }
+  }
+  document.getElementById('inputNum').value = '';
+  document.getElementById('inputDen').value = '';
+  renderAll();
+}
+
+/* ═══════════════════════════════════════
+   SUGERENCIAS
+═══════════════════════════════════════ */
+const PROMPT_BUILDS = [
+  ()=>{ pieces=[]; const f=FRACTIONS[3]; for(let i=0;i<3;i++) pieces.push({id:Date.now()+Math.random(),n:f.n,d:f.d,color:f.color,label:f.label}); },
+  ()=>{ pieces=[]; const f=FRACTIONS[3]; for(let i=0;i<4;i++) pieces.push({id:Date.now()+Math.random(),n:f.n,d:f.d,color:f.color,label:f.label}); },
+  ()=>{ pieces=[]; [FRACTIONS[1],FRACTIONS[3]].forEach(f=>pieces.push({id:Date.now()+Math.random(),n:f.n,d:f.d,color:f.color,label:f.label})); },
+  ()=>{ pieces=[]; const f=FRACTIONS[3]; for(let i=0;i<5;i++) pieces.push({id:Date.now()+Math.random(),n:f.n,d:f.d,color:f.color,label:f.label}); },
+  ()=>{ pieces=[]; [FRACTIONS[2],FRACTIONS[5]].forEach(f=>pieces.push({id:Date.now()+Math.random(),n:f.n,d:f.d,color:f.color,label:f.label})); },
+  ()=>{ pieces=[]; [FRACTIONS[1],FRACTIONS[2],FRACTIONS[5]].forEach(f=>pieces.push({id:Date.now()+Math.random(),n:f.n,d:f.d,color:f.color,label:f.label})); },
+];
+
+function applyPrompt(i){
+  saveHistory();
+  PROMPT_BUILDS[i]();
+  document.getElementById('wholesRow').innerHTML = '';
+  document.getElementById('dropZone')._lastWholes = -1;
+  renderAll();
+  document.querySelectorAll('.prompt-chip').forEach((c,ci)=>{
+    c.classList.toggle('active', ci===i);
+    if(ci===i) setTimeout(()=>c.classList.remove('active'), 1400);
+  });
+}
+
+/* ═══════════════════════════════════════
+   ¿SABÍAS QUE?
+═══════════════════════════════════════ */
+function showFact(idx){
+  const f = FACTS[idx];
+  const card = document.getElementById('dykCard');
+  document.getElementById('dykIcon').textContent = f.icon;
+  document.getElementById('dykHeadline').textContent = f.headline;
+  document.getElementById('dykText').textContent = f.text;
+  card.classList.remove('dyk-fade');
+  void card.offsetWidth;
+  card.classList.add('dyk-fade');
+}
+function nextFact(){
+  let next;
+  do { next = Math.floor(Math.random()*FACTS.length); } while(next===facIdx && FACTS.length>1);
+  facIdx = next;
+  showFact(facIdx);
+}
+
+/* ═══════════════════════════════════════
+   ARRANQUE
+═══════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
