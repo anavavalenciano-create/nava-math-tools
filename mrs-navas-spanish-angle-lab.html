@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Laboratorio de Ángulos de la Sra. Nava</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --acute-fill:#FFF0D6;--acute-stroke:#F5A623;--acute-text:#C47D0A;--acute-dark:#B36A00;
+    --right-fill:#D6F5E8;--right-stroke:#2ECC71;--right-text:#1A8A4C;--right-dark:#147A40;
+    --obtuse-fill:#EAD6FF;--obtuse-stroke:#9B59B6;--obtuse-text:#6A2D8F;--obtuse-dark:#5A1F80;
+    --bg:#F7F9FC;--card:#FFFFFF;--shadow:0 4px 24px rgba(0,0,0,0.09);--radius:20px;
+    --font-display:'Fredoka One',cursive;--font-body:'Nunito',sans-serif;
+    --blue:#4A90D9;--purple:#7B5EA7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--bg);min-height:100vh;padding:0 0 40px;user-select:none;-webkit-user-select:none;}
+  header{background:linear-gradient(135deg,#1A4A8A 0%,#4A90D9 45%,#7B5EA7 100%);padding:0;text-align:center;box-shadow:0 4px 24px rgba(26,74,138,.45);position:relative;overflow:hidden;}
+  header::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 48%,rgba(255,255,255,.055) 48%,rgba(255,255,255,.055) 52%,transparent 52%),linear-gradient(135deg,transparent 48%,rgba(255,255,255,.035) 48%,rgba(255,255,255,.035) 52%,transparent 52%);background-size:56px 56px;pointer-events:none;}
+  .header-inner{padding:20px 24px 0;position:relative;z-index:1;}
+  .header-top{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px;}
+  .header-icon{font-size:clamp(26px,4vw,40px);filter:drop-shadow(0 2px 8px rgba(0,0,0,.25));animation:icon-pulse 3s ease-in-out infinite;}
+  @keyframes icon-pulse{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.1) rotate(4deg)}}
+  header h1{font-family:var(--font-display);font-size:clamp(20px,4vw,40px);color:#fff;letter-spacing:1.5px;text-shadow:0 2px 12px rgba(0,0,0,.3),0 0 36px rgba(74,144,217,.55);margin:0;line-height:1.15;}
+  .header-tagline{font-family:var(--font-body);font-size:clamp(10px,1.4vw,13px);color:rgba(255,255,255,.68);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-top:5px;margin-bottom:14px;}
+  .header-floats{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+  .hf{position:absolute;font-family:var(--font-display);color:rgba(255,255,255,.12);font-weight:900;animation:hf-float linear infinite;user-select:none;line-height:1;}
+  @keyframes hf-float{0%{transform:translateY(110%) rotate(0deg);opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{transform:translateY(-130%) rotate(20deg);opacity:0;}}
+  .tab-nav{display:flex;justify-content:center;gap:4px;padding:0 16px;flex-wrap:wrap;}
+  .tab-btn{font-family:var(--font-display);font-size:clamp(13px,2vw,17px);padding:10px 20px;border:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.18);color:rgba(255,255,255,.78);cursor:pointer;transition:background .2s,color .2s;letter-spacing:.4px;}
+  .tab-btn:hover{background:rgba(255,255,255,.28);color:#fff;}
+  .tab-btn.active{background:var(--bg);color:var(--purple);}
+  .tab-panel{display:none;}.tab-panel.active{display:block;}
+
+  /* ── EXPLORE ── */
+  .lab-wrap{max-width:860px;margin:28px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;}
+  @media(max-width:680px){.lab-wrap{grid-template-columns:1fr;}}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .canvas-card{position:relative;padding:24px 24px 20px;}
+  #angle-canvas{display:block;width:100%;height:340px;cursor:grab;touch-action:none;border-radius:14px;background:#FAFBFD;border:2px solid #EAECF0;transition:border-color .3s;}
+  #angle-canvas:active{cursor:grabbing;}
+  .readout-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:14px 18px;border-radius:14px;transition:background .4s,border-color .4s;border:2.5px solid transparent;}
+  .degree-box{display:flex;align-items:baseline;gap:4px;}
+  .degree-num{font-family:var(--font-display);font-size:52px;line-height:1;transition:color .3s;}
+  .degree-sym{font-family:var(--font-display);font-size:28px;line-height:1;opacity:.7;}
+  .type-badge{font-family:var(--font-display);font-size:28px;padding:8px 20px;border-radius:50px;transition:background .3s,color .3s;text-align:center;min-width:180px;}
+  body.acute #angle-canvas{border-color:var(--acute-stroke);}body.right #angle-canvas{border-color:var(--right-stroke);}body.obtuse #angle-canvas{border-color:var(--obtuse-stroke);}
+  body.acute .readout-strip{background:var(--acute-fill);border-color:var(--acute-stroke);}body.right .readout-strip{background:var(--right-fill);border-color:var(--right-stroke);}body.obtuse .readout-strip{background:var(--obtuse-fill);border-color:var(--obtuse-stroke);}
+  body.acute .degree-num{color:var(--acute-dark);}body.right .degree-num{color:var(--right-dark);}body.obtuse .degree-num{color:var(--obtuse-dark);}
+  body.acute .degree-sym{color:var(--acute-text);}body.right .degree-sym{color:var(--right-text);}body.obtuse .degree-sym{color:var(--obtuse-text);}
+  body.acute .type-badge{background:var(--acute-stroke);color:#fff;}body.right .type-badge{background:var(--right-stroke);color:#fff;}body.obtuse .type-badge{background:var(--obtuse-stroke);color:#fff;}
+  .reset-btn{display:block;width:100%;margin-top:14px;padding:12px;font-family:var(--font-display);font-size:18px;border:none;border-radius:12px;background:#EEF0F5;color:#555;cursor:pointer;transition:background .2s,transform .1s;letter-spacing:.5px;}
+  .reset-btn:hover{background:#E2E5ED;}.reset-btn:active{transform:scale(.97);}
+  .sidebar{display:flex;flex-direction:column;gap:16px;}
+  .legend-title{font-family:var(--font-display);font-size:17px;padding:14px 18px 10px;color:#444;letter-spacing:.3px;}
+  .legend-item{display:flex;align-items:center;gap:12px;padding:10px 18px;transition:background .3s;}
+  .legend-item:last-child{padding-bottom:16px;border-radius:0 0 var(--radius) var(--radius);}
+  .legend-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;transition:transform .3s;}
+  .legend-label{font-size:15px;font-weight:700;transition:color .3s;}
+  .legend-range{font-size:12px;font-weight:600;margin-left:auto;opacity:.6;}
+  .legend-item.active-item{background:#F4F6FA;}.legend-item.active-item .legend-dot{transform:scale(1.35);}
+  .prompt-card{padding:16px 18px 18px;}.prompt-card h3{font-family:var(--font-display);font-size:17px;color:#444;margin-bottom:10px;}
+  .prompt-text{font-size:15px;font-weight:700;color:#333;background:#F4F6FA;border-radius:10px;padding:12px 14px;min-height:52px;display:flex;align-items:center;line-height:1.4;transition:all .3s;border-left:4px solid #C5CAD6;}
+  .prompt-text.has-prompt{border-left-color:#7B5EA7;background:#F0EAFF;color:#5A1F80;}
+  .prompt-btn{margin-top:10px;width:100%;padding:11px;font-family:var(--font-display);font-size:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#7B5EA7,#4A90D9);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.4px;}
+  .prompt-btn:hover{opacity:.9;}.prompt-btn:active{transform:scale(.97);}
+  .tip-card{padding:14px 18px 16px;background:linear-gradient(135deg,#FFF9E6,#FFF0D6);border:1.5px solid var(--acute-stroke);transition:transform .12s,box-shadow .12s;}
+  .tip-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,166,35,.18);}.tip-card:active{transform:scale(.98);}
+  @keyframes fact-fade{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+  @keyframes bounce-in{0%{transform:scale(.8);opacity:.5}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  @keyframes feedback-pop{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+  .fact-animate{animation:fact-fade .35s ease;}.type-badge.pop{animation:bounce-in .32s ease;}
+
+  /* ── CHALLENGE ── */
+  .challenge-wrap{max-width:900px;margin:28px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;}
+  @media(max-width:720px){.challenge-wrap{grid-template-columns:1fr;}}
+  .challenge-circle-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .challenge-circle-card h2{font-family:var(--font-display);font-size:20px;color:#444;align-self:flex-start;}
+  #challenge-canvas{display:block;width:100%;max-width:380px;aspect-ratio:1;touch-action:none;}
+  .new-challenge-btn{width:100%;padding:13px;font-family:var(--font-display);font-size:18px;border:none;border-radius:14px;background:linear-gradient(135deg,#4A90D9,#7B5EA7);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.5px;}
+  .new-challenge-btn:hover{opacity:.9;}.new-challenge-btn:active{transform:scale(.97);}
+  .challenge-panel{display:flex;flex-direction:column;gap:16px;}
+  .challenge-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;}
+  .question-label{font-family:var(--font-display);font-size:22px;color:#333;margin-bottom:6px;}
+  .question-sub{font-size:14px;font-weight:700;color:#888;margin-bottom:18px;}
+  .answer-label{font-size:13px;font-weight:800;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+  .slider-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  #answer-slider{flex:1;accent-color:var(--purple);height:6px;cursor:pointer;}
+  .slider-val{font-family:var(--font-display);font-size:28px;color:var(--purple);min-width:60px;text-align:right;}
+  .check-btn{width:100%;padding:14px;font-family:var(--font-display);font-size:20px;border:none;border-radius:14px;background:linear-gradient(135deg,#2ECC71,#1A8A4C);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.5px;}
+  .check-btn:hover{opacity:.9;}.check-btn:active{transform:scale(.97);}
+  .feedback-box{padding:14px 18px;border-radius:14px;font-family:var(--font-display);font-size:22px;text-align:center;display:none;margin-top:12px;}
+  .feedback-box.correct{background:#D6F5E8;color:#147A40;border:2px solid #2ECC71;display:block;animation:feedback-pop .3s ease;}
+  .feedback-box.close{background:#FFF8D6;color:#9A7200;border:2px solid #F5C623;display:block;animation:feedback-pop .3s ease;}
+  .feedback-box.wrong{background:#FFE8E8;color:#A32D2D;border:2px solid #E74C3C;display:block;animation:feedback-pop .3s ease;}
+  .hint-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 22px;}
+  .hint-btn{width:100%;padding:12px;font-family:var(--font-display);font-size:17px;border:2px solid var(--acute-stroke);border-radius:12px;background:var(--acute-fill);color:var(--acute-dark);cursor:pointer;transition:background .2s,transform .1s;}
+  .hint-btn:hover{background:#FFE8B8;}.hint-btn:active{transform:scale(.97);}
+  .hint-text{margin-top:12px;font-size:15px;font-weight:700;color:#5A3A00;background:#FFF9EC;border-radius:10px;padding:12px 14px;border-left:4px solid var(--acute-stroke);display:none;line-height:1.5;}
+  .hint-text.visible{display:block;animation:fact-fade .3s ease;}
+  .hint-counter{font-size:12px;font-weight:700;color:#AAA;margin-top:8px;text-align:center;}
+  .color-legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+  .color-legend-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#555;}
+  .color-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+
+  /* ── ADDITIVE ── */
+  .additive-wrap{max-width:900px;margin:28px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+  @media(max-width:720px){.additive-wrap{grid-template-columns:1fr;}}
+  .additive-visual-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .additive-visual-card h2{font-family:var(--font-display);font-size:20px;color:#444;align-self:flex-start;}
+  #additive-canvas{display:block;width:100%;max-width:420px;aspect-ratio:1;touch-action:none;}
+  .total-badge{font-family:var(--font-display);font-size:18px;background:#F0F4FF;border:2px solid #4A90D9;border-radius:50px;padding:8px 22px;color:#1A4A8A;letter-spacing:.3px;}
+  .new-problem-btn{width:100%;padding:13px;font-family:var(--font-display);font-size:18px;border:none;border-radius:14px;background:linear-gradient(135deg,#4A90D9,#7B5EA7);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.5px;}
+  .new-problem-btn:hover{opacity:.9;}.new-problem-btn:active{transform:scale(.97);}
+  .additive-panel{display:flex;flex-direction:column;gap:16px;}
+  .additive-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;}
+  #add-answer-slider{flex:1;accent-color:#E74C3C;height:6px;cursor:pointer;}
+  .add-slider-val{font-family:var(--font-display);font-size:28px;color:#E74C3C;min-width:60px;text-align:right;}
+  .add-check-btn{width:100%;padding:14px;font-family:var(--font-display);font-size:20px;border:none;border-radius:14px;background:linear-gradient(135deg,#2ECC71,#1A8A4C);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.5px;}
+  .add-check-btn:hover{opacity:.9;}.add-check-btn:active{transform:scale(.97);}
+  .add-hint-btn{width:100%;padding:12px;font-family:var(--font-display);font-size:17px;border:2px solid var(--acute-stroke);border-radius:12px;background:var(--acute-fill);color:var(--acute-dark);cursor:pointer;transition:background .2s,transform .1s;}
+  .add-hint-btn:hover{background:#FFE8B8;}.add-hint-btn:active{transform:scale(.97);}
+  .seg-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .seg-legend-item{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#555;}
+  .seg-swatch{width:28px;height:14px;border-radius:4px;flex-shrink:0;}
+  .custom-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .custom-toggle-label{font-family:var(--font-display);font-size:16px;color:#444;cursor:pointer;}
+  .toggle-switch{position:relative;width:48px;height:26px;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-track{position:absolute;inset:0;background:#CDD2DA;border-radius:26px;cursor:pointer;transition:background .25s;}
+  .toggle-track::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+  .toggle-switch input:checked+.toggle-track{background:var(--purple);}
+  .toggle-switch input:checked+.toggle-track::after{transform:translateX(22px);}
+  .custom-inputs-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;display:none;flex-direction:column;gap:14px;}
+  .custom-inputs-card.visible{display:flex;}
+  .custom-field{display:flex;flex-direction:column;gap:5px;}
+  .custom-field label{font-size:12px;font-weight:800;color:#666;text-transform:uppercase;letter-spacing:.5px;}
+  .custom-field input[type="number"]{width:100%;padding:10px 14px;font-family:var(--font-display);font-size:20px;color:#333;border:2px solid #DDE2EA;border-radius:10px;background:#F8F9FC;outline:none;transition:border-color .2s;-moz-appearance:textfield;user-select:text!important;-webkit-user-select:text!important;pointer-events:all;}
+  .custom-field input[type="number"]:focus{border-color:var(--purple);background:#fff;}
+  .custom-field input[type="number"]::-webkit-inner-spin-button,.custom-field input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  .custom-apply-btn{width:100%;padding:12px;font-family:var(--font-display);font-size:17px;border:none;border-radius:12px;background:linear-gradient(135deg,#7B5EA7,#4A90D9);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;}
+  .custom-apply-btn:hover{opacity:.9;}.custom-apply-btn:active{transform:scale(.97);}
+  .custom-error{font-size:13px;font-weight:700;color:#A32D2D;background:#FFE8E8;border-radius:8px;padding:8px 12px;display:none;}
+  .custom-error.visible{display:block;}
+
+  /* ── CREATE ── */
+  .create-wrap{max-width:1200px;margin:20px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 210px;gap:16px;align-items:start;}
+  @media(max-width:740px){.create-wrap{grid-template-columns:1fr;}}
+  .create-workspace{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 16px;display:flex;flex-direction:column;gap:10px;}
+  #create-canvas{display:block;width:100%;height:560px;border-radius:14px;background:#F8FBFF;border:2px dashed #C8D4E8;cursor:crosshair;touch-action:none;transition:border-color .3s;}
+  #create-canvas.has-vertex{border-color:#4A90D9;border-style:solid;}
+  #create-canvas.has-ray1{border-color:#2ECC71;border-style:solid;}
+  #create-canvas.complete{border-color:#9B59B6;border-style:solid;}
+  .create-readout{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 18px;border-radius:14px;background:#F0EAFF;border:2.5px solid #9B59B6;transition:all .3s;}
+  .create-readout.empty{background:#F4F6FA;border-color:#DDE2EA;}
+  .create-angle-num{font-family:var(--font-display);font-size:48px;line-height:1;color:#5A1F80;transition:color .3s;}
+  .create-angle-sym{font-family:var(--font-display);font-size:26px;color:#7B5EA7;opacity:.7;}
+  .create-angle-label{font-size:15px;font-weight:800;color:#7B5EA7;letter-spacing:.3px;}
+  .create-hint-bar{font-family:var(--font-display);font-size:16px;color:#777;text-align:center;padding:8px;letter-spacing:.2px;min-height:36px;}
+  .create-panel{display:flex;flex-direction:column;gap:12px;}
+  .create-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;}
+  .create-card h3{font-family:var(--font-display);font-size:16px;color:#444;margin-bottom:10px;}
+  .tool-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;margin-bottom:8px;font-family:var(--font-display);font-size:16px;border:2px solid #DDE2EA;border-radius:12px;background:#F4F6FA;color:#555;cursor:pointer;transition:all .18s;text-align:left;}
+  .tool-btn:last-child{margin-bottom:0;}.tool-btn:hover{border-color:#4A90D9;background:#EAF3FF;color:#1A4A8A;}.tool-btn.active{border-color:#7B5EA7;background:#F0EAFF;color:#5A1F80;}
+  .tool-icon{font-size:20px;flex-shrink:0;}
+  .create-reset-btn{width:100%;padding:12px;font-family:var(--font-display);font-size:17px;border:none;border-radius:12px;background:#EEF0F5;color:#555;cursor:pointer;transition:background .2s,transform .1s;}
+  .create-reset-btn:hover{background:#E2E5ED;}.create-reset-btn:active{transform:scale(.97);}
+  .try-this-btn{width:100%;padding:12px;font-family:var(--font-display);font-size:17px;border:none;border-radius:12px;background:linear-gradient(135deg,#4A90D9,#7B5EA7);color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;}
+  .try-this-btn:hover{opacity:.9;}.try-this-btn:active{transform:scale(.97);}
+  .target-badge{text-align:center;padding:10px 14px;border-radius:10px;background:#FFF0D6;border:2px solid #F5A623;font-family:var(--font-display);font-size:18px;color:#B36A00;display:none;margin-top:10px;}
+  .target-badge.visible{display:block;animation:fact-fade .3s ease;}
+  .create-feedback{padding:10px 14px;border-radius:10px;font-family:var(--font-display);font-size:18px;text-align:center;display:none;margin-top:8px;}
+  .create-feedback.correct{background:#D6F5E8;color:#147A40;border:2px solid #2ECC71;display:block;animation:feedback-pop .3s ease;}
+  .create-feedback.close{background:#FFF8D6;color:#9A7200;border:2px solid #F5C623;display:block;animation:feedback-pop .3s ease;}
+  .create-feedback.wrong{background:#FFE8E8;color:#A32D2D;border:2px solid #E74C3C;display:block;animation:feedback-pop .3s ease;}
+  #proto-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:14px;}
+  .create-canvas-wrap{position:relative;width:100%;}
+  .proto-mode-row{display:flex;align-items:center;gap:10px;justify-content:center;padding:2px 0 4px;}
+  .proto-mode-label{font-family:var(--font-display);font-size:14px;color:#777;}
+  .proto-mode-btns,.canvas-mode-btns{display:flex;gap:6px;}
+  .proto-mode-btn,.canvas-mode-btn{font-family:var(--font-display);font-size:14px;padding:6px 16px;border:2px solid #DDE2EA;border-radius:50px;background:#F4F6FA;color:#777;cursor:pointer;transition:all .18s;}
+  .proto-mode-btn.active{border-color:#4A90D9;background:#EAF3FF;color:#1A4A8A;}
+  .canvas-mode-btn.active{border-color:#7B5EA7;background:#F0EAFF;color:#5A1F80;}
+  .proto-mode-btn:hover:not(.active),.canvas-mode-btn:hover:not(.active){border-color:#B0C8E8;background:#F0F5FC;}
+  .canvas-mode-row{display:flex;align-items:center;gap:8px;justify-content:center;padding:2px 0 2px;}
+  .canvas-mode-label{font-family:var(--font-display);font-size:13px;color:#777;}
+  .undo-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;margin-bottom:8px;font-family:var(--font-display);font-size:16px;border:2px solid #DDE2EA;border-radius:12px;background:#F4F6FA;color:#555;cursor:pointer;transition:all .18s;text-align:left;}
+  .undo-btn:hover:not(:disabled){border-color:#F5A623;background:#FFF8EC;color:#B36A00;}
+  .undo-btn:active{transform:scale(.97);}.undo-btn:disabled{opacity:.38;cursor:not-allowed;}
+  @keyframes undo-flash{0%{opacity:.3;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+  .undo-flash{animation:undo-flash .22s ease;}
+</style>
+</head>
+<body class="acute">
+
+<header>
+  <!-- Floating math symbols -->
+  <div class="header-floats" aria-hidden="true">
+    <span class="hf" style="left:4%;font-size:28px;animation-duration:9s;animation-delay:0s;">∠</span>
+    <span class="hf" style="left:12%;font-size:20px;animation-duration:11s;animation-delay:2s;">90°</span>
+    <span class="hf" style="left:22%;font-size:24px;animation-duration:8s;animation-delay:4s;">°</span>
+    <span class="hf" style="left:33%;font-size:18px;animation-duration:13s;animation-delay:1s;">45°</span>
+    <span class="hf" style="left:50%;font-size:30px;animation-duration:10s;animation-delay:3s;">∠</span>
+    <span class="hf" style="left:62%;font-size:22px;animation-duration:7s;animation-delay:5s;">180°</span>
+    <span class="hf" style="left:74%;font-size:26px;animation-duration:12s;animation-delay:0.5s;">°</span>
+    <span class="hf" style="left:84%;font-size:19px;animation-duration:9s;animation-delay:3.5s;">360°</span>
+    <span class="hf" style="left:92%;font-size:24px;animation-duration:11s;animation-delay:6s;">∠</span>
+  </div>
+  <div class="header-inner">
+    <div class="header-top">
+      <span class="header-icon">📐</span>
+      <h1>El Laboratorio de Ángulos de la Sra. Nava</h1>
+      <span class="header-icon">📏</span>
+    </div>
+    <div class="header-tagline">✦ Explora · Mide · Descubre · Crea ✦</div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('explore',this)">🔍 Explorar</button>
+      <button class="tab-btn" onclick="switchTab('challenge',this)">🎯 Reto</button>
+      <button class="tab-btn" onclick="switchTab('additive',this)">➕ Ángulos Aditivos</button>
+      <button class="tab-btn" onclick="switchTab('create',this)">✏️ Crear</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══ EXPLORE ═══ -->
+<div id="tab-explore" class="tab-panel active">
+  <div class="lab-wrap">
+    <div class="card canvas-card">
+      <canvas id="angle-canvas"></canvas>
+      <div class="readout-strip">
+        <div class="degree-box"><span class="degree-num" id="deg-num">45</span><span class="degree-sym">°</span></div>
+        <div class="type-badge" id="type-badge">Ángulo Agudo</div>
+      </div>
+      <button class="reset-btn" onclick="resetAngle()">↺ Reiniciar</button>
+    </div>
+    <div class="sidebar">
+      <div class="card">
+        <div class="legend-title">Tipos de Ángulos</div>
+        <div class="legend-item" id="leg-acute"><div class="legend-dot" style="background:var(--acute-stroke)"></div><div class="legend-label" style="color:var(--acute-dark)">Agudo</div><div class="legend-range">1°–89°</div></div>
+        <div class="legend-item" id="leg-right"><div class="legend-dot" style="background:var(--right-stroke)"></div><div class="legend-label" style="color:var(--right-dark)">Recto</div><div class="legend-range">90°</div></div>
+        <div class="legend-item" id="leg-obtuse"><div class="legend-dot" style="background:var(--obtuse-stroke)"></div><div class="legend-label" style="color:var(--obtuse-dark)">Obtuso</div><div class="legend-range">91°–179°</div></div>
+      </div>
+      <div class="card prompt-card">
+        <h3>🎯 Intenta un Reto</h3>
+        <div class="prompt-text" id="prompt-text">¡Presiona el botón para un reto!</div>
+        <button class="prompt-btn" onclick="newPrompt()">Dame un reto ✨</button>
+      </div>
+      <div class="card tip-card" id="tip-card" onclick="newFact()" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span id="tip-emoji" style="font-size:26px;line-height:1;display:block;">🚪</span>
+          <span style="font-size:11px;font-weight:800;color:var(--acute-text);letter-spacing:.5px;text-transform:uppercase;">¡Toca para un nuevo dato!</span>
+        </div>
+        <p style="margin:0;">
+          <span id="tip-headline-en" style="display:block;font-family:'Fredoka One',cursive;font-size:14px;color:var(--acute-dark);margin-bottom:2px;">Door corners are right angles!</span>
+          <span id="tip-body-en" style="font-size:12px;font-weight:600;color:var(--acute-dark);line-height:1.45;display:block;margin-bottom:8px;">Every corner of a door frame is exactly 90°. That's why the door fits perfectly!</span>
+          <span style="display:block;height:1px;background:var(--acute-stroke);opacity:.25;margin-bottom:8px;"></span>
+          <span id="tip-headline-es" style="display:block;font-family:'Fredoka One',cursive;font-size:14px;color:var(--acute-dark);margin-bottom:2px;">¡Las esquinas de las puertas son ángulos rectos!</span>
+          <span id="tip-body-es" style="font-size:12px;font-weight:600;color:var(--acute-dark);line-height:1.45;display:block;">Cada esquina mide exactamente 90°. ¡Por eso la puerta encaja perfectamente!</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHALLENGE ═══ -->
+<div id="tab-challenge" class="tab-panel">
+  <div class="challenge-wrap">
+    <div class="challenge-circle-card">
+      <h2>Encuentra el ángulo que falta</h2>
+      <canvas id="challenge-canvas"></canvas>
+      <div class="color-legend" id="challenge-legend"></div>
+      <button class="new-challenge-btn" onclick="generateChallenge()">🔀 Nuevo Reto</button>
+    </div>
+    <div class="challenge-panel">
+      <div class="challenge-card">
+        <div class="question-label">¿Cuántos grados tiene el ángulo <span style="color:#E74C3C;font-family:'Fredoka One',cursive;">?</span></div>
+        <div class="question-sub">El círculo completo = 360°</div>
+        <div class="answer-label">Tu respuesta (grados)</div>
+        <div class="slider-row">
+          <input type="range" id="answer-slider" min="1" max="358" value="90" step="1" oninput="onSliderChange(this.value)">
+          <span class="slider-val" id="slider-display">90°</span>
+        </div>
+        <button class="check-btn" onclick="checkAnswer()">✓ Revisar respuesta</button>
+        <div class="feedback-box" id="feedback-box"></div>
+      </div>
+      <div class="hint-card">
+        <button class="hint-btn" onclick="showNextHint()">💡 Mostrar pista</button>
+        <div class="hint-text" id="hint-text"></div>
+        <div class="hint-counter" id="hint-counter"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADDITIVE ═══ -->
+<div id="tab-additive" class="tab-panel">
+  <div class="additive-wrap">
+    <div class="additive-visual-card">
+      <h2>Encuentra el ángulo que falta</h2>
+      <canvas id="additive-canvas"></canvas>
+      <div class="seg-legend" id="add-legend"></div>
+      <div class="total-badge" id="add-total-badge">Total: 90°</div>
+      <button class="new-problem-btn" id="add-new-btn" onclick="generateAdditive()">🔀 Nuevo Problema</button>
+    </div>
+    <div class="additive-panel">
+      <div class="custom-toggle-row">
+        <span class="custom-toggle-label">✏️ Usa tu propio problema</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="custom-toggle" onchange="onCustomToggle(this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="custom-inputs-card" id="custom-inputs-card">
+        <div class="custom-field"><label>Ángulo total (grados)</label><input type="number" id="custom-total" min="10" max="360" placeholder="ej. 180" oninput="clearCustomError()"></div>
+        <div class="custom-field"><label>Ángulo conocido 1</label><input type="number" id="custom-k1" min="1" max="359" placeholder="ej. 110" oninput="clearCustomError()"></div>
+        <div class="custom-field"><label>Ángulo conocido 2 (opcional)</label><input type="number" id="custom-k2" min="1" max="359" placeholder="ej. 30" oninput="clearCustomError()"></div>
+        <div class="custom-error" id="custom-error"></div>
+        <button class="custom-apply-btn" onclick="applyCustomProblem()">Aplicar ✓</button>
+      </div>
+      <div class="additive-card">
+        <div class="question-label">¿Cuántos grados mide el ángulo <span style="color:#E74C3C;font-family:'Fredoka One',cursive;">?</span></div>
+        <div class="question-sub" id="add-question-sub">Encuentra el ángulo que falta</div>
+        <div class="answer-label">Ángulo que falta (grados)</div>
+        <div class="slider-row">
+          <input type="range" id="add-answer-slider" min="1" max="179" value="45" step="1" oninput="onAddSliderChange(this.value)">
+          <span class="add-slider-val" id="add-slider-display">45°</span>
+        </div>
+        <button class="add-check-btn" onclick="checkAddAnswer()">✓ Revisar respuesta</button>
+        <div class="feedback-box" id="add-feedback-box"></div>
+      </div>
+      <div class="additive-card">
+        <button class="add-hint-btn" onclick="showAddHint()">💡 Mostrar pista</button>
+        <div class="hint-text" id="add-hint-text"></div>
+        <div class="hint-counter" id="add-hint-counter"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CREATE ═══ -->
+<div id="tab-create" class="tab-panel">
+  <div class="create-wrap">
+    <div class="create-workspace">
+      <div class="proto-mode-row" id="proto-mode-row" style="display:none;">
+        <span class="proto-mode-label">📐 Modo:</span>
+        <div class="proto-mode-btns">
+          <button class="proto-mode-btn active" id="mode-180" onclick="setProtoMode(180)">180°</button>
+          <button class="proto-mode-btn" id="mode-360" onclick="setProtoMode(360)">360°</button>
+        </div>
+      </div>
+      <div class="create-canvas-wrap">
+        <canvas id="create-canvas"></canvas>
+        <canvas id="proto-canvas"></canvas>
+      </div>
+      <div class="create-hint-bar" id="create-hint-bar">Haz clic en el lienzo para colocar el vértice</div>
+      <div class="create-readout empty" id="create-readout" style="justify-content:center;gap:14px;">
+        <span class="create-angle-label" id="create-readout-label">Ángulo ?</span>
+        <span class="create-angle-num" id="create-deg">—</span>
+        <span class="create-angle-sym" id="create-sym"></span>
+      </div>
+    </div>
+    <div class="create-panel">
+      <div class="create-card">
+        <h3>🛠️ Herramientas</h3>
+        <button class="tool-btn active" id="tool-draw" onclick="setCreateTool('draw')"><span class="tool-icon">✏️</span> Dibujar</button>
+        <button class="tool-btn" id="tool-proto" onclick="setCreateTool('proto')"><span class="tool-icon">📐</span> Transportador</button>
+        <button class="undo-btn" id="undo-btn" onclick="undoCreate()" disabled><span class="tool-icon">↩️</span> Deshacer</button>
+        <button class="create-reset-btn" onclick="resetCreate()">🔄 Reiniciar</button>
+      </div>
+      <div class="create-card" id="missing-angle-card" style="display:none;">
+        <div class="question-label">¿Cuántos grados mide <span style="color:#E74C3C;font-family:'Fredoka One',cursive;">?</span></div>
+        <div class="question-sub" id="missing-angle-sub">El ángulo que falta</div>
+        <div class="answer-label">Tu respuesta</div>
+        <div class="slider-row">
+          <input type="range" id="create-answer-slider" min="1" max="358" value="90" step="1" oninput="onCreateSliderChange(this.value)">
+          <span class="add-slider-val" id="create-slider-display">90°</span>
+        </div>
+        <button class="add-check-btn" onclick="checkCreateAnswer()">✓ Revisar respuesta</button>
+        <div class="feedback-box" id="create-check-feedback"></div>
+      </div>
+      <div class="create-card">
+        <h3>🎯 Intenta esto</h3>
+        <button class="try-this-btn" onclick="tryThisAngle()">Dame un reto ✨</button>
+        <div class="target-badge" id="target-badge"></div>
+        <div class="create-feedback" id="create-feedback"></div>
+      </div>
+      <div class="create-card" style="background:#F8FBFF;box-shadow:none;border:1.5px solid #DDE2EA;">
+        <div style="font-size:13px;font-weight:700;color:#666;line-height:1.9;">
+          1️⃣ Haz clic → coloca el vértice<br>2️⃣ Sigue haciendo clic → agrega rayos<br>❓ El último espacio = ángulo que falta<br>🔄 Arrastra los rayos para ajustar
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Custom toggle (early, used by switchTab) ── */
+let customMode = false;
+function clearCustomError(){const e=document.getElementById('custom-error');if(e)e.className='custom-error';}
+function onCustomToggle(checked){
+  customMode=checked;
+  const ic=document.getElementById('custom-inputs-card'),nb=document.getElementById('add-new-btn');
+  if(ic)ic.classList.toggle('visible',checked);
+  if(nb)nb.style.display=checked?'none':'block';
+  if(!checked){clearCustomError();generateAdditive();}
+}
+
+/* ── Tab switching ── */
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='challenge'){setTimeout(()=>{if(typeof cProblem!=='undefined'&&cProblem){buildChallengeLegend();renderChallenge();}else generateChallenge();},60);}
+  if(name==='additive'){setTimeout(()=>{const t=document.getElementById('custom-toggle');if(t){t.checked=false;onCustomToggle(false);}else generateAdditive();},60);}
+  if(name==='create'){setTimeout(()=>initCreate(),60);}
+}
+
+/* ═══ EXPLORE TAB ═══ */
+(function(){
+  const canvas=document.getElementById('angle-canvas');
+  const ctx=canvas.getContext('2d');
+  const degEl=document.getElementById('deg-num');
+  const badge=document.getElementById('type-badge');
+  const body=document.body;
+  let angleDeg=45,dragging=false,lastType='';
+  let dpr=window.devicePixelRatio||1;
+  const prompts=['¡Haz un ángulo agudo!','¿Puedes hacer un ángulo recto? (¡exactamente 90°!)','¡Intenta hacer un ángulo obtuso!','¡Haz el ángulo más pequeño que puedas!','¡Haz el ángulo más grande que puedas!','¡Haz un ángulo cercano a 45°!','¡Intenta llegar exactamente a 90°!','¡Haz un ángulo de más de 120°!','¡Encuentra dónde el agudo se convierte en obtuso!','¡Haz un ángulo de menos de 30°!'];
+  let lastPromptIdx=-1;
+  function newPrompt(){let idx;do{idx=Math.floor(Math.random()*prompts.length);}while(idx===lastPromptIdx);lastPromptIdx=idx;const el=document.getElementById('prompt-text');el.textContent=prompts[idx];el.classList.add('has-prompt');}
+  function resize(){dpr=window.devicePixelRatio||1;const r=canvas.getBoundingClientRect();canvas.width=r.width*dpr;canvas.height=r.height*dpr;ctx.scale(dpr,dpr);draw();}
+  window.addEventListener('resize',resize);
+  function getCenter(){const w=canvas.getBoundingClientRect().width,h=canvas.getBoundingClientRect().height;return{x:w*.38,y:h*.72};}
+  function rayLength(){return Math.min(canvas.getBoundingClientRect().width*.46,200);}
+  function getType(){if(angleDeg<90)return'acute';if(angleDeg===90)return'right';return'obtuse';}
+  function resolveColor(t){return t==='acute'?'#F5A623':t==='right'?'#2ECC71':'#9B59B6';}
+  function resolveFill(t){return t==='acute'?'#FFF0D6':t==='right'?'#D6F5E8':'#EAD6FF';}
+  function draw(){
+    const rect=canvas.getBoundingClientRect(),W=rect.width,H=rect.height;
+    ctx.clearRect(0,0,W,H);
+    const{x:cx,y:cy}=getCenter(),rl=rayLength(),type=getType();
+    const sc=resolveColor(type),fc=resolveFill(type);
+    const fex=cx+rl,fey=cy;
+    const mar=-angleDeg*Math.PI/180;
+    const mex=cx+rl*Math.cos(mar),mey=cy+rl*Math.sin(mar);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,rl,mar,0,false);ctx.closePath();ctx.fillStyle=fc;ctx.fill();
+    const arcR=rl*.28;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,arcR,mar,0,false);ctx.closePath();ctx.fillStyle=sc;ctx.globalAlpha=.18;ctx.fill();ctx.globalAlpha=1;
+    if(angleDeg===90){const bs=20;ctx.beginPath();ctx.moveTo(cx,cy-bs);ctx.lineTo(cx+bs,cy-bs);ctx.lineTo(cx+bs,cy);ctx.strokeStyle=sc;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();}
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(fex,fey);ctx.strokeStyle='#A0A8B8';ctx.lineWidth=3.5;ctx.lineCap='round';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(mex,mey);ctx.strokeStyle=sc;ctx.lineWidth=4;ctx.lineCap='round';ctx.stroke();
+    const hl=14,ang=Math.atan2(mey-cy,mex-cx);
+    ctx.beginPath();ctx.moveTo(mex,mey);ctx.lineTo(mex-hl*Math.cos(ang-.38),mey-hl*Math.sin(ang-.38));ctx.moveTo(mex,mey);ctx.lineTo(mex-hl*Math.cos(ang+.38),mey-hl*Math.sin(ang+.38));ctx.strokeStyle=sc;ctx.lineWidth=3.5;ctx.lineCap='round';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(fex,fey);ctx.lineTo(fex-hl*Math.cos(-.38),fey-hl*Math.sin(-.38));ctx.moveTo(fex,fey);ctx.lineTo(fex-hl*Math.cos(.38),fey-hl*Math.sin(.38));ctx.strokeStyle='#A0A8B8';ctx.lineWidth=3;ctx.lineCap='round';ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,9,0,Math.PI*2);ctx.fillStyle=sc;ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();ctx.arc(mex,mey,dragging?16:13,0,Math.PI*2);ctx.fillStyle=sc;ctx.globalAlpha=.22;ctx.fill();ctx.globalAlpha=1;
+    ctx.beginPath();ctx.arc(mex,mey,7,0,Math.PI*2);ctx.fillStyle=sc;ctx.fill();
+    ctx.beginPath();ctx.arc(mex,mey,3.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    const midArc=mar/2,lr=arcR+24;
+    const lx=cx+lr*Math.cos(midArc),ly=cy+lr*Math.sin(midArc);
+    ctx.font=`bold ${Math.max(14,rl*.1)}px 'Nunito',sans-serif`;ctx.fillStyle=sc;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(angleDeg+'°',lx,ly-2);
+    if(!window._hasInteracted){const hx=mex+(mex>cx?18:-18),hy=mey-22;ctx.font="bold 13px 'Nunito',sans-serif";ctx.fillStyle=sc;ctx.globalAlpha=.7;ctx.textAlign=mex>cx?'left':'right';ctx.fillText('¡arrástrame!',hx,hy);ctx.globalAlpha=1;}
+    updateUI(type);
+  }
+  function updateUI(type){
+    degEl.textContent=angleDeg;
+    const labels={acute:'Ángulo Agudo',right:'Ángulo Recto',obtuse:'Ángulo Obtuso'};
+    if(type!==lastType){badge.textContent=labels[type];badge.classList.remove('pop');void badge.offsetWidth;badge.classList.add('pop');lastType=type;}
+    if(!body.classList.contains(type)){body.classList.remove('acute','right','obtuse');body.classList.add(type);}
+    ['acute','right','obtuse'].forEach(t=>document.getElementById('leg-'+t).classList.toggle('active-item',t===type));
+  }
+  function angleFromPointer(e){
+    const rect=canvas.getBoundingClientRect(),cx=rect.left+getCenter().x,cy=rect.top+getCenter().y;
+    let cx2,cy2;if(e.touches){cx2=e.touches[0].clientX;cy2=e.touches[0].clientY;}else{cx2=e.clientX;cy2=e.clientY;}
+    let deg=Math.round(-Math.atan2(cy2-cy,cx2-cx)*180/Math.PI);
+    if(deg<1)deg=1;if(deg>179)deg=179;if(Math.abs(deg-90)<=3)deg=90;return deg;
+  }
+  function onDown(e){dragging=true;window._hasInteracted=true;angleDeg=angleFromPointer(e);draw();e.preventDefault();}
+  function onMove(e){if(!dragging)return;e.preventDefault();angleDeg=angleFromPointer(e);draw();}
+  function onUp(){dragging=false;draw();}
+  canvas.addEventListener('mousedown',onDown);canvas.addEventListener('touchstart',onDown,{passive:false});
+  window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('mouseup',onUp);window.addEventListener('touchend',onUp);
+  window.resetAngle=function(){angleDeg=45;lastType='';draw();};
+  window.newPrompt=newPrompt;
+
+  const facts=[
+    {emoji:'🚪',en_head:'Door corners are right angles!',en_body:"Every corner of a door frame is exactly 90°. That's why the door fits perfectly!",es_head:'¡Las esquinas de las puertas son ángulos rectos!',es_body:'Cada esquina de un marco de puerta mide exactamente 90°.'},
+    {emoji:'🍕',en_head:'Pizza slices are angles!',en_body:'Cut a pizza into 8 equal slices and each slice makes a 45° angle at the center.',es_head:'¡Las rebanadas de pizza son ángulos!',es_body:'Corta una pizza en 8 rebanadas iguales y cada una forma un ángulo de 45° en el centro.'},
+    {emoji:'🦅',en_head:'Eagle wings form obtuse angles!',en_body:'When a bald eagle soars, its wings form an obtuse angle — wider than 90°.',es_head:'¡Las alas de las águilas forman ángulos obtusos!',es_body:'Cuando un águila planea, sus alas forman un ángulo obtuso — más de 90°.'},
+    {emoji:'🌮',en_head:'Taco shells are obtuse angles!',en_body:'An open taco shell forms an obtuse angle wider than 90°.',es_head:'¡Las tostadas para taco son ángulos obtusos!',es_body:'Una tostada abierta forma un ángulo obtuso de más de 90°.'},
+    {emoji:'🕐',en_head:'Clock hands measure angles!',en_body:'At 3:00, the clock hands form a perfect 90° right angle.',es_head:'¡Las manecillas del reloj miden ángulos!',es_body:'A las 3:00, las manecillas forman un ángulo recto perfecto de 90°.'},
+    {emoji:'✈️',en_head:'Airplane takeoff uses angles!',en_body:'Planes take off at about a 15° angle — an acute angle.',es_head:'¡Los aviones despegan en ángulo!',es_body:'Los aviones despegan con un ángulo de unos 15° — un ángulo agudo.'},
+    {emoji:'🏠',en_head:'Roof triangles use angles!',en_body:'Most roofs form a triangle with two acute angles at the base and a peak angle at the top.',es_head:'¡Los tejados usan ángulos!',es_body:'La mayoría de los tejados forman un triángulo con dos ángulos agudos.'},
+    {emoji:'🌅',en_head:'Sunrise is an angle problem!',en_body:'The sun rises at different angles depending on the season.',es_head:'¡El amanecer es un problema de ángulos!',es_body:'El sol sale con diferentes ángulos según la temporada.'},
+    {emoji:'🎸',en_head:'Guitar necks use angles!',en_body:'The headstock of a guitar is angled back — usually between 13° and 17°.',es_head:'¡Los cuellos de guitarra usan ángulos!',es_body:'El clavijero de una guitarra está inclinado hacia atrás — normalmente entre 13° y 17°.'},
+    {emoji:'⚽',en_head:'Soccer kicks use angles!',en_body:'Shooting at an angle from the side is harder because the goal appears smaller.',es_head:'¡Las patadas de fútbol usan ángulos!',es_body:'Chutar en ángulo desde el lado es más difícil porque el arco se ve más pequeño.'},
+    {emoji:'🚀',en_head:'Rockets launch at angles!',en_body:'Rockets launch vertically (90°) then tilt to enter orbit at precise angles.',es_head:'¡Los cohetes se lanzan en ángulo!',es_body:'Los cohetes se lanzan verticalmente (90°) y luego se inclinan para entrar en órbita.'},
+    {emoji:'🦋',en_head:'Butterfly wings form angles!',en_body:'When a butterfly rests with wings open, each wing forms an angle with its body.',es_head:'¡Las alas de las mariposas forman ángulos!',es_body:'Cuando una mariposa descansa con las alas abiertas, cada ala forma un ángulo con su cuerpo.'},
+    {emoji:'🌈',en_head:'Rainbows appear at 42°!',en_body:'Rainbows are always seen at about 42° from the direction opposite the sun.',es_head:'¡Los arcoíris aparecen a 42°!',es_body:'Los arcoíris siempre se ven a unos 42° desde la dirección opuesta al sol.'},
+    {emoji:'🖊️',en_head:'Pencils write at angles!',en_body:'Holding a pencil at about 45–60° gives the best control for writing.',es_head:'¡Los lápices escriben en ángulo!',es_body:'Sostener un lápiz a unos 45–60° da el mejor control para escribir.'},
+    {emoji:'🏔️',en_head:'Mountains have steep angles!',en_body:'Mount Everest has slopes with angles over 40°. Very steep!',es_head:'¡Las montañas tienen ángulos pronunciados!',es_body:'El Monte Everest tiene pendientes con ángulos de más de 40°. ¡Muy pronunciadas!'},
+  ];
+  let lastFactIdx=-1;
+  function newFact(){
+    let idx;do{idx=Math.floor(Math.random()*facts.length);}while(idx===lastFactIdx);lastFactIdx=idx;
+    const f=facts[idx];
+    const card=document.getElementById('tip-card');card.classList.add('fact-animate');
+    document.getElementById('tip-emoji').textContent=f.emoji;
+    document.getElementById('tip-headline-en').textContent=f.en_head;
+    document.getElementById('tip-body-en').textContent=f.en_body;
+    document.getElementById('tip-headline-es').textContent=f.es_head;
+    document.getElementById('tip-body-es').textContent=f.es_body;
+    setTimeout(()=>card.classList.remove('fact-animate'),400);
+  }
+  window.newFact=newFact;
+  setTimeout(()=>{resize();draw();},60);
+})();
+
+/* ═══ CHALLENGE TAB ═══ */
+let cProblem=null,hintIndex=0,cHints=[];
+const CCOLORS=['#4A90D9','#2ECC71','#F5A623','#9B59B6','#E74C3C','#1ABC9C'];
+function generateChallenge(){
+  const n=2+Math.floor(Math.random()*2);
+  const total=360;
+  let remaining=total,angles=[];
+  for(let i=0;i<n;i++){const min=20,max=Math.min(remaining-(n-i)*20,160);const a=min+Math.floor(Math.random()*(max-min));angles.push(a);remaining-=a;}
+  const unknown=remaining;
+  cProblem={angles,unknown,total};
+  hintIndex=0;cHints=[
+    `La suma de todos los ángulos de un círculo completo es 360°. / All angles in a full circle add up to 360°.`,
+    `Los ángulos conocidos suman ${angles.reduce((a,b)=>a+b,0)}°. / The known angles add up to ${angles.reduce((a,b)=>a+b,0)}°.`,
+    `Resta: 360° − ${angles.reduce((a,b)=>a+b,0)}° = ? / Subtract: 360° − ${angles.reduce((a,b)=>a+b,0)}° = ?`
+  ];
+  document.getElementById('hint-text').className='hint-text';document.getElementById('hint-counter').textContent='';
+  document.getElementById('feedback-box').className='feedback-box';
+  buildChallengeLegend();renderChallenge();
+}
+function buildChallengeLegend(){
+  if(!cProblem)return;
+  const leg=document.getElementById('challenge-legend');leg.innerHTML='';
+  cProblem.angles.forEach((a,i)=>{
+    const item=document.createElement('div');item.className='color-legend-item';
+    item.innerHTML=`<div class="color-swatch" style="background:${CCOLORS[i%CCOLORS.length]}"></div>${a}°`;leg.appendChild(item);
+  });
+  const unk=document.createElement('div');unk.className='color-legend-item';
+  unk.innerHTML=`<div class="color-swatch" style="background:#E74C3C"></div><span style="color:#E74C3C;font-weight:800">?°</span>`;leg.appendChild(unk);
+}
+function renderChallenge(){
+  const canvas=document.getElementById('challenge-canvas');if(!canvas||!cProblem)return;
+  const d=window.devicePixelRatio||1;const W=canvas.getBoundingClientRect().width||360;canvas.width=W*d;canvas.height=W*d;
+  const ctx=canvas.getContext('2d');ctx.scale(d,d);ctx.clearRect(0,0,W,W);
+  const cx=W/2,cy=W/2,r=W*.42;
+  let cur=0;const all=[...cProblem.angles,cProblem.unknown];
+  all.forEach((a,i)=>{
+    const isUnk=i===all.length-1;
+    const startR=-Math.PI/2+cur*Math.PI/180;const endR=startR+a*Math.PI/180;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startR,endR);ctx.closePath();
+    ctx.fillStyle=isUnk?'rgba(231,76,60,.2)':`${CCOLORS[i%CCOLORS.length]}33`;ctx.fill();
+    ctx.strokeStyle=isUnk?'#E74C3C':CCOLORS[i%CCOLORS.length];ctx.lineWidth=isUnk?3:2;ctx.stroke();
+    const mid=startR+(endR-startR)/2;const lr=r*.65;
+    ctx.font=`bold ${Math.max(12,r*.12)}px 'Fredoka One',cursive`;ctx.fillStyle=isUnk?'#E74C3C':CCOLORS[i%CCOLORS.length];ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(isUnk?'?':a+'°',cx+Math.cos(mid)*lr,cy+Math.sin(mid)*lr);
+    cur+=a;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);ctx.fillStyle='#555';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+function onSliderChange(v){document.getElementById('slider-display').textContent=v+'°';document.getElementById('feedback-box').className='feedback-box';}
+function checkAnswer(){
+  if(!cProblem)return;const val=parseInt(document.getElementById('answer-slider').value);
+  const diff=Math.abs(val-cProblem.unknown);const fb=document.getElementById('feedback-box');
+  fb.className='feedback-box';void fb.offsetWidth;
+  if(diff===0){fb.textContent='🎉 ¡Correcto! / Correct!';fb.className='feedback-box correct';}
+  else if(diff<=5){fb.textContent='🟡 ¡Casi! / So close!';fb.className='feedback-box close';}
+  else{fb.textContent='🔴 Inténtalo de nuevo. / Try again.';fb.className='feedback-box wrong';}
+}
+function showNextHint(){
+  if(hintIndex>=cHints.length)return;
+  const el=document.getElementById('hint-text');el.textContent=cHints[hintIndex];el.className='hint-text visible';hintIndex++;
+  document.getElementById('hint-counter').textContent=`Pista ${hintIndex} de ${cHints.length}`;
+}
+window.generateChallenge=generateChallenge;window.onSliderChange=onSliderChange;window.checkAnswer=checkAnswer;window.showNextHint=showNextHint;window.renderChallenge=renderChallenge;window.buildChallengeLegend=buildChallengeLegend;
+setTimeout(()=>generateChallenge(),0);
+
+/* ═══ ADDITIVE TAB ═══ */
+let aProblem=null,addHintIndex=0,addHints=[];
+const ADD_KNOWN_COLORS=['#4A90D9','#2ECC71','#F5A623','#9B59B6'];
+const ADD_KNOWN_FILLS=['rgba(74,144,217,.18)','rgba(46,204,113,.18)','rgba(245,166,35,.18)','rgba(155,89,182,.18)'];
+const ADD_UNK_COLOR='#E74C3C',ADD_UNK_FILL='rgba(231,76,60,.14)';
+const ADD_PROBLEMS=[
+  {total:90,known:[30],unknown:60},{total:90,known:[45],unknown:45},{total:90,known:[60],unknown:30},
+  {total:180,known:[90],unknown:90},{total:180,known:[120],unknown:60},{total:180,known:[45],unknown:135},
+  {total:180,known:[60,80],unknown:40},{total:180,known:[30,90],unknown:60},{total:180,known:[75,55],unknown:50},
+  {total:90,known:[25,35],unknown:30},{total:120,known:[45],unknown:75},{total:150,known:[80],unknown:70},
+  {total:180,known:[110,30],unknown:40},{total:90,known:[15,50],unknown:25},{total:135,known:[60,45],unknown:30},
+];
+function generateAdditive(){
+  const p=ADD_PROBLEMS[Math.floor(Math.random()*ADD_PROBLEMS.length)];
+  const safeAns=Math.max(1,Math.min(Math.round(p.unknown/2),p.total-p.known.reduce((a,b)=>a+b,0)-1));
+  aProblem={...p,studentAnswer:safeAns};
+  addHintIndex=0;
+  const knownStr=p.known.length>1?`${p.known.join('° + ')}°`:`${p.known[0]}°`;
+  addHints=[
+    `El ángulo total es ${p.total}°. / The total angle is ${p.total}°.`,
+    `Los ángulos conocidos suman ${p.known.reduce((a,b)=>a+b,0)}°. / The known angles add up to ${p.known.reduce((a,b)=>a+b,0)}°.`,
+    `Resta: ${p.total}° − ${p.known.reduce((a,b)=>a+b,0)}° = ? / Subtract: ${p.total}° − ${p.known.reduce((a,b)=>a+b,0)}° = ?`
+  ];
+  document.getElementById('add-hint-text').className='hint-text';document.getElementById('add-hint-counter').textContent='';
+  document.getElementById('add-feedback-box').className='feedback-box';
+  const slider=document.getElementById('add-answer-slider');slider.max=p.total-1;slider.value=safeAns;
+  document.getElementById('add-slider-display').textContent=safeAns+'°';
+  buildAddLegend();
+  setTimeout(()=>renderAdditive(),60);
+}
+function buildAddLegend(){
+  if(!aProblem)return;
+  const leg=document.getElementById('add-legend');leg.innerHTML='';
+  aProblem.known.forEach((v,i)=>{
+    const item=document.createElement('div');item.className='seg-legend-item';
+    item.innerHTML=`<div class="seg-swatch" style="background:${ADD_KNOWN_COLORS[i%ADD_KNOWN_COLORS.length]}"></div>${v}°`;leg.appendChild(item);
+  });
+  const unk=document.createElement('div');unk.className='seg-legend-item';
+  unk.innerHTML=`<div class="seg-swatch" style="background:${ADD_UNK_COLOR}"></div>?°`;leg.appendChild(unk);
+  document.getElementById('add-total-badge').textContent=`Total: ${aProblem.total}°`;
+  document.getElementById('add-question-sub').textContent=`El ángulo total es ${aProblem.total}°`;
+}
+function renderAdditive(){
+  const canvas=document.getElementById('additive-canvas');if(!canvas||!aProblem)return;
+  const dpr2=window.devicePixelRatio||1;const W=canvas.getBoundingClientRect().width||380,H=canvas.getBoundingClientRect().height||340;
+  canvas.width=W*dpr2;canvas.height=H*dpr2;const ctx=canvas.getContext('2d');ctx.scale(dpr2,dpr2);ctx.clearRect(0,0,W,H);
+  const totalDeg=aProblem.total,totalRad=totalDeg*Math.PI/180,pad=28;
+  const cosMin=Math.min(0,Math.cos(totalRad)),sinMax=(totalDeg>=90)?1:Math.sin(totalRad);
+  const availW=W-2*pad,availH=H-2*pad;
+  const rMax=Math.min(availW/(1+Math.abs(cosMin)),availH/Math.max(sinMax,.1));
+  const r=Math.min(rMax,260);
+  const ox=pad+r*Math.abs(cosMin)+(availW-r*(1+Math.abs(cosMin)))/2;
+  const oy=pad+r*sinMax+(availH-r*sinMax)*.88;
+  const allVals=[...aProblem.known,aProblem.studentAnswer];
+  const valSum=allVals.reduce((a,b)=>a+b,0);
+  const scale=totalDeg/valSum;
+  const segs=allVals.map(v=>v*scale*Math.PI/180);
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+r,oy);ctx.strokeStyle='#B0B8C8';ctx.lineWidth=3;ctx.lineCap='round';ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox+r,oy);ctx.lineTo(ox+r-12,oy-6);ctx.moveTo(ox+r,oy);ctx.lineTo(ox+r-12,oy+6);ctx.strokeStyle='#B0B8C8';ctx.lineWidth=2.5;ctx.stroke();
+  let cur=0;
+  segs.forEach((segRad,i)=>{
+    const isUnk=i===segs.length-1;
+    const startRad=-cur,endRad=-(cur+segRad),midRad=-(cur+segRad/2);
+    const fill=isUnk?ADD_UNK_FILL:ADD_KNOWN_FILLS[i%ADD_KNOWN_FILLS.length];
+    const stroke=isUnk?ADD_UNK_COLOR:ADD_KNOWN_COLORS[i%ADD_KNOWN_COLORS.length];
+    ctx.beginPath();ctx.moveTo(ox,oy);ctx.arc(ox,oy,r*.86,startRad,endRad,true);ctx.closePath();ctx.fillStyle=fill;ctx.fill();
+    ctx.beginPath();ctx.moveTo(ox,oy);ctx.arc(ox,oy,r*.86,startRad,endRad,true);ctx.closePath();ctx.strokeStyle=stroke;ctx.lineWidth=isUnk?3:2;ctx.stroke();
+    ctx.beginPath();ctx.arc(ox,oy,r*.20,startRad,endRad,true);ctx.strokeStyle=stroke;ctx.lineWidth=isUnk?2.5:1.8;ctx.globalAlpha=.5;ctx.stroke();ctx.globalAlpha=1;
+    const lx=ox+r*.52*Math.cos(midRad),ly=oy+r*.52*Math.sin(midRad);
+    ctx.font=`bold ${Math.max(13,r*.11)}px 'Fredoka One',cursive`;ctx.fillStyle=stroke;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(isUnk?'?':aProblem.known[i]+'°',lx,ly);cur+=segRad;
+  });
+  const tx=ox+r*Math.cos(-totalRad),ty=oy+r*Math.sin(-totalRad);
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(tx,ty);ctx.strokeStyle='#B0B8C8';ctx.lineWidth=3;ctx.lineCap='round';ctx.stroke();
+  const ta=Math.atan2(ty-oy,tx-ox);
+  ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(tx-12*Math.cos(ta-.4),ty-12*Math.sin(ta-.4));ctx.moveTo(tx,ty);ctx.lineTo(tx-12*Math.cos(ta+.4),ty-12*Math.sin(ta+.4));ctx.strokeStyle='#B0B8C8';ctx.lineWidth=2.5;ctx.stroke();
+  const alx=ox+r*.94*Math.cos(-totalRad/2),aly=oy+r*.94*Math.sin(-totalRad/2);
+  ctx.font=`bold ${Math.max(12,r*.095)}px 'Fredoka One',cursive`;ctx.fillStyle='#4A90D9';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(totalDeg+'°',alx,aly);
+  ctx.beginPath();ctx.arc(ox,oy,8,0,Math.PI*2);ctx.fillStyle='#555';ctx.fill();ctx.beginPath();ctx.arc(ox,oy,4,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+function onAddSliderChange(val){document.getElementById('add-slider-display').textContent=val+'°';if(aProblem){aProblem.studentAnswer=parseInt(val);renderAdditive();}document.getElementById('add-feedback-box').className='feedback-box';}
+function checkAddAnswer(){if(!aProblem)return;const diff=Math.abs(aProblem.studentAnswer-aProblem.unknown);const fb=document.getElementById('add-feedback-box');fb.className='feedback-box';void fb.offsetWidth;if(diff===0){fb.textContent='🎉 ¡Correcto! / Correct!';fb.className='feedback-box correct';}else if(diff<=5){fb.textContent='🟡 ¡Casi! Ajusta un poco. / So close!';fb.className='feedback-box close';}else{fb.textContent='🔴 Inténtalo de nuevo. / Try again.';fb.className='feedback-box wrong';}}
+function showAddHint(){if(addHintIndex>=addHints.length)return;const el=document.getElementById('add-hint-text');el.textContent=addHints[addHintIndex];el.className='hint-text visible';addHintIndex++;document.getElementById('add-hint-counter').textContent=`Pista ${addHintIndex} de ${addHints.length}`;}
+function applyCustomProblem(){
+  const totalVal=parseInt(document.getElementById('custom-total').value);
+  const k1Val=parseInt(document.getElementById('custom-k1').value);
+  const k2Raw=document.getElementById('custom-k2').value.trim();
+  const k2Val=k2Raw===''?null:parseInt(k2Raw);
+  const errEl=document.getElementById('custom-error');
+  if(isNaN(totalVal)||totalVal<10||totalVal>360){errEl.textContent='El ángulo total debe estar entre 10° y 360°.';errEl.className='custom-error visible';return;}
+  if(isNaN(k1Val)||k1Val<1){errEl.textContent='Ingresa un valor válido para el Ángulo conocido 1.';errEl.className='custom-error visible';return;}
+  if(k2Val!==null&&(isNaN(k2Val)||k2Val<1)){errEl.textContent='El Ángulo conocido 2 debe ser mayor que 0.';errEl.className='custom-error visible';return;}
+  const knownSum=k1Val+(k2Val||0);
+  if(knownSum>=totalVal){errEl.textContent='Los ángulos conocidos deben ser menores que el total.';errEl.className='custom-error visible';return;}
+  const unknown=totalVal-knownSum;
+  if(unknown<1){errEl.textContent='El ángulo que falta debe ser mayor que 0°.';errEl.className='custom-error visible';return;}
+  clearCustomError();
+  const known=k2Val!==null?[k1Val,k2Val]:[k1Val];
+  const safeDefault=Math.max(1,Math.min(Math.round(unknown/2),totalVal-knownSum-1));
+  aProblem={total:totalVal,known,unknown,studentAnswer:safeDefault};
+  document.getElementById('add-feedback-box').className='feedback-box';document.getElementById('add-hint-text').className='hint-text';document.getElementById('add-hint-counter').textContent='';
+  addHintIndex=0;const slider=document.getElementById('add-answer-slider');slider.max=totalVal-1;slider.value=safeDefault;document.getElementById('add-slider-display').textContent=safeDefault+'°';
+  buildAddLegend();renderAdditive();
+}
+window.generateAdditive=generateAdditive;window.onAddSliderChange=onAddSliderChange;window.checkAddAnswer=checkAddAnswer;window.showAddHint=showAddHint;window.renderAdditive=renderAdditive;
+window.onCustomToggle=onCustomToggle;window.clearCustomError=clearCustomError;window.applyCustomProblem=applyCustomProblem;
+
+/* ═══ CREATE TAB ═══ */
+(function(){
+  let vertex=null,rays=[],dragging=null,cTool='draw',protoMode=180,targetDeg=null,createReady=false;
+  let history=[],studentGuess=90;
+  const MAX_RAYS=6,RAY_LEN=155,HANDLE_R=14;
+  let proto={x:300,y:260,angle:0,dragging:false,rotating:false,startMouseAngle:0,startProtoAngle:0};
+  const SECTOR_COLORS=[{fill:'rgba(74,144,217,.18)',stroke:'#4A90D9'},{fill:'rgba(46,204,113,.18)',stroke:'#2ECC71'},{fill:'rgba(245,166,35,.18)',stroke:'#F5A623'},{fill:'rgba(155,89,182,.18)',stroke:'#9B59B6'},{fill:'rgba(231,76,60,.14)',stroke:'#E67E22'}];
+  const UNKNOWN_COLOR={fill:'rgba(231,76,60,.14)',stroke:'#E74C3C'};
+
+  function getCanvas(){return document.getElementById('create-canvas');}
+  function getProtoC(){return document.getElementById('proto-canvas');}
+  function dpr(){return window.devicePixelRatio||1;}
+  function setupCanvas(c){
+    const d=dpr(),rect=c.getBoundingClientRect();
+    const w=rect.width||660,h=rect.height||560;
+    if(c.width!==w*d||c.height!==h*d){c.width=w*d;c.height=h*d;}
+    const ctx=c.getContext('2d');ctx.setTransform(d,0,0,d,0,0);return{ctx,w,h};
+  }
+  function clientPt(e,c){const rect=c.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+  function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+  function rayAngleDeg(v,p){return Math.atan2(p.y-v.y,p.x-v.x)*180/Math.PI;}
+  function getSectors(){
+    if(!vertex||rays.length<2)return[];
+    const sorted=rays.map((r,i)=>({pt:r,idx:i,ang:((rayAngleDeg(vertex,r)%360)+360)%360})).sort((a,b)=>a.ang-b.ang);
+    const sectors=[];
+    for(let i=0;i<sorted.length;i++){
+      const next=sorted[(i+1)%sorted.length],curr=sorted[i];
+      let span=next.ang-curr.ang;if(span<=0)span+=360;
+      sectors.push({fromPt:curr.pt,toPt:next.pt,fromAng:curr.ang,toAng:next.ang,span:Math.round(span)});
+    }
+    return sectors;
+  }
+  function getUnknownIdx(sectors){let mx=-1,idx=0;sectors.forEach((s,i)=>{if(s.span>mx){mx=s.span;idx=i;}});return idx;}
+
+  /* Undo */
+  function snapshot(){
+    return{vertex:vertex?{...vertex}:null,rays:rays.map(r=>({...r}))};
+  }
+  function pushHistory(){history.push(snapshot());if(history.length>50)history.shift();updateUndoBtn();}
+  function updateUndoBtn(){const btn=document.getElementById('undo-btn');if(btn)btn.disabled=history.length===0;}
+  function undoCreate(){
+    if(!history.length)return;
+    const prev=history.pop();vertex=prev.vertex;rays=prev.rays;
+    updateUndoBtn();
+    const c=getCanvas();if(c){c.classList.add('undo-flash');setTimeout(()=>c.classList.remove('undo-flash'),240);}
+    drawCreate();
+  }
+
+  /* Draw rays */
+  function drawCreate(){
+    const c=getCanvas();if(!c)return;
+    const{ctx,w,h}=setupCanvas(c);ctx.clearRect(0,0,w,h);
+    if(!vertex){updateCreateUI([],- 1);return;}
+    const sectors=getSectors();
+    const unknownI=sectors.length>=2?getUnknownIdx(sectors):-1;
+    sectors.forEach((sec,i)=>{
+      const isUnk=(i===unknownI);
+      const col=isUnk?UNKNOWN_COLOR:SECTOR_COLORS[i%SECTOR_COLORS.length];
+      const a1rad=sec.fromAng*Math.PI/180,a2rad=(sec.fromAng+sec.span)*Math.PI/180;
+      ctx.beginPath();ctx.moveTo(vertex.x,vertex.y);ctx.arc(vertex.x,vertex.y,RAY_LEN*.88,a1rad,a2rad,false);ctx.closePath();ctx.fillStyle=col.fill;ctx.fill();
+      ctx.beginPath();ctx.moveTo(vertex.x,vertex.y);ctx.arc(vertex.x,vertex.y,RAY_LEN*.88,a1rad,a2rad,false);ctx.closePath();ctx.strokeStyle=col.stroke;ctx.lineWidth=isUnk?2.5:1.8;ctx.stroke();
+      ctx.beginPath();ctx.arc(vertex.x,vertex.y,30,a1rad,a2rad,false);ctx.strokeStyle=col.stroke;ctx.lineWidth=isUnk?2:1.4;ctx.globalAlpha=.5;ctx.stroke();ctx.globalAlpha=1;
+      const midAng=(a1rad+a2rad)/2,lx=vertex.x+Math.cos(midAng)*RAY_LEN*.55,ly=vertex.y+Math.sin(midAng)*RAY_LEN*.55;
+      ctx.font="bold 15px 'Fredoka One',cursive";ctx.fillStyle=col.stroke;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(isUnk?'?':sec.span+'°',lx,ly);
+    });
+    rays.forEach(rPt=>{
+      const ang=Math.atan2(rPt.y-vertex.y,rPt.x-vertex.x);
+      const ex=vertex.x+Math.cos(ang)*RAY_LEN,ey=vertex.y+Math.sin(ang)*RAY_LEN;
+      ctx.beginPath();ctx.moveTo(vertex.x,vertex.y);ctx.lineTo(ex,ey);ctx.strokeStyle='#4A6080';ctx.lineWidth=3;ctx.lineCap='round';ctx.stroke();
+      const hl=12;
+      ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-hl*Math.cos(ang-.38),ey-hl*Math.sin(ang-.38));ctx.moveTo(ex,ey);ctx.lineTo(ex-hl*Math.cos(ang+.38),ey-hl*Math.sin(ang+.38));ctx.strokeStyle='#4A6080';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();
+      ctx.beginPath();ctx.arc(ex,ey,HANDLE_R,0,Math.PI*2);ctx.fillStyle='#4A6080';ctx.globalAlpha=.15;ctx.fill();ctx.globalAlpha=1;
+      ctx.beginPath();ctx.arc(ex,ey,6,0,Math.PI*2);ctx.fillStyle='#4A6080';ctx.fill();ctx.beginPath();ctx.arc(ex,ey,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    });
+    ctx.beginPath();ctx.arc(vertex.x,vertex.y,10,0,Math.PI*2);ctx.fillStyle='#2C5282';ctx.fill();
+    ctx.beginPath();ctx.arc(vertex.x,vertex.y,5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    if(unknownI>=0){
+      const sec=sectors[unknownI],a1rad=sec.fromAng*Math.PI/180;
+      const guessDeg=Math.min(studentGuess,359),guessRad=guessDeg*Math.PI/180;
+      ctx.beginPath();ctx.arc(vertex.x,vertex.y,RAY_LEN*.50,a1rad,a1rad+guessRad,false);ctx.strokeStyle='#E74C3C';ctx.lineWidth=2.5;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+      const midG=a1rad+guessRad/2;
+      ctx.font="bold 13px 'Nunito',sans-serif";ctx.fillStyle='#E74C3C';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(guessDeg+'°',vertex.x+Math.cos(midG)*RAY_LEN*.38,vertex.y+Math.sin(midG)*RAY_LEN*.38);
+    }
+    updateCreateUI(sectors,unknownI);
+  }
+
+  /* UI */
+  function updateCreateUI(sectors,unknownI){
+    const degEl=document.getElementById('create-deg'),symEl=document.getElementById('create-sym');
+    const readout=document.getElementById('create-readout'),hint=document.getElementById('create-hint-bar');
+    const card=document.getElementById('missing-angle-card');
+    readout.style.background='';readout.style.borderColor='';degEl.style.color='';symEl.style.color='';degEl.style.fontSize='';
+    if(!vertex){degEl.textContent='—';symEl.textContent='';readout.className='create-readout empty';hint.textContent='Haz clic en el lienzo para colocar el vértice';if(card)card.style.display='none';return;}
+    if(rays.length===0){degEl.textContent='—';symEl.textContent='';readout.className='create-readout empty';hint.textContent='Haz clic para agregar el primer rayo';if(card)card.style.display='none';return;}
+    if(rays.length===1){degEl.textContent='—';symEl.textContent='';readout.className='create-readout empty';hint.textContent='Haz clic para agregar más rayos';if(card)card.style.display='none';return;}
+    const unk=sectors[unknownI];
+    degEl.textContent='?';symEl.textContent='';readout.className='create-readout';readout.style.background='#FFE8E8';readout.style.borderColor='#E74C3C';degEl.style.color='#A32D2D';degEl.style.fontSize='36px';
+    const remaining=MAX_RAYS-rays.length;
+    hint.textContent=remaining>0?`¿Cuánto mide el ángulo rojo? • Haz clic para agregar más rayos (máx. ${MAX_RAYS})`:'¿Cuánto mide el ángulo rojo? • Arrastra los rayos para ajustar';
+    if(card){card.style.display='block';const slider=document.getElementById('create-answer-slider');if(slider)slider.max=359;document.getElementById('create-check-feedback').className='feedback-box';}
+    checkTryThis(unk.span);
+  }
+  function checkTryThis(deg){
+    if(targetDeg===null)return;const fb=document.getElementById('create-feedback');if(!fb)return;
+    const diff=Math.abs(deg-targetDeg);fb.className='create-feedback';void fb.offsetWidth;
+    if(diff<=2){fb.textContent='🎉 ¡Perfecto! / Perfect!';fb.className='create-feedback correct';}
+    else if(diff<=8){fb.textContent='🟡 ¡Casi! / So close!';fb.className='create-feedback close';}
+    else{fb.textContent='🔴 Sigue intentando / Try again.';fb.className='create-feedback wrong';}
+  }
+  function onCreateSliderChange(val){studentGuess=parseInt(val);document.getElementById('create-slider-display').textContent=val+'°';document.getElementById('create-check-feedback').className='feedback-box';drawCreate();}
+  function checkCreateAnswer(){
+    const sectors=getSectors();if(sectors.length<2)return;
+    const unknownI=getUnknownIdx(sectors),answer=sectors[unknownI].span;
+    const diff=Math.abs(studentGuess-answer);const fb=document.getElementById('create-check-feedback');fb.className='feedback-box';void fb.offsetWidth;
+    if(diff===0){fb.textContent='🎉 ¡Correcto! / Correct!';fb.className='feedback-box correct';}
+    else if(diff<=5){fb.textContent='🟡 ¡Casi! Ajusta un poco. / So close!';fb.className='feedback-box close';}
+    else{fb.textContent='🔴 Inténtalo de nuevo. / Try again.';fb.className='feedback-box wrong';}
+  }
+
+  /* Hit test */
+  function hitRay(pt){
+    for(let i=0;i<rays.length;i++){const ang=Math.atan2(rays[i].y-vertex.y,rays[i].x-vertex.x);const ex=vertex.x+Math.cos(ang)*RAY_LEN,ey=vertex.y+Math.sin(ang)*RAY_LEN;if(dist(pt,{x:ex,y:ey})<HANDLE_R+6)return i;}return -1;
+  }
+
+  /* Events - draw mode */
+  function onCreateDown(e){
+    const c=getCanvas();if(!c)return;
+    // When proto tool is active, coordinates must be measured against the proto canvas
+    const pc=getProtoC();
+    const pt=cTool==='proto'&&pc ? clientPt(e,pc) : clientPt(e,c);
+    if(cTool==='proto'){
+      const rh=getProtoRotHandle();
+      if(dist(pt,rh)<28){proto.rotating=true;proto.startMouseAngle=Math.atan2(pt.y-proto.y,pt.x-proto.x)*180/Math.PI;proto.startProtoAngle=proto.angle;e.preventDefault();return;}
+      if(dist(pt,{x:proto.x,y:proto.y})<28){proto.dragging=true;e.preventDefault();return;}
+      return;
+    }
+    if(vertex&&rays.length>=1){const hi=hitRay(pt);if(hi>=0){pushHistory();dragging=hi;e.preventDefault();return;}}
+    if(!vertex){pushHistory();vertex={x:pt.x,y:pt.y};proto.x=pt.x;proto.y=pt.y;}
+    else if(rays.length<MAX_RAYS){if(dist(pt,vertex)<12){e.preventDefault();return;}pushHistory();rays.push({x:pt.x,y:pt.y});}
+    drawCreate();e.preventDefault();
+  }
+  function onCreateMove(e){
+    const c=getCanvas();if(!c)return;
+    const pc2=getProtoC();
+    const pt=cTool==='proto'&&pc2 ? clientPt(e,pc2) : clientPt(e,c);
+    if(cTool==='proto'){
+      if(proto.rotating){const cur=Math.atan2(pt.y-proto.y,pt.x-proto.x)*180/Math.PI;proto.angle=proto.startProtoAngle+(cur-proto.startMouseAngle);drawProtractor();e.preventDefault();return;}
+      if(proto.dragging){proto.x=pt.x;proto.y=pt.y;drawProtractor();e.preventDefault();return;}
+      return;
+    }
+    if(dragging!==null){rays[dragging]={x:pt.x,y:pt.y};drawCreate();e.preventDefault();return;}
+    if(vertex&&rays.length<MAX_RAYS&&dist(pt,vertex)>12){
+      drawCreate();const ctx=c.getContext('2d');const d=dpr();ctx.save();ctx.setTransform(d,0,0,d,0,0);
+      const ang=Math.atan2(pt.y-vertex.y,pt.x-vertex.x);const ex=vertex.x+Math.cos(ang)*RAY_LEN,ey=vertex.y+Math.sin(ang)*RAY_LEN;
+      ctx.beginPath();ctx.moveTo(vertex.x,vertex.y);ctx.lineTo(ex,ey);ctx.strokeStyle='rgba(74,100,160,.35)';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+    }
+  }
+  function onCreateUp(){dragging=null;proto.dragging=false;proto.rotating=false;}
+
+  /* Tool switching */
+  function setCreateTool(tool){
+    cTool=tool;
+    document.getElementById('tool-draw').classList.toggle('active',tool==='draw');
+    document.getElementById('tool-proto').classList.toggle('active',tool==='proto');
+    const modeRow=document.getElementById('proto-mode-row');if(modeRow)modeRow.style.display=tool==='proto'?'flex':'none';
+    const pc=getProtoC();if(!pc)return;
+    if(tool==='proto'){pc.style.pointerEvents='all';drawProtractor();}
+    else{pc.style.pointerEvents='none';const{ctx,w,h}=setupCanvas(pc);ctx.clearRect(0,0,w,h);}
+  }
+  function setProtoMode(mode){
+    protoMode=mode;
+    document.getElementById('mode-180').classList.toggle('active',mode===180);
+    document.getElementById('mode-360').classList.toggle('active',mode===360);
+    drawProtractor();
+  }
+
+  /* Reset */
+  function resetCreate(){
+    history=[];vertex=null;rays=[];dragging=null;targetDeg=null;studentGuess=90;
+    updateUndoBtn();
+    document.getElementById('target-badge').className='target-badge';
+    document.getElementById('create-feedback').className='create-feedback';
+    document.getElementById('create-check-feedback').className='feedback-box';
+    document.getElementById('create-answer-slider').value=90;
+    document.getElementById('create-slider-display').textContent='90°';
+    const c=getCanvas();if(c){const{ctx,w,h}=setupCanvas(c);ctx.clearRect(0,0,w,h);c.className='';}
+    const pc=getProtoC();if(pc){const{ctx,w,h}=setupCanvas(pc);ctx.clearRect(0,0,w,h);}
+    if(cTool==='proto')drawProtractor();
+    updateCreateUI([],-1);
+  }
+
+  /* Try This */
+  function tryThisAngle(){
+    const pool=[30,45,60,75,90,100,115,120,135,150];
+    targetDeg=pool[Math.floor(Math.random()*pool.length)];
+    const badge=document.getElementById('target-badge');badge.textContent='🎯 Haz que el ángulo rojo sea '+targetDeg+'°';badge.className='target-badge visible';
+    document.getElementById('create-feedback').className='create-feedback';
+  }
+
+  /* ── PROTRACTOR ── */
+  function getProtoR(){
+    const pc=getProtoC();if(!pc)return 160;const rect=pc.getBoundingClientRect();
+    const w=rect.width||660,cx=proto.x,cy=proto.y,is360=protoMode===360;
+    const maxByH=cy-24,maxByW=Math.min(cx,w-cx)-8;
+    const maxR=is360?Math.min(maxByH,maxByW,w*.30):Math.min(maxByH,maxByW,w*.38,220);
+    return Math.max(60,maxR);
+  }
+  function getProtoRotHandle(){const r=getProtoR(),ang=proto.angle*Math.PI/180,ly=-(r+20);return{x:proto.x-ly*Math.sin(ang),y:proto.y+ly*Math.cos(ang)};}
+  function drawProtractor(){
+    const pc=getProtoC();if(!pc)return;const{ctx,w,h}=setupCanvas(pc);ctx.clearRect(0,0,w,h);if(cTool!=='proto')return;
+    const cx=proto.x,cy=proto.y,is360=protoMode===360;
+    const maxByH=cy-24,maxByW=Math.min(cx,w-cx)-8;
+    const maxR=is360?Math.min(maxByH,maxByW,w*.30):Math.min(maxByH,maxByW,w*.38,220);
+    const r=Math.max(60,maxR);
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(proto.angle*Math.PI/180);
+    if(is360){
+      ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle='rgba(230,240,255,.25)';ctx.fill();
+      ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.strokeStyle='#2C5282';ctx.lineWidth=2.5;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(-r,0);ctx.lineTo(r,0);ctx.moveTo(0,-r);ctx.lineTo(0,r);ctx.strokeStyle='rgba(44,82,130,.4)';ctx.lineWidth=1.5;ctx.stroke();
+      for(let deg=0;deg<360;deg+=5){
+        const a=-deg*Math.PI/180,isCard=deg%90===0,isFifteen=deg%15===0&&!isCard;
+        const tickLen=isCard?r*.13:isFifteen?r*.08:r*.045,lw=isCard?2.5:isFifteen?1.5:.8;
+        const cos=Math.cos(a),sin=Math.sin(a);
+        ctx.beginPath();ctx.moveTo(cos*(r-tickLen),sin*(r-tickLen));ctx.lineTo(cos*r,sin*r);ctx.strokeStyle=isCard?'#2C5282':'#4A90D9';ctx.lineWidth=lw;ctx.stroke();
+      }
+      ctx.beginPath();ctx.arc(0,0,r*.06,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#2C5282';ctx.lineWidth=2;ctx.stroke();
+      ctx.restore();
+      const lblSize=Math.max(8,Math.round(r*.065)),lblR=r*.80,protoRad=proto.angle*Math.PI/180;
+      for(let deg=0;deg<360;deg+=15){
+        const a=(-deg*Math.PI/180)+protoRad,sx=cx+Math.cos(a)*lblR,sy=cy+Math.sin(a)*lblR;
+        const isCard=deg%90===0;
+        ctx.font=isCard?`bold ${Math.round(r*.085)}px 'Nunito',sans-serif`:`bold ${lblSize}px 'Nunito',sans-serif`;
+        ctx.fillStyle=isCard?'#2C5282':'#1A4A8A';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(deg+'°',sx,sy);
+      }
+      const hY2=-(r+20);const rh2=getProtoRotHandle();
+      ctx.beginPath();ctx.arc(rh2.x,rh2.y,18,0,Math.PI*2);ctx.fillStyle='#4A90D9';ctx.fill();ctx.strokeStyle='#2C5282';ctx.lineWidth=2;ctx.stroke();
+      ctx.font="bold 16px 'Nunito'";ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('↻',rh2.x,rh2.y);
+      ctx.beginPath();ctx.arc(cx,cy,11,0,Math.PI*2);ctx.fillStyle='rgba(74,144,217,.25)';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fillStyle='#4A90D9';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+      return;
+    }
+    // 180°
+    ctx.beginPath();ctx.arc(0,0,r,Math.PI,0,false);ctx.closePath();ctx.fillStyle='rgba(230,240,255,.25)';ctx.fill();
+    ctx.beginPath();ctx.arc(0,0,r,Math.PI,0,false);ctx.strokeStyle='#2C5282';ctx.lineWidth=3;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-r,0);ctx.lineTo(r,0);ctx.strokeStyle='#2C5282';ctx.lineWidth=3;ctx.stroke();
+    for(let deg=0;deg<=180;deg+=10){const a=-deg*Math.PI/180;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*r*.85,Math.sin(a)*r*.85);ctx.strokeStyle=deg===90?'rgba(44,82,130,.5)':'rgba(74,144,217,.18)';ctx.lineWidth=deg===90?2:.8;ctx.stroke();}
+    ctx.beginPath();ctx.arc(0,0,r*.80,Math.PI,0,false);ctx.strokeStyle='rgba(74,144,217,.35)';ctx.lineWidth=1;ctx.stroke();
+    for(let deg=0;deg<=180;deg+=5){
+      const a=-deg*Math.PI/180,is90=deg===90,isTen=deg%10===0;
+      const tickLen=is90?r*.18:isTen?r*.11:r*.06,lw=is90?3:isTen?2:1;
+      const cos=Math.cos(a),sin=Math.sin(a);
+      ctx.beginPath();ctx.moveTo(cos*(r-tickLen),sin*(r-tickLen));ctx.lineTo(cos*r,sin*r);ctx.strokeStyle=is90?'#1A4A8A':isTen?'#2C5282':'rgba(74,144,217,.6)';ctx.lineWidth=lw;ctx.stroke();
+    }
+    const fontSize=Math.max(8,Math.round(r*.058)),labelR=r-r*.14;
+    for(let deg=0;deg<=180;deg+=10){
+      const a=-deg*Math.PI/180,cos=Math.cos(a),sin=Math.sin(a);
+      ctx.save();ctx.translate(cos*labelR,sin*labelR);ctx.rotate(a+Math.PI/2);ctx.font=`bold ${fontSize}px 'Nunito',sans-serif`;ctx.fillStyle='#1A4A8A';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(deg),0,0);ctx.restore();
+    }
+    ctx.beginPath();ctx.arc(0,0,r*.05,0,Math.PI,true);ctx.fillStyle='rgba(255,255,255,.8)';ctx.fill();ctx.strokeStyle='#2C5282';ctx.lineWidth=1.5;ctx.stroke();
+    const hY=-(r+20);
+    ctx.beginPath();ctx.arc(0,hY,18,0,Math.PI*2);ctx.fillStyle='#4A90D9';ctx.fill();ctx.beginPath();ctx.arc(0,hY,18,0,Math.PI*2);ctx.strokeStyle='#2C5282';ctx.lineWidth=2;ctx.stroke();
+    ctx.font="bold 16px 'Nunito'";ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('↻',0,hY);
+    ctx.restore();
+    ctx.beginPath();ctx.arc(cx,cy,11,0,Math.PI*2);ctx.fillStyle='rgba(74,144,217,.25)';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fillStyle='#4A90D9';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  }
+
+
+  /* Init */
+  function initCreate(){
+    if(createReady){drawCreate();if(cTool==='proto')drawProtractor();return;}
+    createReady=true;
+    const c=getCanvas(),pc=getProtoC();if(!c||!pc)return;
+    const rect=c.getBoundingClientRect();proto.x=rect.width/2;proto.y=rect.height*.60;
+    pc.style.pointerEvents='none';
+    c.addEventListener('mousedown',onCreateDown);c.addEventListener('touchstart',onCreateDown,{passive:false});
+    pc.addEventListener('mousedown',onCreateDown);pc.addEventListener('touchstart',onCreateDown,{passive:false});
+    window.addEventListener('mousemove',onCreateMove);
+    window.addEventListener('touchmove',onCreateMove,{passive:false});
+    window.addEventListener('mouseup',onCreateUp);
+    window.addEventListener('touchend',onCreateUp);
+    window.addEventListener('resize',()=>{
+      if(document.getElementById('tab-create').classList.contains('active')){
+        drawCreate();if(cTool==='proto')drawProtractor();
+      }
+    });
+    updateUndoBtn();updateCreateUI([],-1);
+  }
+
+  window.setCreateTool=setCreateTool;window.setProtoMode=setProtoMode;window.undoCreate=undoCreate;window.resetCreate=resetCreate;window.tryThisAngle=tryThisAngle;window.initCreate=initCreate;window.onCreateSliderChange=onCreateSliderChange;window.checkCreateAnswer=checkCreateAnswer;
+})();
+</script>
+</body>
+</html>
