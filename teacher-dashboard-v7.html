@@ -2265,6 +2265,11 @@ body.view-only .cal-day{pointer-events:none;}
 body.view-only .lp-check-btn{pointer-events:none;}
 body.view-only #dumbledore-tab-btn{pointer-events:none;opacity:.4;}
 body.view-only #quick-note-btn{pointer-events:none;opacity:.4;}
+body.view-only #hub-qn-card,
+body.view-only #hub-cal,
+body.view-only #hub-todo,
+body.view-only #hub-notes,
+body.view-only #hub-reminders{display:none !important;}
 #owner-lock-overlay{
   position:fixed;inset:0;z-index:5000;
   display:none;align-items:center;justify-content:center;
@@ -3013,6 +3018,20 @@ function fbLoad(){
 
 function fbApplyData(data){
   try{
+    // In view-only mode, only apply lesson plan data (not personal notes/todos)
+    if(!isOwner){
+      if(data.td_lp_data){
+        localStorage.setItem('td_lp_data', data.td_lp_data);
+        lpData = JSON.parse(data.td_lp_data || '{}');
+        if(typeof lpRenderMonth==='function') lpRenderMonth();
+        if(typeof lpRenderWeek==='function' && lpView==='week') lpRenderWeek();
+      }
+      if(data.td_lp_done){
+        localStorage.setItem('td_lp_done', data.td_lp_done);
+        lpDone = JSON.parse(data.td_lp_done || '{}');
+      }
+      return; // stop here for visitors — no personal data shown
+    }
     if(data.td_lp_data){
       localStorage.setItem('td_lp_data', data.td_lp_data);
       lpData = JSON.parse(data.td_lp_data || '{}');
