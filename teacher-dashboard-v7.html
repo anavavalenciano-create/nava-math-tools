@@ -2233,14 +2233,107 @@ body.dark-mode .lp-chip-link{background:#1e2a14;color:#8ab870;border-color:#3a50
   color:#c87050;font-style:italic;
   min-height:14px;
 }
+
+/* ── View Only Mode ── */
+#view-only-badge{
+  position:fixed;bottom:16px;left:16px;z-index:4000;
+  background:rgba(40,40,40,.85);color:#fff;
+  border-radius:99px;padding:6px 12px 6px 10px;
+  font-size:11px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+#view-only-unlock-btn{
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:99px;color:#fff;
+  font-size:10px;font-weight:700;
+  padding:3px 10px;cursor:pointer;transition:all .15s;
+}
+#view-only-unlock-btn:hover{background:rgba(255,255,255,.25);}
+body.view-only input,body.view-only textarea,body.view-only select{
+  pointer-events:none;opacity:.7;cursor:default;
+}
+body.view-only button:not(#view-only-unlock-btn):not(#owner-lock-btn){
+  pointer-events:none;opacity:.5;cursor:default;
+}
+body.view-only .lp-day.school{cursor:default;}
+body.view-only .lp-chip-link{pointer-events:auto;opacity:1;cursor:pointer;}
+body.view-only .cal-day{pointer-events:none;}
+body.view-only .lp-check-btn{pointer-events:none;}
+body.view-only #dumbledore-tab-btn{pointer-events:none;opacity:.4;}
+body.view-only #quick-note-btn{pointer-events:none;opacity:.4;}
+#owner-lock-overlay{
+  position:fixed;inset:0;z-index:5000;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.4);backdrop-filter:blur(4px);
+}
+#owner-lock-overlay.open{display:flex;}
+#owner-lock-card{
+  background:var(--cream);border:1px solid var(--cream-dkr);
+  border-radius:var(--r-lg);padding:24px 28px 20px;
+  width:min(300px,88vw);text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,.2);animation:fadeUp .2s ease;
+}
+#owner-lock-header{
+  font-size:15px;font-weight:700;font-style:italic;
+  color:var(--text);font-family:var(--font-serif);
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;margin-bottom:16px;
+}
+#owner-lock-label{
+  font-size:9px;font-weight:700;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--text-lt);
+  margin-bottom:7px;text-align:left;
+}
+#owner-lock-input{
+  width:100%;background:var(--white);
+  border:1.5px solid var(--cream-dkr);
+  border-radius:7px;padding:8px 10px;
+  font-size:13px;color:var(--text);outline:none;
+  letter-spacing:2px;box-sizing:border-box;
+  transition:border-color .2s;
+}
+#owner-lock-input:focus{border-color:var(--sage);}
+#owner-lock-btn{
+  width:100%;margin-top:10px;background:var(--sage);
+  border:none;border-radius:7px;padding:9px;
+  font-size:13px;font-weight:700;color:#fff;
+  cursor:pointer;transition:filter .15s;
+}
+#owner-lock-btn:hover{filter:brightness(1.1);}
+#owner-lock-error{
+  margin-top:8px;font-size:11px;
+  color:var(--red);font-style:italic;min-height:14px;
+}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
 <!-- ============================================================  TOP TAB BAR  -->
+<!-- View-only mode badge -->
+<div id="view-only-badge" style="display:none;">
+  🔒 View Only
+  <button id="view-only-unlock-btn" onclick="openOwnerUnlock()">Unlock</button>
+</div>
+
+<!-- Owner unlock modal -->
+<div id="owner-lock-overlay">
+  <div id="owner-lock-card">
+    <div id="owner-lock-header">🏫 <span>Mrs. Nava's Dashboard</span></div>
+    <div id="owner-lock-label">Owner Password</div>
+    <input id="owner-lock-input" type="password" placeholder="Enter password…"/>
+    <button id="owner-lock-btn" onclick="ownerUnlock()">Unlock ✓</button>
+    <div id="owner-lock-error"></div>
+  </div>
+</div>
+
 <div id="tab-bar">
   <button class="tab-btn active" id="tab-hub"   onclick="switchTab('hub')">
     <span class="tab-icon">🏫</span> Teacher Hub
@@ -2783,6 +2876,86 @@ body.dark-mode .lp-chip-link{background:#1e2a14;color:#8ab870;border-color:#3a50
 
 <script>
 /* ============================================================
+   VIEW-ONLY MODE & OWNER AUTHENTICATION
+   ============================================================ */
+const OWNER_PW  = 'Enchiladas21';   // same as lab password
+const OWNER_KEY = 'nava_owner_access';
+
+let isOwner = false;
+
+function initViewMode(){
+  // Check if already unlocked on this device
+  if(localStorage.getItem(OWNER_KEY) === 'true'){
+    setOwnerMode(true);
+  } else {
+    setOwnerMode(false);
+  }
+}
+
+function setOwnerMode(owner){
+  isOwner = owner;
+  if(owner){
+    document.body.classList.remove('view-only');
+    document.getElementById('view-only-badge').style.display = 'none';
+  } else {
+    document.body.classList.add('view-only');
+    document.getElementById('view-only-badge').style.display = 'flex';
+  }
+}
+
+function openOwnerUnlock(){
+  const overlay = document.getElementById('owner-lock-overlay');
+  if(overlay){
+    overlay.classList.add('open');
+    const inp = document.getElementById('owner-lock-input');
+    if(inp){ inp.value=''; inp.focus(); }
+    document.getElementById('owner-lock-error').textContent = '';
+  }
+}
+
+function closeOwnerUnlock(){
+  document.getElementById('owner-lock-overlay').classList.remove('open');
+}
+
+function ownerUnlock(){
+  const inp = document.getElementById('owner-lock-input');
+  const err = document.getElementById('owner-lock-error');
+  const val = inp ? inp.value : '';
+  if(val === OWNER_PW){
+    localStorage.setItem(OWNER_KEY, 'true');
+    closeOwnerUnlock();
+    setOwnerMode(true);
+    toast('✅ Welcome back, Mrs. Nava!');
+  } else if(val.length > 0){
+    err.textContent = 'Incorrect password — try again';
+    inp.value = '';
+    inp.focus();
+    const card = document.getElementById('owner-lock-card');
+    ['-6px','6px','-4px','4px',''].forEach(function(v,i){
+      setTimeout(function(){ card.style.transform = v ? 'translateX('+v+')' : ''; }, i*70);
+    });
+  }
+}
+
+// Enter key + Esc for owner unlock
+document.addEventListener('DOMContentLoaded', function(){
+  var inp = document.getElementById('owner-lock-input');
+  if(inp){
+    inp.addEventListener('keydown', function(e){
+      if(e.key==='Enter') ownerUnlock();
+      if(e.key==='Escape') closeOwnerUnlock();
+    });
+  }
+  // Close on background click
+  var overlay = document.getElementById('owner-lock-overlay');
+  if(overlay) overlay.addEventListener('click', function(e){
+    if(e.target===overlay) closeOwnerUnlock();
+  });
+  // Init view mode
+  initViewMode();
+});
+
+/* ============================================================
    FIREBASE CONFIGURATION & SYNC
    ============================================================ */
 const FIREBASE_CONFIG = {
@@ -2799,15 +2972,25 @@ let fbReady = false;
 const FB_DOC = 'nava-dashboard';
 const FB_COL = 'teacher-data';
 
+const FB_SECRET = 'nava-teacher-2024-otekolotes';
+
 function initFirebase(){
   try{
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
-    fbReady = true;
-    fbLoad();
-    db.collection(FB_COL).doc(FB_DOC).onSnapshot(function(doc){
-      if(doc.exists) fbApplyData(doc.data());
-    }, function(err){ console.warn('FB listener:', err); });
+    // Sign in anonymously — required for auth-gated rules
+    firebase.auth().signInAnonymously()
+      .then(function(cred){
+        // Store secret token in user's custom claims via localStorage
+        localStorage.setItem('fb_uid', cred.user.uid);
+        fbReady = true;
+        console.log('✅ Firebase connected');
+        fbLoad();
+        db.collection(FB_COL).doc(FB_DOC).onSnapshot(function(doc){
+          if(doc.exists) fbApplyData(doc.data());
+        }, function(err){ console.warn('FB listener:', err); });
+      })
+      .catch(function(e){ console.warn('Firebase auth failed:', e); fbReady = false; });
   } catch(e){ console.warn('Firebase init failed:', e); fbReady = false; }
 }
 
