@@ -4220,8 +4220,6 @@ setNoise('silent');
 let timerSecs=300, timerOrig=300, timerRunning=false, timerIv=null;
 const CIRCUMFERENCE = 2 * Math.PI * 38; // 238.76 — matches r=38 SVG
 // Render initial timer state after DOM is ready
-document.addEventListener('DOMContentLoaded', function(){ renderTimer(); });
-
 function renderTimer(){
   const m=Math.floor(timerSecs/60), s=timerSecs%60;
   const str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
@@ -4271,6 +4269,9 @@ function timerReset(){
   document.getElementById('timer-toggle-btn').textContent='▶ Start';
   renderTimer();
 }
+
+// Init timer display on load
+document.addEventListener('DOMContentLoaded', function(){ renderTimer(); });
 
 /* ============================================================
    RANDOM NUMBER GENERATOR  (v6 — replaces student picker)
