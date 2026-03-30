@@ -5848,15 +5848,35 @@ function closeAttention(){
    ============================================================ */
 function pingSound(){
   try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator(), gain=ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type='sine';
-    osc.frequency.setValueAtTime(880,ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(440,ctx.currentTime+.3);
-    gain.gain.setValueAtTime(.4,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.5);
-    osc.start(); osc.stop(ctx.currentTime+.5);
+    const ctx = new(window.AudioContext||window.webkitAudioContext)();
+    // Air horn — layered saw waves for that loud honk
+    const frequencies = [116, 155, 233]; // low honk chord
+    frequencies.forEach(function(freq, i){
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      // Slight pitch bend up — classic air horn effect
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.08, ctx.currentTime + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.98, ctx.currentTime + 0.8);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.55, ctx.currentTime + 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 1.1);
+    });
+    // Add a low rumble for body
+    const rumble = ctx.createOscillator();
+    const rGain  = ctx.createGain();
+    rumble.connect(rGain); rGain.connect(ctx.destination);
+    rumble.type = 'square';
+    rumble.frequency.setValueAtTime(58, ctx.currentTime);
+    rGain.gain.setValueAtTime(0.3, ctx.currentTime);
+    rGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+    rumble.start(ctx.currentTime);
+    rumble.stop(ctx.currentTime + 1.0);
   }catch(e){}
 }
 
