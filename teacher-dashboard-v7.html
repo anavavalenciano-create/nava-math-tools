@@ -873,33 +873,70 @@ textarea.inp{resize:none;line-height:1.5}
 /* 2. TIMER */
 #timer-card{flex-shrink:0;}
 #timer-inner{display:flex;align-items:center;gap:11px;}
-#timer-ring-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-#timer-svg{transform:rotate(-90deg)}
-#timer-track{fill:none;stroke:var(--cream-dk);stroke-width:5}
+/* ── Timer Card ── */
+#timer-ring-wrap{
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;width:130px;height:130px;margin:6px auto;
+}
+#timer-svg{
+  position:absolute;top:0;left:0;
+  width:130px;height:130px;
+  transform:rotate(-90deg);
+}
+#timer-track{fill:none;stroke:var(--cream-dkr);stroke-width:8;}
 #timer-progress{
-  fill:none;stroke:var(--sage);stroke-width:5;
+  fill:none;stroke:var(--sage);stroke-width:8;
   stroke-linecap:round;
   transition:stroke-dashoffset 1s linear,stroke .3s;
 }
 #timer-display{
   position:absolute;
-  font-size:22px;font-weight:900;font-family:var(--font-serif);
-  color:var(--text);letter-spacing:.5px;line-height:1;
+  font-size:28px;font-weight:900;font-family:var(--font-serif);
+  color:var(--text);letter-spacing:1px;line-height:1;
   text-align:center;transition:color .3s;
+  top:50%;left:50%;transform:translate(-50%,-58%);
 }
-#timer-display.running{color:var(--sage-dk)}
-#timer-display.urgent{color:var(--red);animation:tpulse .7s infinite alternate}
+#timer-label{
+  position:absolute;
+  font-size:9px;font-weight:600;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--text-lt);
+  top:50%;left:50%;transform:translate(-50%,120%);
+}
+#timer-display.running{color:var(--sage-dk);}
+#timer-display.urgent{color:var(--red);animation:tpulse .7s infinite alternate;}
 @keyframes tpulse{from{opacity:1}to{opacity:.4}}
-#timer-controls{display:flex;flex-direction:column;gap:5px;flex:1;}
-.timer-presets{display:flex;gap:3px;}
-.timer-presets button{
-  flex:1;background:var(--cream);border:1.5px solid var(--cream-dk);
-  border-radius:var(--r-sm);padding:3px 1px;font-size:10px;
-  color:var(--text-md);cursor:pointer;font-weight:600;transition:all var(--tr);
+#timer-presets-row{
+  display:flex;gap:4px;margin-top:4px;
 }
-.timer-presets button:hover{background:var(--sage-pale);border-color:var(--sage)}
-#timer-btns{display:flex;gap:4px;}
-#timer-btns button{flex:1;padding:5px 4px;font-size:11px;border-radius:var(--r-sm)}
+.t-preset{
+  flex:1;background:var(--cream);
+  border:1.5px solid var(--cream-dkr);
+  border-radius:var(--r-sm);padding:4px 2px;
+  font-size:11px;font-weight:700;
+  color:var(--text-md);cursor:pointer;
+  transition:all var(--tr);
+}
+.t-preset:hover{background:var(--sage-pale);border-color:var(--sage);color:var(--sage-dk);}
+#timer-btns{
+  display:flex;gap:5px;margin-top:5px;
+}
+#timer-toggle-btn{
+  flex:2;background:var(--sage);color:#fff;
+  border:none;border-radius:var(--r-sm);
+  padding:7px;font-size:12px;font-weight:700;
+  cursor:pointer;transition:background var(--tr);
+}
+#timer-toggle-btn:hover{background:var(--sage-dk);}
+#timer-reset-btn{
+  flex:1;background:var(--cream);
+  border:1.5px solid var(--cream-dkr);
+  border-radius:var(--r-sm);
+  padding:7px;font-size:12px;font-weight:600;
+  color:var(--text-md);cursor:pointer;
+  transition:all var(--tr);
+}
+#timer-reset-btn:hover{background:var(--cream-dkr);}
 
 /* 3. NOISE TOGGLE */
 #noise-toggle{
@@ -2716,31 +2753,31 @@ body.view-only #hub-reminders{display:none !important;}
 
       <!-- 2. TIMER -->
       <div class="rp-card" id="timer-card">
-        <div style="display:flex;align-items:center;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="rp-title">⏱ Timer</div>
-          <button id="timer-fs-btn" onclick="openTimerFs()" title="Fullscreen">⛶</button>
+          <button id="timer-fs-btn" onclick="openTimerFs()" title="Fullscreen" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--text-lt);">⛶</button>
         </div>
-        <div id="timer-inner">
-          <div id="timer-ring-wrap">
-            <svg id="timer-svg" width="88" height="88" viewBox="0 0 88 88">
-              <circle id="timer-track"    cx="44" cy="44" r="38"/>
-              <circle id="timer-progress" cx="44" cy="44" r="38"
-                stroke-dasharray="238.76" stroke-dashoffset="0"/>
-            </svg>
-            <div id="timer-display">00:00</div>
-          </div>
-          <div id="timer-controls">
-            <div class="timer-presets">
-              <button onclick="timerPreset(5)">5m</button>
-              <button onclick="timerPreset(10)">10m</button>
-              <button onclick="timerPreset(15)">15m</button>
-              <button onclick="timerPreset(20)">20m</button>
-            </div>
-            <div id="timer-btns" class="btn-row">
-              <button class="btn btn-primary" id="timer-toggle-btn" onclick="timerToggle()">▶ Start</button>
-              <button class="btn btn-danger"                        onclick="timerReset()">↺ Reset</button>
-            </div>
-          </div>
+        <!-- Ring -->
+        <div id="timer-ring-wrap">
+          <svg id="timer-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <circle id="timer-track"    cx="60" cy="60" r="52" />
+            <circle id="timer-progress" cx="60" cy="60" r="52"
+              stroke-dasharray="326.73" stroke-dashoffset="0"/>
+          </svg>
+          <div id="timer-display">05:00</div>
+          <div id="timer-label">ready</div>
+        </div>
+        <!-- Presets -->
+        <div id="timer-presets-row">
+          <button class="t-preset" onclick="timerPreset(5)">5m</button>
+          <button class="t-preset" onclick="timerPreset(10)">10m</button>
+          <button class="t-preset" onclick="timerPreset(15)">15m</button>
+          <button class="t-preset" onclick="timerPreset(20)">20m</button>
+        </div>
+        <!-- Controls -->
+        <div id="timer-btns">
+          <button id="timer-toggle-btn" onclick="timerToggle()">▶ Start</button>
+          <button id="timer-reset-btn"  onclick="timerReset()">↺ Reset</button>
         </div>
       </div>
 
@@ -4218,7 +4255,7 @@ setNoise('silent');
    TIMER
    ============================================================ */
 let timerSecs=300, timerOrig=300, timerRunning=false, timerIv=null;
-const CIRCUMFERENCE = 2 * Math.PI * 38; // 238.76 — matches r=38 SVG
+const CIRCUMFERENCE = 2 * Math.PI * 52; // 326.73 — matches r=52 SVG
 // Render initial timer state after DOM is ready
 function renderTimer(){
   const m=Math.floor(timerSecs/60), s=timerSecs%60;
@@ -4232,6 +4269,9 @@ function renderTimer(){
   const prog = document.getElementById('timer-progress');
   prog.style.strokeDashoffset = offset;
   prog.style.stroke = timerSecs<=10&&timerRunning ? 'var(--red)' : timerSecs<=timerOrig*.25 ? 'var(--orange)' : 'var(--sage)';
+  // label
+  const lbl = document.getElementById('timer-label');
+  if(lbl) lbl.textContent = timerRunning ? 'running' : timerSecs===timerOrig ? 'ready' : 'paused';
   // display class
   const disp = document.getElementById('timer-display');
   const focDisp = document.getElementById('focus-timer-big');
