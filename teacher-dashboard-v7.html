@@ -5849,34 +5849,55 @@ function closeAttention(){
 function pingSound(){
   try{
     const ctx = new(window.AudioContext||window.webkitAudioContext)();
-    // Air horn — layered saw waves for that loud honk
-    const frequencies = [116, 155, 233]; // low honk chord
-    frequencies.forEach(function(freq, i){
+    const t = ctx.currentTime;
+    // Fanfare — 4 seconds, triumphant ascending melody
+    // Notes: C4 E4 G4 C5 | E5 G5 C6 (held)
+    const notes = [
+      {freq:261.6, start:0.0,  dur:0.25, gain:0.6},  // C4
+      {freq:329.6, start:0.2,  dur:0.25, gain:0.6},  // E4
+      {freq:392.0, start:0.4,  dur:0.25, gain:0.6},  // G4
+      {freq:523.3, start:0.6,  dur:0.4,  gain:0.7},  // C5
+      {freq:659.3, start:1.1,  dur:0.25, gain:0.7},  // E5
+      {freq:784.0, start:1.35, dur:0.25, gain:0.7},  // G5
+      {freq:1046.5,start:1.6,  dur:1.8,  gain:0.75}, // C6 held
+      // Repeat for extra triumph
+      {freq:523.3, start:2.1,  dur:0.2,  gain:0.5},  // C5 echo
+      {freq:659.3, start:2.3,  dur:0.2,  gain:0.5},  // E5 echo
+      {freq:784.0, start:2.5,  dur:0.2,  gain:0.5},  // G5 echo
+      {freq:1046.5,start:2.7,  dur:1.2,  gain:0.65}, // C6 final hold
+    ];
+    notes.forEach(function(n){
       const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      // Slight pitch bend up — classic air horn effect
-      osc.frequency.exponentialRampToValueAtTime(freq * 1.08, ctx.currentTime + 0.15);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.98, ctx.currentTime + 0.8);
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 0.03);
-      gain.gain.setValueAtTime(0.55, ctx.currentTime + 0.6);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 1.1);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(n.freq, t + n.start);
+      gain.gain.setValueAtTime(0, t + n.start);
+      gain.gain.linearRampToValueAtTime(n.gain, t + n.start + 0.02);
+      gain.gain.setValueAtTime(n.gain, t + n.start + n.dur - 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + n.start + n.dur + 0.08);
+      osc.start(t + n.start);
+      osc.stop(t + n.start + n.dur + 0.1);
     });
-    // Add a low rumble for body
-    const rumble = ctx.createOscillator();
-    const rGain  = ctx.createGain();
-    rumble.connect(rGain); rGain.connect(ctx.destination);
-    rumble.type = 'square';
-    rumble.frequency.setValueAtTime(58, ctx.currentTime);
-    rGain.gain.setValueAtTime(0.3, ctx.currentTime);
-    rGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
-    rumble.start(ctx.currentTime);
-    rumble.stop(ctx.currentTime + 1.0);
+    // Harmony layer — softer sine undertone
+    const harmony = [
+      {freq:130.8, start:0.6,  dur:0.4},   // C3
+      {freq:164.8, start:1.1,  dur:0.25},  // E3
+      {freq:196.0, start:1.35, dur:0.25},  // G3
+      {freq:261.6, start:1.6,  dur:2.3},   // C4 held
+      {freq:261.6, start:2.7,  dur:1.2},   // C4 final
+    ];
+    harmony.forEach(function(n){
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(n.freq, t + n.start);
+      gain.gain.setValueAtTime(0.25, t + n.start);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + n.start + n.dur);
+      osc.start(t + n.start);
+      osc.stop(t + n.start + n.dur + 0.1);
+    });
   }catch(e){}
 }
 
