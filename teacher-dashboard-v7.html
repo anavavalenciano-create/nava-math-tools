@@ -2256,7 +2256,12 @@ body.dark-mode .lp-chip-link{background:#1e2a14;color:#8ab870;border-color:#3a50
 body.view-only input,body.view-only textarea,body.view-only select{
   pointer-events:none;opacity:.7;cursor:default;
 }
-body.view-only button:not(#view-only-unlock-btn):not(#owner-lock-btn):not(.timer-presets button):not(#timer-toggle-btn):not(#timer-fs-btn):not(#rng-btn):not(#rng-toggle-btn):not(.music-ambient-btn):not(.music-launch-btn):not(.music-stop-btn):not(#noise-toggle):not(#cam-start-btn):not(#cam-stop-btn):not(#cam-freeze-btn):not(#cam-flip-btn):not(#cam-enhance-btn){
+/* View-only: disable buttons only in Teacher Hub, not Classroom Mode */
+#hub-panel.active ~ * button:not(#view-only-unlock-btn):not(#owner-lock-btn),
+body.view-only #hub-panel button:not(#view-only-unlock-btn):not(#owner-lock-btn){
+  pointer-events:none;opacity:.5;cursor:default;
+}
+body.view-only #tab-bar button:not(#view-only-unlock-btn):not(#owner-lock-btn):not(#tab-hub):not(#tab-cls){
   pointer-events:none;opacity:.5;cursor:default;
 }
 body.view-only .lp-day.school{cursor:default;}
@@ -4214,6 +4219,8 @@ setNoise('silent');
    ============================================================ */
 let timerSecs=300, timerOrig=300, timerRunning=false, timerIv=null;
 const CIRCUMFERENCE = 2 * Math.PI * 38; // 238.76 — matches r=38 SVG
+// Render initial timer state after DOM is ready
+document.addEventListener('DOMContentLoaded', function(){ renderTimer(); });
 
 function renderTimer(){
   const m=Math.floor(timerSecs/60), s=timerSecs%60;
@@ -4659,8 +4666,8 @@ function syncTimerFsDisplay(){
 // Patch renderTimer to also update the fs overlay
 const _origRenderTimer = renderTimer;
 function renderTimer(){
-  _origRenderTimer();
-  syncTimerFsDisplay();
+  try{ _origRenderTimer(); }catch(e){}
+  try{ syncTimerFsDisplay(); }catch(e){}
 }
 
 /* ============================================================
