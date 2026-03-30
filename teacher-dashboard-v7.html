@@ -4225,6 +4225,7 @@ function renderTimer(){
   const str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   document.getElementById('timer-display').textContent=str;
   document.getElementById('focus-timer-big').textContent=str;
+  try{ syncTimerFsDisplay(); }catch(e){}
   // ring
   const pct = timerOrig>0 ? timerSecs/timerOrig : 1;
   const offset = CIRCUMFERENCE * (1 - pct);
@@ -4664,12 +4665,7 @@ function syncTimerFsDisplay(){
   }
 }
 
-// Patch renderTimer to also update the fs overlay
-const _origRenderTimer = renderTimer;
-function renderTimer(){
-  try{ _origRenderTimer(); }catch(e){}
-  try{ syncTimerFsDisplay(); }catch(e){}
-}
+// syncTimerFsDisplay called inside renderTimer directly
 
 /* ============================================================
    ATTENTION SIGNAL SOUND
