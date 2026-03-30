@@ -877,29 +877,29 @@ textarea.inp{resize:none;line-height:1.5}
 #timer-ring-wrap{
   position:relative;
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;width:130px;height:130px;margin:6px auto;
+  flex-shrink:0;width:90px;height:90px;margin:4px auto;
 }
 #timer-svg{
   position:absolute;top:0;left:0;
-  width:130px;height:130px;
+  width:90px;height:90px;
   transform:rotate(-90deg);
 }
-#timer-track{fill:none;stroke:var(--cream-dkr);stroke-width:8;}
+#timer-track{fill:none;stroke:var(--cream-dkr);stroke-width:6;}
 #timer-progress{
-  fill:none;stroke:var(--sage);stroke-width:8;
+  fill:none;stroke:var(--sage);stroke-width:6;
   stroke-linecap:round;
   transition:stroke-dashoffset 1s linear,stroke .3s;
 }
 #timer-display{
   position:absolute;
-  font-size:28px;font-weight:900;font-family:var(--font-serif);
+  font-size:20px;font-weight:900;font-family:var(--font-serif);
   color:var(--text);letter-spacing:1px;line-height:1;
   text-align:center;transition:color .3s;
   top:50%;left:50%;transform:translate(-50%,-58%);
 }
 #timer-label{
   position:absolute;
-  font-size:9px;font-weight:600;letter-spacing:.8px;
+  font-size:8px;font-weight:600;letter-spacing:.8px;
   text-transform:uppercase;color:var(--text-lt);
   top:50%;left:50%;transform:translate(-50%,120%);
 }
@@ -912,19 +912,19 @@ textarea.inp{resize:none;line-height:1.5}
 .t-preset{
   flex:1;background:var(--cream);
   border:1.5px solid var(--cream-dkr);
-  border-radius:var(--r-sm);padding:4px 2px;
-  font-size:11px;font-weight:700;
+  border-radius:var(--r-sm);padding:3px 2px;
+  font-size:10px;font-weight:700;
   color:var(--text-md);cursor:pointer;
   transition:all var(--tr);
 }
 .t-preset:hover{background:var(--sage-pale);border-color:var(--sage);color:var(--sage-dk);}
 #timer-btns{
-  display:flex;gap:5px;margin-top:5px;
+  display:flex;gap:4px;margin-top:4px;
 }
 #timer-toggle-btn{
   flex:2;background:var(--sage);color:#fff;
   border:none;border-radius:var(--r-sm);
-  padding:7px;font-size:12px;font-weight:700;
+  padding:5px;font-size:11px;font-weight:700;
   cursor:pointer;transition:background var(--tr);
 }
 #timer-toggle-btn:hover{background:var(--sage-dk);}
@@ -932,7 +932,7 @@ textarea.inp{resize:none;line-height:1.5}
   flex:1;background:var(--cream);
   border:1.5px solid var(--cream-dkr);
   border-radius:var(--r-sm);
-  padding:7px;font-size:12px;font-weight:600;
+  padding:5px;font-size:11px;font-weight:600;
   color:var(--text-md);cursor:pointer;
   transition:all var(--tr);
 }
