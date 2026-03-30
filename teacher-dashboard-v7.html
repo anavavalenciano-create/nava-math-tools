@@ -860,13 +860,13 @@ textarea.inp{resize:none;line-height:1.5}
 }
 
 /* 1. LESSON MISSION */
-#mission-card{flex-shrink:0;flex:1;min-height:0;display:flex;flex-direction:column;}
+#mission-card{flex-shrink:0;min-height:90px;display:flex;flex-direction:column;}
 #mission-text{
   width:100%;border:none;background:transparent;
-  font-size:20px;font-family:var(--font-serif);font-style:italic;
+  font-size:18px;font-family:var(--font-serif);font-style:italic;
   color:var(--text);outline:none;resize:none;
   line-height:1.5;padding:0;
-  flex:1;min-height:80px;
+  flex:1;min-height:60px;
 }
 #mission-text::placeholder{color:var(--text-lt)}
 
@@ -2256,7 +2256,7 @@ body.dark-mode .lp-chip-link{background:#1e2a14;color:#8ab870;border-color:#3a50
 body.view-only input,body.view-only textarea,body.view-only select{
   pointer-events:none;opacity:.7;cursor:default;
 }
-body.view-only button:not(#view-only-unlock-btn):not(#owner-lock-btn){
+body.view-only button:not(#view-only-unlock-btn):not(#owner-lock-btn):not(.timer-presets button):not(#timer-toggle-btn):not(#timer-fs-btn):not(#rng-btn):not(#rng-toggle-btn):not(.music-ambient-btn):not(.music-launch-btn):not(.music-stop-btn):not(#noise-toggle):not(#cam-start-btn):not(#cam-stop-btn):not(#cam-freeze-btn):not(#cam-flip-btn):not(#cam-enhance-btn){
   pointer-events:none;opacity:.5;cursor:default;
 }
 body.view-only .lp-day.school{cursor:default;}
@@ -2782,8 +2782,16 @@ body.view-only #hub-reminders{display:none !important;}
 
       <!-- Music Player Card -->
       <div class="rp-card" id="music-card">
-        <div class="rp-card-title">🎵 Music Player</div>
+        <div id="music-header" onclick="toggleMusicPanel()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <div class="rp-card-title" style="margin:0;">🎵 Music Player</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span id="music-playing-indicator" style="display:none;font-size:9px;color:var(--sage-dk);font-weight:700;letter-spacing:.5px;">♪ PLAYING</span>
+            <span id="music-toggle-arrow" style="font-size:13px;color:var(--text-lt);transition:transform .2s;">⌄</span>
+          </div>
+        </div>
 
+        <!-- Collapsible panel -->
+        <div id="music-panel" style="display:none;margin-top:8px;">
         <!-- Built-in ambient sounds -->
         <div class="music-section-label">Ambient Sounds</div>
         <div class="music-ambient-row">
@@ -2813,6 +2821,7 @@ body.view-only #hub-reminders{display:none !important;}
           <button class="music-launch-btn" onclick="launchPlaylist('electronic')">💻 Electronic</button>
           <button class="music-launch-btn" onclick="launchPlaylist('beethoven')">🎻 Beethoven</button>
         </div>
+        </div><!-- /music-panel -->
       </div>
 
     </div><!-- /cls-right -->
@@ -4203,7 +4212,7 @@ setNoise('silent');
 /* ============================================================
    TIMER
    ============================================================ */
-let timerSecs=0, timerOrig=0, timerRunning=false, timerIv=null;
+let timerSecs=300, timerOrig=300, timerRunning=false, timerIv=null;
 const CIRCUMFERENCE = 2 * Math.PI * 38; // 238.76 — matches r=38 SVG
 
 function renderTimer(){
@@ -5079,6 +5088,15 @@ document.addEventListener('click', function(e){
 let ambientCtx    = null;
 let ambientNodes  = {};
 let ambientActive = null;
+let musicPanelOpen = false;
+
+function toggleMusicPanel(){
+  musicPanelOpen = !musicPanelOpen;
+  const panel  = document.getElementById('music-panel');
+  const arrow  = document.getElementById('music-toggle-arrow');
+  if(panel) panel.style.display = musicPanelOpen ? 'block' : 'none';
+  if(arrow) arrow.style.transform = musicPanelOpen ? 'rotate(180deg)' : '';
+}
 
 const PLAYLISTS = {
   'lofi':        'https://www.youtube.com/watch?v=jfKfPfyJRdk',
@@ -5245,6 +5263,9 @@ function toggleAmbient(type){
   if(volWrap) volWrap.style.display = 'flex';
 
   toast('🎵 '+type.charAt(0).toUpperCase()+type.slice(1)+' playing');
+  // Show playing indicator on header
+  var ind = document.getElementById('music-playing-indicator');
+  if(ind) ind.style.display = 'inline';
 }
 
 function stopAmbient(showToast=true){
@@ -5260,6 +5281,8 @@ function stopAmbient(showToast=true){
   const volWrap = document.getElementById('music-vol-wrap');
   if(volWrap) volWrap.style.display = 'none';
   if(showToast) toast('⏹ Sound stopped');
+  var ind = document.getElementById('music-playing-indicator');
+  if(ind) ind.style.display = 'none';
 }
 
 function setAmbientVol(val){
